@@ -1,15 +1,11 @@
 {
-  "name": "commodity-dashboard-proxy",
+  "name": "mcx-gold-eod-engine",
   "version": "1.0.0",
-  "description": "Local proxy server + static frontend for live commodity dashboard (metals + WTI).",
   "main": "server.js",
   "type": "commonjs",
-  "private": true,
   "scripts": {
-    "start": "node server.js"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "start": "node server.js",
+    "update:mcx": "node tools/update_mcx.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
