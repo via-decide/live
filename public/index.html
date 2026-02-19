@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>MCX Gold Dashboard</title>
+  <style>
+    body {
+      font-family: system-ui;
+      background:#0b0f14;
+      color:#e6edf3;
+      margin:0;
+      padding:30px;
+    }
+    h1 { margin:0 0 20px; }
+    .card {
+      background:#111722;
+      padding:20px;
+      border-radius:12px;
+      margin-bottom:20px;
+    }
+    .row {
+      display:flex;
+      justify-content:space-between;
+      padding:8px 0;
+      border-bottom:1px solid #222;
+    }
+    .label { color:#9aa7b2; }
+    .value { font-weight:bold; }
+    .buy { color:#7ee787; }
+    .sell { color:#ff7b72; }
+    .hold { color:#e3b341; }
+    .status {
+      margin-top:10px;
+      font-size:13px;
+      color:#9aa7b2;
+    }
+  </style>
+</head>
+<body>
+
+<h1>MCX Gold (EOD Engine)</h1>
+
+<div class="card">
+  <div class="row">
+    <div class="label">Last Close</div>
+    <div class="value" id="price">—</div>
+  </div>
+
+  <div class="row">
+    <div class="label">Score</div>
+    <div class="value" id="score">—</div>
+  </div>
+
+  <div class="row">
+    <div class="label">Verdict</div>
+    <div class="value" id="verdict">—</div>
+  </div>
+
+  <div class="row">
+    <div class="label">Confidence</div>
+    <div class="value" id="confidence">—</div>
+  </div>
+
+  <div class="row">
+    <div class="label">Updated</div>
+    <div class="value" id="updated">—</div>
+  </div>
+</div>
+
+<div class="status" id="status">Connecting...</div>
+
+<script>
+async function fetchData(){
+  try{
+    const r = await fetch('/prices');
+    const j = await r.json();
+
+    const g = j?.data?.instruments?.mcx_gold;
+
+    if(!g){
+      document.getElementById('status').textContent = "No data yet. Upload CSV in admin.";
+      return;
+    }
+
+    document.getElementById('price').textContent = g.price ?? '—';
+    document.getElementById('score').textContent = (g.score ?? 0).toFixed(3);
+
+    const verdictEl = document.getElementById('verdict');
+    verdictEl.textContent = g.verdict ?? '—';
+    verdictEl.className = "value " + (g.verdict === "BUY" ? "buy" :
+                                      g.verdict === "SELL" ? "sell" : "hold");
+
+    document.getElementById('confidence').textContent =
+        g.confidence != null ? g.confidence + "%" : "—";
+
+    document.getElementById('updated').textContent =
+        g.updated ? new Date(g.updated).toLocaleString() : '—';
+
+    document.getElementById('status').textContent = "Live";
+  }
+  catch(e){
+    document.getElementById('status').textContent = "Backend offline";
+  }
+}
+
+setInterval(fetchData, 2000);
+fetchData();
+</script>
+
+</body>
+</html>
