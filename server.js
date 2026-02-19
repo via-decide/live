@@ -136,3 +136,12 @@ app.listen(PORT, () => {
   console.log(`Admin:          http://127.0.0.1:${PORT}/admin.html`);
   console.log(`API:            http://127.0.0.1:${PORT}/prices`);
 });
+
+
+app.use(cors({
+  origin: [
+    "https://via-decide.github.io"
+  ],
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"]
+}));
