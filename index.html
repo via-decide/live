@@ -3,6 +3,515 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Commodity Dashboard Project Generator (Local)</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0; padding: 24px;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 20% 0%, rgba(72, 61, 255, 0.20), transparent 60%),
+                  radial-gradient(900px 600px at 90% 10%, rgba(0, 212, 255, 0.16), transparent 55%),
+                  #0b0f14;
+      color: #e6edf3;
+    }
+    h1 { margin: 0 0 10px; font-size: 18px; letter-spacing: 0.2px; }
+    .sub { margin: 0 0 18px; color: #9aa7b2; font-size: 13px; line-height: 1.4; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+    .card header {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+    .card header .title {
+      font-weight: 650;
+      font-size: 13px;
+      color: #cdd9e5;
+      letter-spacing: 0.2px;
+    }
+    .card header .meta {
+      font-size: 12px;
+      color: #9aa7b2;
+    }
+    .card .body { padding: 14px 16px; }
+    pre {
+      margin: 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.06);
+      overflow: auto;
+      font-size: 12px;
+      line-height: 1.45;
+      color: #dbe7f3;
+    }
+    .btns { display: flex; flex-wrap: wrap; gap: 10px; }
+    button {
+      cursor: pointer;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04));
+      color: #e6edf3;
+      padding: 10px 12px;
+      font-weight: 600;
+      font-size: 12px;
+      transition: transform 0.05s ease, border-color 0.15s ease, background 0.15s ease;
+      user-select: none;
+    }
+    button:active { transform: translateY(1px); }
+    button:hover { border-color: rgba(255,255,255,0.24); background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05)); }
+    .note {
+      font-size: 12px; line-height: 1.5;
+      color: #a9b6c2;
+      margin: 10px 0 0;
+    }
+    .kvs { display: grid; gap: 8px; }
+    .kv {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.22);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .kv .k { color: #cdd9e5; font-weight: 650; }
+    .kv .v { color: #9aa7b2; word-break: break-word; }
+    .muted { color: #9aa7b2; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.22);
+      font-size: 12px;
+      color: #cdd9e5;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #7ee787; box-shadow: 0 0 0 3px rgba(126,231,135,0.12); }
+    .dot.off { background: #ff7b72; box-shadow: 0 0 0 3px rgba(255,123,114,0.12); }
+    .footer {
+      margin-top: 18px;
+      font-size: 12px;
+      color: #9aa7b2;
+    }
+    code.inline {
+      padding: 2px 6px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.07);
+      color: #dbe7f3;
+    }
+  </style>
+</head>
+<body>
+  <h1>Live Commodity Dashboard — Local Project (Node/Express + Static HTML)</h1>
+  <p class="sub">
+    This single file contains the exact folder tree, file contents, and setup instructions.
+    Use the download buttons to materialize the files locally.
+  </p>
+
+  <div class="grid">
+    <section class="card">
+      <header>
+        <div class="title">Folder tree</div>
+        <div class="meta"><span class="pill"><span id="statusDot" class="dot"></span><span id="statusText">Ready</span></span></div>
+      </header>
+      <div class="body">
+        <pre id="tree"></pre>
+      </div>
+    </section>
+
+    <section class="card">
+      <header>
+        <div class="title">Setup instructions</div>
+        <div class="meta">Node 18+</div>
+      </header>
+      <div class="body">
+        <div class="kvs">
+          <div class="kv">
+            <div class="k">Exact install command</div>
+            <div class="v"><code class="inline">npm install</code></div>
+          </div>
+          <div class="kv">
+            <div class="k">Run server</div>
+            <div class="v"><code class="inline">node server.js</code></div>
+          </div>
+          <div class="kv">
+            <div class="k">Open frontend</div>
+            <div class="v"><span class="muted">Open</span> <code class="inline">public/index.html</code> <span class="muted">in a browser (file:// is OK).</span></div>
+          </div>
+          <div class="kv">
+            <div class="k">Required env vars</div>
+            <div class="v">
+              <code class="inline">METALS_API_KEY</code><br/>
+              <code class="inline">EIA_API_KEY</code><br/>
+              <code class="inline">PROVIDER_REFRESH_MS</code>
+            </div>
+          </div>
+          <div class="kv">
+            <div class="k">Example (macOS/Linux)</div>
+            <div class="v">
+              <code class="inline">export METALS_API_KEY="YOUR_KEY"</code><br/>
+              <code class="inline">export EIA_API_KEY="YOUR_KEY"</code><br/>
+              <code class="inline">export PROVIDER_REFRESH_MS="5000"</code><br/>
+              <code class="inline">node server.js</code>
+            </div>
+          </div>
+          <div class="kv">
+            <div class="k">Example (Windows PowerShell)</div>
+            <div class="v">
+              <code class="inline">$env:METALS_API_KEY="YOUR_KEY"</code><br/>
+              <code class="inline">$env:EIA_API_KEY="YOUR_KEY"</code><br/>
+              <code class="inline">$env:PROVIDER_REFRESH_MS="5000"</code><br/>
+              <code class="inline">node server.js</code>
+            </div>
+          </div>
+          <div class="kv">
+            <div class="k">Backend endpoint</div>
+            <div class="v"><code class="inline">http://127.0.0.1:3000/prices</code></div>
+          </div>
+        </div>
+
+        <p class="note">
+          If the UI shows <b>offline</b>, verify the server is running and you can open
+          <code class="inline">http://127.0.0.1:3000/prices</code> directly in the browser.
+        </p>
+
+        <div class="btns" style="margin-top: 12px;">
+          <button id="btnAll">Download all files</button>
+          <button id="btnPkg">Download package.json</button>
+          <button id="btnServer">Download server.js</button>
+          <button id="btnIndex">Download public/index.html</button>
+        </div>
+
+        <div class="footer">No API keys are present in frontend; keys are read from environment variables on the backend only.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header>
+        <div class="title">package.json</div>
+        <div class="meta">CommonJS</div>
+      </header>
+      <div class="body">
+        <pre id="pkg"></pre>
+      </div>
+    </section>
+
+    <section class="card">
+      <header>
+        <div class="title">server.js</div>
+        <div class="meta">Express + CORS + node-fetch@2 (AbortController timeouts)</div>
+      </header>
+      <div class="body">
+        <pre id="server"></pre>
+      </div>
+    </section>
+
+    <section class="card" style="grid-column: 1 / -1;">
+      <header>
+        <div class="title">public/index.html</div>
+        <div class="meta">Vanilla JS (polls /prices every 1000ms)</div>
+      </header>
+      <div class="body">
+        <pre id="index"></pre>
+      </div>
+    </section>
+  </div>
+
+<script>
+(function() {
+  const folderTree = `/project-root
+  server.js
+  package.json
+  /public
+    index.html
+`;
+
+  const packageJson = `{
+  "name": "commodity-dashboard-proxy",
+  "version": "1.0.0",
+  "description": "Local proxy server + static frontend for live commodity dashboard (metals + WTI).",
+  "main": "server.js",
+  "type": "commonjs",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "node-fetch": "^2.7.0"
+  }
+}
+`;
+
+  const serverJs = `const express = require('express');
+const cors = require('cors');
+const fetch = require('node-fetch');
+
+// Node 18+ provides AbortController globally
+const AbortControllerImpl = global.AbortController || require('abort-controller');
+
+const PORT = 3000;
+
+// Env vars (API keys must never be exposed to frontend)
+const METALS_API_KEY = process.env.METALS_API_KEY || '';
+const EIA_API_KEY = process.env.EIA_API_KEY || '';
+const PROVIDER_REFRESH_MS = toPositiveInt(process.env.PROVIDER_REFRESH_MS, 5000);
+
+const app = express();
+app.use(cors());
+
+// In-memory cache
+const cache = {
+  providerRefreshMs: PROVIDER_REFRESH_MS,
+  lastProviderRefreshAt: 0,
+  ok: false,
+  lastError: null,
+  data: {
+    instruments: {
+      gold: null,
+      silver: null,
+      copper: null,
+      zinc: null,
+      crude: null
+    }
+  }
+};
+
+function toPositiveInt(value, fallback) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  const i = Math.floor(n);
+  return i > 0 ? i : fallback;
+}
+
+function nowMs() {
+  return Date.now();
+}
+
+function isoNow() {
+  return new Date().toISOString();
+}
+
+function safeNumber(x) {
+  const n = Number(x);
+  return Number.isFinite(n) ? n : null;
+}
+
+function normalizeInstrument(name, price, unit, source, updatedIso) {
+  const p = safeNumber(price);
+  if (p === null) return null;
+  return {
+    name,
+    price: p,
+    unit,
+    source,
+    updated: updatedIso || isoNow()
+  };
+}
+
+async function fetchWithTimeout(url, options, timeoutMs) {
+  const controller = new AbortControllerImpl();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const resp = await fetch(url, Object.assign({}, options, { signal: controller.signal }));
+    return resp;
+  } finally {
+    clearTimeout(id);
+  }
+}
+
+async function fetchMetalsLatest() {
+  if (!METALS_API_KEY) {
+    throw new Error('Missing METALS_API_KEY');
+  }
+
+  // Metals-API latest endpoint (base USD)
+  // Request both ZNC and XZN and pick whichever exists to be resilient across symbol naming.
+  const symbols = ['XAU', 'XAG', 'XCU', 'ZNC', 'XZN'].join(',');
+  const url = \`https://metals-api.com/api/latest?access_key=\${encodeURIComponent(METALS_API_KEY)}&base=USD&symbols=\${encodeURIComponent(symbols)}\`;
+
+  const resp = await fetchWithTimeout(url, { method: 'GET' }, 10000);
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => '');
+    throw new Error(\`Metals-API HTTP \${resp.status}: \${text.slice(0, 200)}\`);
+  }
+
+  const json = await resp.json();
+  if (!json || json.success !== true || !json.rates) {
+    const msg = json && json.error && json.error.info ? json.error.info : 'Unexpected Metals-API response';
+    throw new Error(msg);
+  }
+
+  const rates = json.rates || {};
+  const updatedIso = json.date ? new Date(json.date + 'T00:00:00Z').toISOString() : isoNow();
+
+  const gold = normalizeInstrument('Gold', rates.XAU, 'USD/oz', 'Metals-API', updatedIso);
+  const silver = normalizeInstrument('Silver', rates.XAG, 'USD/oz', 'Metals-API', updatedIso);
+  const copper = normalizeInstrument('Copper', rates.XCU, 'USD/oz', 'Metals-API', updatedIso);
+
+  const zincRate = (typeof rates.ZNC !== 'undefined') ? rates.ZNC : rates.XZN;
+  const zinc = normalizeInstrument('Zinc', zincRate, 'USD/oz', 'Metals-API', updatedIso);
+
+  return { gold, silver, copper, zinc };
+}
+
+async function fetchEiaWti() {
+  if (!EIA_API_KEY) {
+    throw new Error('Missing EIA_API_KEY');
+  }
+
+  // EIA API v1 series endpoint (per requirement)
+  const seriesId = 'PET.RWTC.D';
+  const url = \`https://api.eia.gov/series/?api_key=\${encodeURIComponent(EIA_API_KEY)}&series_id=\${encodeURIComponent(seriesId)}\`;
+
+  const resp = await fetchWithTimeout(url, { method: 'GET' }, 10000);
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => '');
+    throw new Error(\`EIA HTTP \${resp.status}: \${text.slice(0, 200)}\`);
+  }
+
+  const json = await resp.json();
+  const series = json && json.series && json.series[0];
+  if (!series || !Array.isArray(series.data) || series.data.length === 0) {
+    throw new Error('Unexpected EIA series response');
+  }
+
+  const latest = series.data[0]; // [date, value]
+  const dateStr = latest && latest[0] ? String(latest[0]) : null;
+  const value = latest && latest[1];
+
+  let updatedIso = isoNow();
+  if (dateStr) {
+    if (/^\\d{8}$/.test(dateStr)) {
+      const y = dateStr.slice(0, 4);
+      const m = dateStr.slice(4, 6);
+      const d = dateStr.slice(6, 8);
+      updatedIso = new Date(\`\${y}-\${m}-\${d}T00:00:00Z\`).toISOString();
+    } else if (/^\\d{4}-\\d{2}-\\d{2}$/.test(dateStr)) {
+      updatedIso = new Date(dateStr + 'T00:00:00Z').toISOString();
+    }
+  }
+
+  const source = series.name ? \`EIA (\${seriesId})\` : \`EIA \${seriesId}\`;
+  const crude = normalizeInstrument('Crude Oil (WTI)', value, 'USD/bbl', source, updatedIso);
+
+  return { crude };
+}
+
+async function refreshProvidersOnce() {
+  const startedAt = nowMs();
+  const errors = [];
+
+  const next = {
+    instruments: {
+      gold: null,
+      silver: null,
+      copper: null,
+      zinc: null,
+      crude: null
+    }
+  };
+
+  const [metalsRes, eiaRes] = await Promise.allSettled([
+    fetchMetalsLatest(),
+    fetchEiaWti()
+  ]);
+
+  if (metalsRes.status === 'fulfilled') {
+    next.instruments.gold = metalsRes.value.gold;
+    next.instruments.silver = metalsRes.value.silver;
+    next.instruments.copper = metalsRes.value.copper;
+    next.instruments.zinc = metalsRes.value.zinc;
+  } else {
+    errors.push(String(metalsRes.reason && metalsRes.reason.message ? metalsRes.reason.message : metalsRes.reason));
+  }
+
+  if (eiaRes.status === 'fulfilled') {
+    next.instruments.crude = eiaRes.value.crude;
+  } else {
+    errors.push(String(eiaRes.reason && eiaRes.reason.message ? eiaRes.reason.message : eiaRes.reason));
+  }
+
+  const ok = errors.length === 0 &&
+    next.instruments.gold && next.instruments.silver && next.instruments.copper && next.instruments.zinc && next.instruments.crude;
+
+  cache.providerRefreshMs = PROVIDER_REFRESH_MS;
+  cache.lastProviderRefreshAt = startedAt;
+  cache.ok = ok;
+  cache.lastError = errors.length ? errors.join(' | ') : null;
+  cache.data = { instruments: next.instruments };
+}
+
+function startRefreshLoop() {
+  refreshProvidersOnce().catch((err) => {
+    cache.ok = false;
+    cache.lastError = String(err && err.message ? err.message : err);
+    cache.lastProviderRefreshAt = nowMs();
+  });
+
+  setInterval(() => {
+    refreshProvidersOnce().catch((err) => {
+      cache.ok = false;
+      cache.lastError = String(err && err.message ? err.message : err);
+      cache.lastProviderRefreshAt = nowMs();
+    });
+  }, PROVIDER_REFRESH_MS);
+}
+
+// GET /prices (frontend polls every 1000ms)
+app.get('/prices', (req, res) => {
+  res.json({
+    ok: !!cache.ok,
+    providerRefreshMs: cache.providerRefreshMs,
+    data: {
+      instruments: {
+        gold: cache.data.instruments.gold,
+        silver: cache.data.instruments.silver,
+        copper: cache.data.instruments.copper,
+        zinc: cache.data.instruments.zinc,
+        crude: cache.data.instruments.crude
+      }
+    }
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(\`Proxy server listening on http://127.0.0.1:\${PORT}\`);
+  console.log(\`Provider refresh every \${PROVIDER_REFRESH_MS}ms\`);
+  if (!METALS_API_KEY) console.log('Warning: METALS_API_KEY is not set');
+  if (!EIA_API_KEY) console.log('Warning: EIA_API_KEY is not set');
+  startRefreshLoop();
+});
+`;
+
+  const indexHtml = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Live Commodity Dashboard</title>
   <style>
     :root { color-scheme: dark; }
@@ -93,6 +602,19 @@
       justify-content: space-between;
     }
     .small { font-size: 12px; color: #9aa7b2; }
+    .err {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.22);
+      color: #cdd9e5;
+      font-size: 12px;
+      line-height: 1.4;
+      display: none;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
     code {
       padding: 2px 6px;
       border-radius: 8px;
@@ -144,6 +666,8 @@
         <div class="small" id="health">—</div>
       </div>
     </section>
+
+    <div class="err" id="errBox"></div>
   </div>
 
   <script>
@@ -160,7 +684,9 @@
 
     const prevPriceByKey = Object.create(null);
     let lastOkAt = 0;
+    let lastSeenAnyResponseAt = 0;
     let lastSeenProviderTs = 0;
+    let lastFetchError = '';
 
     const elRows = document.getElementById('rows');
     const elDot = document.getElementById('dot');
@@ -168,6 +694,7 @@
     const elHealth = document.getElementById('health');
     const elProvMs = document.getElementById('provMs');
     const elLastUpdate = document.getElementById('lastUpdate');
+    const elErrBox = document.getElementById('errBox');
     document.getElementById('pollMs').textContent = String(POLL_MS);
 
     function fmtMoney(x) {
@@ -199,6 +726,16 @@
       return d.toLocaleString();
     }
 
+    function showErr(msg) {
+      if (!msg) {
+        elErrBox.style.display = 'none';
+        elErrBox.textContent = '';
+        return;
+      }
+      elErrBox.style.display = 'block';
+      elErrBox.textContent = msg;
+    }
+
     function render(data) {
       const instruments = (data && data.data && data.data.instruments) ? data.data.instruments : {};
       const providerRefreshMs = data && typeof data.providerRefreshMs === 'number' ? data.providerRefreshMs : null;
@@ -208,7 +745,8 @@
       const ok = !!(data && data.ok);
 
       if (ok) lastOkAt = now;
-      setStatus(now - lastOkAt <= 3000);
+      const live = (now - lastOkAt) <= 3000;
+      setStatus(live);
 
       const rows = [];
       let newestUpdatedIso = null;
@@ -225,16 +763,16 @@
         const updatedIso = v && v.updated ? v.updated : null;
         if (updatedIso && (!newestUpdatedIso || new Date(updatedIso) > new Date(newestUpdatedIso))) newestUpdatedIso = updatedIso;
 
-        rows.push(`
+        rows.push(\`
           <tr>
-            <td>${item.label}</td>
-            <td class="num">${price === null ? '—' : fmtMoney(price)}</td>
-            <td class="num ${dObj.cls}">${dObj.text}</td>
-            <td>${v && v.unit ? v.unit : '—'}</td>
-            <td>${v && v.source ? v.source : '—'}</td>
-            <td class="num">${toDateTimeLocal(updatedIso)}</td>
+            <td>\${item.label}</td>
+            <td class="num">\${price === null ? '—' : fmtMoney(price)}</td>
+            <td class="num \${dObj.cls}">\${dObj.text}</td>
+            <td>\${v && v.unit ? v.unit : '—'}</td>
+            <td>\${v && v.source ? v.source : '—'}</td>
+            <td class="num">\${toDateTimeLocal(updatedIso)}</td>
           </tr>
-        `);
+        \`);
       }
 
       elRows.innerHTML = rows.join('');
@@ -246,18 +784,35 @@
         elLastUpdate.textContent = '—';
       }
 
-      const isPollingOk = (now - lastSeenProviderTs) <= 6000;
-      elHealth.textContent = isPollingOk
-        ? (ok ? 'OK' : 'Backend reachable, provider error')
-        : 'No fresh data (is server running?)';
+      const reachable = (now - lastSeenAnyResponseAt) <= 3000;
+      const hasFreshProviderData = (now - lastSeenProviderTs) <= 7000;
+
+      if (!reachable) {
+        elHealth.textContent = 'Cannot reach backend (is server running on 127.0.0.1:3000?)';
+      } else if (ok) {
+        elHealth.textContent = 'OK';
+      } else {
+        elHealth.textContent = hasFreshProviderData ? 'Backend reachable, provider error' : 'Backend reachable, waiting for provider data';
+      }
+
+      if (!reachable && lastFetchError) {
+        showErr('Fetch error:\\n' + lastFetchError);
+      } else if (reachable && !ok && lastFetchError) {
+        showErr('Backend reachable but last fetch error:\\n' + lastFetchError);
+      } else {
+        showErr('');
+      }
     }
 
     async function poll() {
       try {
         const resp = await fetch(API_URL, { cache: 'no-store' });
+        lastSeenAnyResponseAt = Date.now();
+        lastFetchError = '';
         const json = await resp.json();
         render(json);
       } catch (e) {
+        lastFetchError = String(e && e.message ? e.message : e);
         render({ ok: false, providerRefreshMs: null, data: { instruments: {} } });
       } finally {
         setTimeout(poll, POLL_MS);
@@ -265,6 +820,52 @@
     }
 
     poll();
-  </script>
+  <\/script>
+</body>
+</html>
+`;
+
+  document.getElementById('tree').textContent = folderTree;
+  document.getElementById('pkg').textContent = packageJson;
+  document.getElementById('server').textContent = serverJs;
+  document.getElementById('index').textContent = indexHtml;
+
+  function downloadText(path, content) {
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const safeName = path.replace(/\//g, '__');
+    a.href = url;
+    a.download = safeName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+
+  function setReady(ok) {
+    const dot = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    if (ok) {
+      dot.classList.remove('off');
+      text.textContent = 'Ready';
+    } else {
+      dot.classList.add('off');
+      text.textContent = 'Error';
+    }
+  }
+
+  document.getElementById('btnPkg').addEventListener('click', () => downloadText('project-root/package.json', packageJson));
+  document.getElementById('btnServer').addEventListener('click', () => downloadText('project-root/server.js', serverJs));
+  document.getElementById('btnIndex').addEventListener('click', () => downloadText('project-root/public/index.html', indexHtml));
+  document.getElementById('btnAll').addEventListener('click', () => {
+    downloadText('project-root/package.json', packageJson);
+    downloadText('project-root/server.js', serverJs);
+    downloadText('project-root/public/index.html', indexHtml);
+  });
+
+  setReady(true);
+})();
+</script>
 </body>
 </html>
