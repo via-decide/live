@@ -2,110 +2,88 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>MCX Gold Dashboard</title>
+  <title>Admin - Upload MCX CSV</title>
   <style>
-    body {
-      font-family: system-ui;
-      background:#0b0f14;
-      color:#e6edf3;
-      margin:0;
-      padding:30px;
-    }
-    h1 { margin:0 0 20px; }
-    .card {
-      background:#111722;
-      padding:20px;
-      border-radius:12px;
-      margin-bottom:20px;
-    }
-    .row {
-      display:flex;
-      justify-content:space-between;
-      padding:8px 0;
-      border-bottom:1px solid #222;
-    }
-    .label { color:#9aa7b2; }
-    .value { font-weight:bold; }
-    .buy { color:#7ee787; }
-    .sell { color:#ff7b72; }
-    .hold { color:#e3b341; }
-    .status {
-      margin-top:10px;
-      font-size:13px;
-      color:#9aa7b2;
-    }
+    body { font-family:system-ui; background:#0b0f14; color:#fff; padding:30px; }
+    .card { background:#111722; padding:20px; border-radius:12px; max-width: 720px; }
+    label { display:block; margin: 10px 0 6px; color:#9aa7b2; font-size: 12px; }
+    input[type="text"] { width: 100%; padding: 10px 12px; border-radius: 10px; border:1px solid #223; background:#0b0f14; color:#fff; }
+    button { padding:10px 20px; border-radius:10px; border:none; background:#238636; color:white; cursor:pointer; margin-top: 12px; }
+    button:hover { filter: brightness(1.08); }
+    .msg { margin-top:15px; color:#9aa7b2; white-space:pre-wrap; word-break: break-word; }
+    .err { color:#ff7b72; }
+    code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 8px; }
   </style>
 </head>
 <body>
 
-<h1>MCX Gold (EOD Engine)</h1>
+<h2>Upload MCX Bhavcopy CSV</h2>
 
 <div class="card">
-  <div class="row">
-    <div class="label">Last Close</div>
-    <div class="value" id="price">—</div>
-  </div>
+  <label>Backend API Base (must be HTTPS if this page is HTTPS)</label>
+  <input id="apiBase" type="text" placeholder="https://your-backend.com" />
 
-  <div class="row">
-    <div class="label">Score</div>
-    <div class="value" id="score">—</div>
-  </div>
+  <label>CSV File</label>
+  <input type="file" id="file" accept=".csv">
 
-  <div class="row">
-    <div class="label">Verdict</div>
-    <div class="value" id="verdict">—</div>
-  </div>
+  <button id="btnUpload">Upload & Update</button>
 
-  <div class="row">
-    <div class="label">Confidence</div>
-    <div class="value" id="confidence">—</div>
-  </div>
-
-  <div class="row">
-    <div class="label">Updated</div>
-    <div class="value" id="updated">—</div>
+  <div class="msg" id="msg"></div>
+  <div class="msg" id="hint">
+    If you are using GitHub Pages (HTTPS), you cannot upload to <code>http://127.0.0.1:3000</code>.
+    Use <code>http://127.0.0.1:3000/admin.html</code> locally OR deploy backend to HTTPS.
   </div>
 </div>
 
-<div class="status" id="status">Connecting...</div>
-
 <script>
-async function fetchData(){
-  try{
-    const r = await fetch('/prices');
-    const j = await r.json();
+const msg = document.getElementById("msg");
+const apiBaseInput = document.getElementById("apiBase");
 
-    const g = j?.data?.instruments?.mcx_gold;
+// Default: if you opened this from backend, use same origin.
+apiBaseInput.value = location.origin;
 
-    if(!g){
-      document.getElementById('status').textContent = "No data yet. Upload CSV in admin.";
+document.getElementById("btnUpload").addEventListener("click", async () => {
+  msg.classList.remove("err");
+  msg.textContent = "Uploading...";
+
+  const fileInput = document.getElementById("file");
+  if (!fileInput.files.length) {
+    msg.classList.add("err");
+    msg.textContent = "Select a CSV file first.";
+    return;
+  }
+
+  const apiBase = apiBaseInput.value.trim().replace(/\/$/, "");
+  const url = apiBase + "/admin/upload";
+
+  // Mixed content guard: https page cannot call http backend
+  if (location.protocol === "https:" && url.startsWith("http://")) {
+    msg.classList.add("err");
+    msg.textContent =
+      "Blocked by browser: HTTPS page cannot upload to HTTP backend (mixed content).\n" +
+      "Open admin from the backend (http://127.0.0.1:3000/admin.html) OR deploy backend to HTTPS.";
+    return;
+  }
+
+  const fd = new FormData();
+  fd.append("file", fileInput.files[0]);
+
+  try {
+    const res = await fetch(url, { method: "POST", body: fd });
+    const text = await res.text();
+
+    if (!res.ok) {
+      msg.classList.add("err");
+      msg.textContent = `Upload failed (HTTP ${res.status})\n\n` + text;
       return;
     }
 
-    document.getElementById('price').textContent = g.price ?? '—';
-    document.getElementById('score').textContent = (g.score ?? 0).toFixed(3);
-
-    const verdictEl = document.getElementById('verdict');
-    verdictEl.textContent = g.verdict ?? '—';
-    verdictEl.className = "value " + (g.verdict === "BUY" ? "buy" :
-                                      g.verdict === "SELL" ? "sell" : "hold");
-
-    document.getElementById('confidence').textContent =
-        g.confidence != null ? g.confidence + "%" : "—";
-
-    document.getElementById('updated').textContent =
-        g.updated ? new Date(g.updated).toLocaleString() : '—';
-
-    document.getElementById('status').textContent = "Live";
+    msg.textContent = "OK\n\n" + text;
+  } catch (e) {
+    msg.classList.add("err");
+    msg.textContent = "Request failed:\n" + (e.message || String(e));
   }
-  catch(e){
-    document.getElementById('status').textContent = "Backend offline";
-  }
-}
-
-setInterval(fetchData, 2000);
-fetchData();
+});
 </script>
-
 </body>
 </html>
