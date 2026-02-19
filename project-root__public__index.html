@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Live Commodity Dashboard</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 20% 0%, rgba(72, 61, 255, 0.20), transparent 60%),
+                  radial-gradient(900px 600px at 90% 10%, rgba(0, 212, 255, 0.16), transparent 55%),
+                  #0b0f14;
+      color: #e6edf3;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 22px; }
+    header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+    h1 { margin: 0; font-size: 18px; letter-spacing: 0.2px; }
+    .sub { margin: 6px 0 0; color: #9aa7b2; font-size: 12px; line-height: 1.4; }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.22);
+      font-size: 12px;
+      color: #cdd9e5;
+      white-space: nowrap;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #7ee787; box-shadow: 0 0 0 3px rgba(126,231,135,0.12); }
+    .dot.off { background: #ff7b72; box-shadow: 0 0 0 3px rgba(255,123,114,0.12); }
+    .card {
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+    .cardTop {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      color: #9aa7b2;
+      font-size: 12px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.22);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      text-align: left;
+      font-size: 13px;
+    }
+    th { color: #a9b6c2; font-weight: 650; font-size: 12px; letter-spacing: 0.2px; }
+    tr:hover td { background: rgba(255,255,255,0.03); }
+    .num { font-variant-numeric: tabular-nums; }
+    .deltaPos { color: #7ee787; }
+    .deltaNeg { color: #ff7b72; }
+    .deltaZero { color: #9aa7b2; }
+    .foot {
+      padding: 12px 14px;
+      color: #9aa7b2;
+      font-size: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .small { font-size: 12px; color: #9aa7b2; }
+    code {
+      padding: 2px 6px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.07);
+      color: #dbe7f3;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Live Commodity Dashboard</h1>
+        <div class="sub">Polling <code>http://127.0.0.1:3000/prices</code> every 1000ms (client delta computed).</div>
+      </div>
+      <div class="status" id="status">
+        <span class="dot off" id="dot"></span>
+        <span id="statusText">offline</span>
+      </div>
+    </header>
+
+    <section class="card">
+      <div class="cardTop">
+        <div class="meta">
+          <span class="pill">Frontend poll: <span class="num" id="pollMs">1000</span>ms</span>
+          <span class="pill">Provider refresh: <span class="num" id="provMs">—</span>ms</span>
+          <span class="pill">Last update: <span class="num" id="lastUpdate">—</span></span>
+        </div>
+        <div class="small" id="hint">Start backend: <code>node server.js</code></div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Commodity</th>
+            <th>Price</th>
+            <th>Delta</th>
+            <th>Unit</th>
+            <th>Source</th>
+            <th>Updated</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+
+      <div class="foot">
+        <div>Backend: <code>127.0.0.1:3000</code></div>
+        <div class="small" id="health">—</div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const API_URL = 'http://127.0.0.1:3000/prices';
+    const POLL_MS = 1000;
+
+    const instrumentsOrder = [
+      { key: 'gold',   label: 'Gold' },
+      { key: 'silver', label: 'Silver' },
+      { key: 'copper', label: 'Copper' },
+      { key: 'zinc',   label: 'Zinc' },
+      { key: 'crude',  label: 'Crude Oil (WTI)' }
+    ];
+
+    const prevPriceByKey = Object.create(null);
+    let lastOkAt = 0;
+    let lastSeenProviderTs = 0;
+
+    const elRows = document.getElementById('rows');
+    const elDot = document.getElementById('dot');
+    const elStatusText = document.getElementById('statusText');
+    const elHealth = document.getElementById('health');
+    const elProvMs = document.getElementById('provMs');
+    const elLastUpdate = document.getElementById('lastUpdate');
+    document.getElementById('pollMs').textContent = String(POLL_MS);
+
+    function fmtMoney(x) {
+      if (typeof x !== 'number' || !Number.isFinite(x)) return '—';
+      return x.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function fmtDelta(d) {
+      if (typeof d !== 'number' || !Number.isFinite(d)) return { text: '—', cls: 'deltaZero' };
+      if (d > 0) return { text: '+' + fmtMoney(d), cls: 'deltaPos' };
+      if (d < 0) return { text: '-' + fmtMoney(Math.abs(d)), cls: 'deltaNeg' };
+      return { text: '0.00', cls: 'deltaZero' };
+    }
+
+    function setStatus(live) {
+      if (live) {
+        elDot.classList.remove('off');
+        elStatusText.textContent = 'live';
+      } else {
+        elDot.classList.add('off');
+        elStatusText.textContent = 'offline';
+      }
+    }
+
+    function toDateTimeLocal(iso) {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return '—';
+      return d.toLocaleString();
+    }
+
+    function render(data) {
+      const instruments = (data && data.data && data.data.instruments) ? data.data.instruments : {};
+      const providerRefreshMs = data && typeof data.providerRefreshMs === 'number' ? data.providerRefreshMs : null;
+      if (providerRefreshMs) elProvMs.textContent = String(providerRefreshMs);
+
+      const now = Date.now();
+      const ok = !!(data && data.ok);
+
+      if (ok) lastOkAt = now;
+      setStatus(now - lastOkAt <= 3000);
+
+      const rows = [];
+      let newestUpdatedIso = null;
+
+      for (const item of instrumentsOrder) {
+        const v = instruments[item.key];
+        const price = v && typeof v.price === 'number' ? v.price : null;
+        const prev = prevPriceByKey[item.key];
+        const delta = (price !== null && typeof prev === 'number') ? (price - prev) : null;
+
+        if (price !== null) prevPriceByKey[item.key] = price;
+
+        const dObj = fmtDelta(delta);
+        const updatedIso = v && v.updated ? v.updated : null;
+        if (updatedIso && (!newestUpdatedIso || new Date(updatedIso) > new Date(newestUpdatedIso))) newestUpdatedIso = updatedIso;
+
+        rows.push(`
+          <tr>
+            <td>${item.label}</td>
+            <td class="num">${price === null ? '—' : fmtMoney(price)}</td>
+            <td class="num ${dObj.cls}">${dObj.text}</td>
+            <td>${v && v.unit ? v.unit : '—'}</td>
+            <td>${v && v.source ? v.source : '—'}</td>
+            <td class="num">${toDateTimeLocal(updatedIso)}</td>
+          </tr>
+        `);
+      }
+
+      elRows.innerHTML = rows.join('');
+
+      if (newestUpdatedIso) {
+        elLastUpdate.textContent = toDateTimeLocal(newestUpdatedIso);
+        lastSeenProviderTs = now;
+      } else {
+        elLastUpdate.textContent = '—';
+      }
+
+      const isPollingOk = (now - lastSeenProviderTs) <= 6000;
+      elHealth.textContent = isPollingOk
+        ? (ok ? 'OK' : 'Backend reachable, provider error')
+        : 'No fresh data (is server running?)';
+    }
+
+    async function poll() {
+      try {
+        const resp = await fetch(API_URL, { cache: 'no-store' });
+        const json = await resp.json();
+        render(json);
+      } catch (e) {
+        render({ ok: false, providerRefreshMs: null, data: { instruments: {} } });
+      } finally {
+        setTimeout(poll, POLL_MS);
+      }
+    }
+
+    poll();
+  </script>
+</body>
+</html>
