@@ -150,6 +150,13 @@
             <div class="v"><code class="inline">npm install</code></div>
           </div>
           <div class="kv">
+            <div class="k">Create .env (recommended)</div>
+            <div class="v">
+              Save <code class="inline">.env</code> in <code class="inline">project-root</code> (same folder as <code class="inline">server.js</code>).<br/>
+              Use the <b>Download .env.example</b> button below, rename it to <code class="inline">.env</code>, and fill keys.
+            </div>
+          </div>
+          <div class="kv">
             <div class="k">Run server</div>
             <div class="v"><code class="inline">node server.js</code></div>
           </div>
@@ -162,11 +169,11 @@
             <div class="v">
               <code class="inline">METALS_API_KEY</code><br/>
               <code class="inline">EIA_API_KEY</code><br/>
-              <code class="inline">PROVIDER_REFRESH_MS</code>
+              <code class="inline">PROVIDER_REFRESH_MS</code> <span class="muted">(use 5000)</span>
             </div>
           </div>
           <div class="kv">
-            <div class="k">Example (macOS/Linux)</div>
+            <div class="k">Alternative (macOS/Linux)</div>
             <div class="v">
               <code class="inline">export METALS_API_KEY="YOUR_KEY"</code><br/>
               <code class="inline">export EIA_API_KEY="YOUR_KEY"</code><br/>
@@ -175,7 +182,7 @@
             </div>
           </div>
           <div class="kv">
-            <div class="k">Example (Windows PowerShell)</div>
+            <div class="k">Alternative (Windows PowerShell)</div>
             <div class="v">
               <code class="inline">$env:METALS_API_KEY="YOUR_KEY"</code><br/>
               <code class="inline">$env:EIA_API_KEY="YOUR_KEY"</code><br/>
@@ -183,15 +190,12 @@
               <code class="inline">node server.js</code>
             </div>
           </div>
-          <div class="kv">
-            <div class="k">Backend endpoint</div>
-            <div class="v"><code class="inline">http://127.0.0.1:3000/prices</code></div>
-          </div>
         </div>
 
         <p class="note">
-          If the UI shows <b>offline</b>, verify the server is running and you can open
-          <code class="inline">http://127.0.0.1:3000/prices</code> directly in the browser.
+          Backend: <code class="inline">http://127.0.0.1:3000/prices</code><br/>
+          Frontend polls backend every 1000ms; backend refreshes providers every PROVIDER_REFRESH_MS (default 5000ms).<br/>
+          API keys are <b>never</b> placed in frontend code.
         </p>
 
         <div class="btns" style="margin-top: 12px;">
@@ -199,9 +203,10 @@
           <button id="btnPkg">Download package.json</button>
           <button id="btnServer">Download server.js</button>
           <button id="btnIndex">Download public/index.html</button>
+          <button id="btnEnv">Download .env.example</button>
         </div>
 
-        <div class="footer">No API keys are present in frontend; keys are read from environment variables on the backend only.</div>
+        <div class="footer">Keys are read by the backend from OS env vars or a local .env file in project-root.</div>
       </div>
     </section>
 
@@ -218,7 +223,7 @@
     <section class="card">
       <header>
         <div class="title">server.js</div>
-        <div class="meta">Express + CORS + node-fetch@2 (AbortController timeouts)</div>
+        <div class="meta">Express + CORS + node-fetch@2</div>
       </header>
       <div class="body">
         <pre id="server"></pre>
@@ -241,8 +246,16 @@
   const folderTree = `/project-root
   server.js
   package.json
+  .env              (create this locally; not committed)
+  .env.example
   /public
     index.html
+`;
+
+  const envExample = `# Copy this file to .env (same folder as server.js) and fill values
+METALS_API_KEY=YOUR_METALS_API_KEY_HERE
+EIA_API_KEY=YOUR_EIA_API_KEY_HERE
+PROVIDER_REFRESH_MS=5000
 `;
 
   const packageJson = `{
@@ -266,14 +279,16 @@
 }
 `;
 
-  const serverJs = `const express = require('express');
+  const serverJs = `const fs = require('fs');
+const path = require('path');
+const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
 
-// Node 18+ provides AbortController globally
-const AbortControllerImpl = global.AbortController || require('abort-controller');
-
 const PORT = 3000;
+
+// Load local .env without dependencies (optional)
+loadDotEnvIfPresent();
 
 // Env vars (API keys must never be exposed to frontend)
 const METALS_API_KEY = process.env.METALS_API_KEY || '';
@@ -299,6 +314,36 @@ const cache = {
     }
   }
 };
+
+function loadDotEnvIfPresent() {
+  try {
+    const envPath = path.join(process.cwd(), '.env');
+    if (!fs.existsSync(envPath)) return;
+
+    const raw = fs.readFileSync(envPath, 'utf8');
+    const lines = raw.split(/\\r?\\n/);
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const idx = trimmed.indexOf('=');
+      if (idx <= 0) continue;
+
+      const key = trimmed.slice(0, idx).trim();
+      let val = trimmed.slice(idx + 1).trim();
+
+      // Strip surrounding quotes
+      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+        val = val.slice(1, -1);
+      }
+
+      if (!process.env[key]) {
+        process.env[key] = val;
+      }
+    }
+  } catch (e) {
+    // Ignore .env errors; rely on OS env vars
+  }
+}
 
 function toPositiveInt(value, fallback) {
   const n = Number(value);
@@ -332,28 +377,17 @@ function normalizeInstrument(name, price, unit, source, updatedIso) {
   };
 }
 
-async function fetchWithTimeout(url, options, timeoutMs) {
-  const controller = new AbortControllerImpl();
-  const id = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const resp = await fetch(url, Object.assign({}, options, { signal: controller.signal }));
-    return resp;
-  } finally {
-    clearTimeout(id);
-  }
-}
-
 async function fetchMetalsLatest() {
   if (!METALS_API_KEY) {
     throw new Error('Missing METALS_API_KEY');
   }
 
   // Metals-API latest endpoint (base USD)
-  // Request both ZNC and XZN and pick whichever exists to be resilient across symbol naming.
+  // We request both ZNC and XZN and pick whichever exists, to be resilient across symbol naming.
   const symbols = ['XAU', 'XAG', 'XCU', 'ZNC', 'XZN'].join(',');
   const url = \`https://metals-api.com/api/latest?access_key=\${encodeURIComponent(METALS_API_KEY)}&base=USD&symbols=\${encodeURIComponent(symbols)}\`;
 
-  const resp = await fetchWithTimeout(url, { method: 'GET' }, 10000);
+  const resp = await fetch(url, { method: 'GET', timeout: 10000 });
   if (!resp.ok) {
     const text = await resp.text().catch(() => '');
     throw new Error(\`Metals-API HTTP \${resp.status}: \${text.slice(0, 200)}\`);
@@ -387,7 +421,7 @@ async function fetchEiaWti() {
   const seriesId = 'PET.RWTC.D';
   const url = \`https://api.eia.gov/series/?api_key=\${encodeURIComponent(EIA_API_KEY)}&series_id=\${encodeURIComponent(seriesId)}\`;
 
-  const resp = await fetchWithTimeout(url, { method: 'GET' }, 10000);
+  const resp = await fetch(url, { method: 'GET', timeout: 10000 });
   if (!resp.ok) {
     const text = await resp.text().catch(() => '');
     throw new Error(\`EIA HTTP \${resp.status}: \${text.slice(0, 200)}\`);
@@ -498,7 +532,7 @@ app.get('/prices', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '127.0.0.1', () => {
   console.log(\`Proxy server listening on http://127.0.0.1:\${PORT}\`);
   console.log(\`Provider refresh every \${PROVIDER_REFRESH_MS}ms\`);
   if (!METALS_API_KEY) console.log('Warning: METALS_API_KEY is not set');
@@ -602,19 +636,6 @@ app.listen(PORT, () => {
       justify-content: space-between;
     }
     .small { font-size: 12px; color: #9aa7b2; }
-    .err {
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(0,0,0,0.22);
-      color: #cdd9e5;
-      font-size: 12px;
-      line-height: 1.4;
-      display: none;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
     code {
       padding: 2px 6px;
       border-radius: 8px;
@@ -666,8 +687,6 @@ app.listen(PORT, () => {
         <div class="small" id="health">—</div>
       </div>
     </section>
-
-    <div class="err" id="errBox"></div>
   </div>
 
   <script>
@@ -684,9 +703,7 @@ app.listen(PORT, () => {
 
     const prevPriceByKey = Object.create(null);
     let lastOkAt = 0;
-    let lastSeenAnyResponseAt = 0;
     let lastSeenProviderTs = 0;
-    let lastFetchError = '';
 
     const elRows = document.getElementById('rows');
     const elDot = document.getElementById('dot');
@@ -694,7 +711,6 @@ app.listen(PORT, () => {
     const elHealth = document.getElementById('health');
     const elProvMs = document.getElementById('provMs');
     const elLastUpdate = document.getElementById('lastUpdate');
-    const elErrBox = document.getElementById('errBox');
     document.getElementById('pollMs').textContent = String(POLL_MS);
 
     function fmtMoney(x) {
@@ -726,16 +742,6 @@ app.listen(PORT, () => {
       return d.toLocaleString();
     }
 
-    function showErr(msg) {
-      if (!msg) {
-        elErrBox.style.display = 'none';
-        elErrBox.textContent = '';
-        return;
-      }
-      elErrBox.style.display = 'block';
-      elErrBox.textContent = msg;
-    }
-
     function render(data) {
       const instruments = (data && data.data && data.data.instruments) ? data.data.instruments : {};
       const providerRefreshMs = data && typeof data.providerRefreshMs === 'number' ? data.providerRefreshMs : null;
@@ -745,8 +751,7 @@ app.listen(PORT, () => {
       const ok = !!(data && data.ok);
 
       if (ok) lastOkAt = now;
-      const live = (now - lastOkAt) <= 3000;
-      setStatus(live);
+      setStatus(now - lastOkAt <= 3000);
 
       const rows = [];
       let newestUpdatedIso = null;
@@ -784,35 +789,18 @@ app.listen(PORT, () => {
         elLastUpdate.textContent = '—';
       }
 
-      const reachable = (now - lastSeenAnyResponseAt) <= 3000;
-      const hasFreshProviderData = (now - lastSeenProviderTs) <= 7000;
-
-      if (!reachable) {
-        elHealth.textContent = 'Cannot reach backend (is server running on 127.0.0.1:3000?)';
-      } else if (ok) {
-        elHealth.textContent = 'OK';
-      } else {
-        elHealth.textContent = hasFreshProviderData ? 'Backend reachable, provider error' : 'Backend reachable, waiting for provider data';
-      }
-
-      if (!reachable && lastFetchError) {
-        showErr('Fetch error:\\n' + lastFetchError);
-      } else if (reachable && !ok && lastFetchError) {
-        showErr('Backend reachable but last fetch error:\\n' + lastFetchError);
-      } else {
-        showErr('');
-      }
+      const isPollingOk = (now - lastSeenProviderTs) <= 6000;
+      elHealth.textContent = isPollingOk
+        ? (ok ? 'OK' : 'Backend reachable, provider error')
+        : 'No fresh data (is server running?)';
     }
 
     async function poll() {
       try {
         const resp = await fetch(API_URL, { cache: 'no-store' });
-        lastSeenAnyResponseAt = Date.now();
-        lastFetchError = '';
         const json = await resp.json();
         render(json);
       } catch (e) {
-        lastFetchError = String(e && e.message ? e.message : e);
         render({ ok: false, providerRefreshMs: null, data: { instruments: {} } });
       } finally {
         setTimeout(poll, POLL_MS);
@@ -858,10 +846,12 @@ app.listen(PORT, () => {
   document.getElementById('btnPkg').addEventListener('click', () => downloadText('project-root/package.json', packageJson));
   document.getElementById('btnServer').addEventListener('click', () => downloadText('project-root/server.js', serverJs));
   document.getElementById('btnIndex').addEventListener('click', () => downloadText('project-root/public/index.html', indexHtml));
+  document.getElementById('btnEnv').addEventListener('click', () => downloadText('project-root/.env.example', envExample));
   document.getElementById('btnAll').addEventListener('click', () => {
     downloadText('project-root/package.json', packageJson);
     downloadText('project-root/server.js', serverJs);
     downloadText('project-root/public/index.html', indexHtml);
+    downloadText('project-root/.env.example', envExample);
   });
 
   setReady(true);
