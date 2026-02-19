@@ -1,129 +1,94 @@
 const express = require("express");
 const cors = require("cors");
-const fetch = require("node-fetch"); // node-fetch@2
 const path = require("path");
+const fs = require("fs");
+const { execFile } = require("child_process");
 
 const app = express();
-
-// If you serve frontend from same server, CORS isn't needed.
-// Keep it enabled anyway for local dev.
 app.use(cors());
+app.use(express.json({ limit: "1mb" }));
 
-// ---- CONFIG ----
 const PORT = process.env.PORT || 3000;
-const providerRefreshMs = Number(process.env.PROVIDER_REFRESH_MS || 5000);
 
-const METALS_API_KEY = process.env.METALS_API_KEY; // required for metals
-const METALS_BASE = "USD";
-// These symbols may vary by plan/provider. Adjust if your Metals API uses different codes.
-const METALS_SYMBOLS = ["XAU", "XAG", "XCU", "XZN"];
+const DATA_DIR = path.join(__dirname, "data");
+const LATEST_PATH = path.join(DATA_DIR, "mcx_gold_latest.json");
 
-const EIA_API_KEY = process.env.EIA_API_KEY; // required for crude (EIA is not truly intraday)
-const EIA_SERIES_ID = process.env.EIA_SERIES_ID || "PET.RWTC.D";
+// Serve frontend
+app.use("/", express.static(path.join(__dirname, "public")));
 
-// ---- CACHE (what /prices returns) ----
-let cache = {
-  ok: false,
-  providerRefreshMs,
-  err: "warming up",
-  data: {
-    instruments: {
-      gold:   { price: null, unit: "USD/XAU", source: "Metals-API", updated: null },
-      silver: { price: null, unit: "USD/XAG", source: "Metals-API", updated: null },
-      copper: { price: null, unit: "USD/XCU", source: "Metals-API", updated: null },
-      zinc:   { price: null, unit: "USD/XZN", source: "Metals-API", updated: null },
-      crude:  { price: null, unit: "USD/bbl", source: "EIA",       updated: null },
-    },
-  },
-};
-
-async function fetchMetals() {
-  if (!METALS_API_KEY) throw new Error("Missing METALS_API_KEY");
-  const url =
-    `https://metals-api.com/api/latest` +
-    `?access_key=${encodeURIComponent(METALS_API_KEY)}` +
-    `&base=${encodeURIComponent(METALS_BASE)}` +
-    `&symbols=${encodeURIComponent(METALS_SYMBOLS.join(","))}`;
-
-  const res = await fetch(url, { timeout: 15000 });
-  if (!res.ok) throw new Error(`Metals API HTTP ${res.status}`);
-  const json = await res.json();
-  if (json.success === false) throw new Error(json.error?.info || "Metals API error");
-  return json;
-}
-
-async function fetchCrudeEIA() {
-  if (!EIA_API_KEY) throw new Error("Missing EIA_API_KEY");
-
-  const url =
-    `https://api.eia.gov/series/` +
-    `?api_key=${encodeURIComponent(EIA_API_KEY)}` +
-    `&series_id=${encodeURIComponent(EIA_SERIES_ID)}`;
-
-  const res = await fetch(url, { timeout: 15000 });
-  if (!res.ok) throw new Error(`EIA HTTP ${res.status}`);
-  const json = await res.json();
-
-  const series = json.series && json.series[0];
-  const latest = series && series.data && series.data[0]; // [date,value]
-  if (!latest) throw new Error("EIA: no latest datapoint");
-
-  const crude = Number(latest[1]);
-  if (!Number.isFinite(crude)) throw new Error("EIA: crude not numeric");
-
-  return { crude, unit: series.units || "USD/bbl" };
-}
-
-async function refreshProviders() {
+// Helper to read latest JSON safely
+function readLatest() {
   try {
-    const nowIso = new Date().toISOString();
-
-    const [m, c] = await Promise.all([
-      fetchMetals(),
-      fetchCrudeEIA(),
-    ]);
-
-    const rates = m.rates || {};
-    // Metals API might return rates as "USD per metal unit" depending on provider.
-    // We keep it consistent with what the API returns.
-    cache = {
-      ok: true,
-      providerRefreshMs,
-      err: null,
-      data: {
-        instruments: {
-          gold:   { price: typeof rates.XAU === "number" ? rates.XAU : null, unit: "USD/XAU", source: "Metals-API", updated: nowIso },
-          silver: { price: typeof rates.XAG === "number" ? rates.XAG : null, unit: "USD/XAG", source: "Metals-API", updated: nowIso },
-          copper: { price: typeof rates.XCU === "number" ? rates.XCU : null, unit: "USD/XCU", source: "Metals-API", updated: nowIso },
-          zinc:   { price: typeof rates.XZN === "number" ? rates.XZN : null, unit: "USD/XZN", source: "Metals-API", updated: nowIso },
-          crude:  { price: c.crude, unit: c.unit, source: "EIA", updated: nowIso },
-        },
-      },
-    };
-  } catch (e) {
-    // keep last known data, but mark provider error
-    cache = {
-      ...cache,
-      ok: false,
-      err: String(e && e.message ? e.message : e),
-      providerRefreshMs,
-    };
+    if (!fs.existsSync(LATEST_PATH)) return null;
+    return JSON.parse(fs.readFileSync(LATEST_PATH, "utf8"));
+  } catch {
+    return null;
   }
 }
 
-// --- API ---
+// API for dashboard
 app.get("/prices", (req, res) => {
-  res.json(cache);
+  const latest = readLatest();
+
+  // Existing commodities can stay here if you want; MVP = MCX GOLD only.
+  const instruments = {
+    gold:   { price: null, unit: "—", source: "—", updated: null },
+    silver: { price: null, unit: "—", source: "—", updated: null },
+    copper: { price: null, unit: "—", source: "—", updated: null },
+    zinc:   { price: null, unit: "—", source: "—", updated: null },
+    crude:  { price: null, unit: "—", source: "—", updated: null },
+
+    // ✅ MCX GOLD EOD instrument
+    mcx_gold: latest ? {
+      price: latest.ohlc?.c ?? null,
+      unit: "INR (MCX close)",
+      source: "MCX Bhavcopy",
+      updated: latest.updated || null,
+
+      // extra fields (frontend can display later)
+      score: latest.score,
+      verdict: latest.verdict,
+      confidence: latest.confidence
+    } : {
+      price: null,
+      unit: "INR (MCX close)",
+      source: "MCX Bhavcopy",
+      updated: null,
+      score: null,
+      verdict: null,
+      confidence: null
+    }
+  };
+
+  res.json({
+    ok: true,
+    providerRefreshMs: 86400000, // daily
+    err: latest ? null : "No mcx_gold_latest.json yet. Run: node tools/update_mcx.js --file <bhavcopy.csv> --date YYYY-MM-DD",
+    data: { instruments }
+  });
 });
 
-// --- OPTIONAL: Serve your frontend from /public ---
-// Put your HTML file at: ./public/index.html
-app.use("/", express.static(path.join(__dirname, "public")));
+// Manual trigger update (server runs the tool)
+app.post("/update/mcx", (req, res) => {
+  const { file, url, date } = req.body || {};
+  if (!file && !url) {
+    return res.status(400).json({ ok: false, err: "Provide {file} or {url}" });
+  }
 
-// --- Start ---
-app.listen(PORT, async () => {
-  await refreshProviders(); // warm cache
-  setInterval(refreshProviders, providerRefreshMs);
-  console.log(`Server running: http://127.0.0.1:${PORT}`);
-  console.log(`API endpoint:   http://127.0.0.1:${PORT}/prices`);
+  const args = [];
+  if (file) args.push("--file", file);
+  if (url)  args.push("--url", url);
+  if (date) args.push("--date", date);
+
+  execFile("node", [path.join(__dirname, "tools", "update_mcx.js"), ...args], { timeout: 60000 }, (err, stdout, stderr) => {
+    if (err) {
+      return res.status(500).json({ ok: false, err: String(stderr || err.message || err), stdout });
+    }
+    return res.json({ ok: true, stdout, latest: readLatest() });
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server: http://127.0.0.1:${PORT}`);
+  console.log(`Prices: http://127.0.0.1:${PORT}/prices`);
 });
