@@ -34,8 +34,7 @@
     .wrap{max-width:1000px;margin:0 auto}
     header{
       display:flex;align-items:center;justify-content:space-between;gap:12px;
-      margin-bottom:14px;
-      flex-wrap:wrap;
+      margin-bottom:14px; flex-wrap:wrap;
     }
     .brand{display:flex;flex-direction:column;gap:4px}
     .brand h1{margin:0;font-size:22px;letter-spacing:.2px}
@@ -44,13 +43,12 @@
     .btn{
       appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.03);
       color:var(--text);padding:10px 12px;border-radius:12px;cursor:pointer;
-      font-weight:600;font-size:13px;
+      font-weight:700;font-size:13px;
     }
     .btn:hover{background:rgba(255,255,255,.06)}
-    .btn.primary{border-color:rgba(46,230,122,.35);background:rgba(46,230,122,.10)}
-    .btn.primary:hover{background:rgba(46,230,122,.14)}
     .grid{display:grid;grid-template-columns: 1.2fr .8fr;gap:14px}
     @media (max-width:900px){ .grid{grid-template-columns:1fr} }
+
     .panel{
       border:1px solid var(--line);
       background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02));
@@ -65,25 +63,24 @@
       background:rgba(0,0,0,.18);
       flex-wrap:wrap;
     }
-    .panel .hd .t{font-weight:800;font-size:14px}
+    .panel .hd .t{font-weight:900;font-size:14px}
     .panel .hd .meta{color:var(--muted);font-size:12px}
     .panel .bd{padding:16px}
     .big{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
-    .verdict{display:flex;flex-direction:column;gap:6px}
+    .verdict{display:flex;flex-direction:column;gap:8px}
     .verdict .label{color:var(--muted);font-size:12px}
-    .verdict .value{font-size:42px;line-height:1;font-weight:900;letter-spacing:.5px}
+    .verdict .value{font-size:44px;line-height:1;font-weight:950;letter-spacing:.5px}
     .pill{
       display:inline-flex;align-items:center;gap:8px;
       padding:8px 10px;border-radius:999px;border:1px solid var(--line);
       background:rgba(255,255,255,.03);
-      font-weight:800;font-size:12px;
+      font-weight:900;font-size:12px;
     }
     .dot{width:10px;height:10px;border-radius:50%}
     .ok{background:var(--ok)}
     .warn{background:var(--warn)}
     .bad{background:var(--bad)}
-    .kv{display:grid;grid-template-columns: 1fr 1fr;gap:10px;margin-top:14px}
-    @media (max-width:560px){ .kv{grid-template-columns:1fr} }
+
     .k{
       border:1px solid var(--line);
       background:rgba(255,255,255,.02);
@@ -91,16 +88,12 @@
       padding:12px;
     }
     .k .h{color:var(--muted);font-size:12px;margin-bottom:6px}
-    .k .v{font-weight:800}
+    .k .v{font-weight:900}
     .k .v.small{font-weight:700;color:var(--text);opacity:.92;font-size:13px;line-height:1.35}
-    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-    .chip{
-      background:var(--chip);
-      border:1px solid var(--line);
-      border-radius:999px;
-      padding:7px 10px;
-      font-size:12px;color:var(--muted);font-weight:700;
-    }
+
+    .kv{display:grid;grid-template-columns: 1fr 1fr;gap:10px;margin-top:14px}
+    @media (max-width:560px){ .kv{grid-template-columns:1fr} }
+
     .row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}
     input[type="search"]{
       width:min(420px, 100%);
@@ -110,20 +103,23 @@
       color:var(--text);
       outline:none;
     }
+
     table{width:100%;border-collapse:collapse;font-size:12px}
     th,td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
-    th{color:var(--muted);text-align:left;font-weight:800;background:rgba(0,0,0,.12)}
+    th{color:var(--muted);text-align:left;font-weight:900;background:rgba(0,0,0,.12)}
     tr:hover td{background:rgba(255,255,255,.02)}
+
     .tag{
       display:inline-flex;align-items:center;gap:6px;
       padding:6px 9px;border-radius:999px;border:1px solid var(--line);
       background:rgba(255,255,255,.02);
-      font-weight:900;font-size:11px;
+      font-weight:950;font-size:11px;
       white-space:nowrap;
     }
-    .tag.go{border-color:rgba(46,230,122,.35);color:rgba(46,230,122,.95)}
-    .tag.change{border-color:rgba(255,210,74,.35);color:rgba(255,210,74,.95)}
-    .tag.nogo{border-color:rgba(255,92,122,.35);color:rgba(255,92,122,.95)}
+    .tag.buy{border-color:rgba(46,230,122,.35);color:rgba(46,230,122,.95)}
+    .tag.sell{border-color:rgba(255,92,122,.35);color:rgba(255,92,122,.95)}
+    .tag.hold{border-color:rgba(255,210,74,.35);color:rgba(255,210,74,.95)}
+
     .muted{color:var(--muted)}
     .foot{margin-top:14px;color:var(--muted);font-size:12px;line-height:1.35}
     .err{
@@ -133,9 +129,21 @@
       color:#ffdbe2;
     }
     code.inline{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:8px}
+
+    /* Confidence bar */
+    .barWrap{margin-top:10px; width:min(360px,100%)}
+    .barTop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .bar{
+      height:10px;border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      overflow:hidden;
+      margin-top:8px;
+    }
+    .bar > div{height:100%; width:0%}
   </style>
 
-  <!-- jsPDF (client-side PDF export) -->
+  <!-- jsPDF for PDF export -->
   <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 
@@ -144,17 +152,16 @@
   <header>
     <div class="brand">
       <h1>Gold MCX Verdict</h1>
-      <div class="sub" id="subtitle">Loading verdicts…</div>
+      <div class="sub" id="subtitle">Loading…</div>
     </div>
     <div class="top-actions">
       <button class="btn" id="btnReload">Reload CSV</button>
       <button class="btn" id="btnPdf">Export as PDF</button>
-      <button class="btn primary" id="btnExport">Export latest as JSON</button>
     </div>
   </header>
 
   <div class="grid">
-    <!-- Latest verdict -->
+    <!-- Latest -->
     <section class="panel" aria-label="Latest verdict">
       <div class="hd">
         <div class="t">Latest</div>
@@ -167,61 +174,52 @@
           <div class="verdict">
             <div class="label">Verdict</div>
             <div class="value" id="latestVerdict">—</div>
-            <div class="pill" id="latestPill" style="margin-top:6px">
+
+            <div class="pill" id="latestPill" style="margin-top:2px">
               <span class="dot warn" id="latestDot"></span>
-              <span id="latestRule">—</span>
+              <span id="latestReason">—</span>
+            </div>
+
+            <div class="barWrap" aria-label="Confidence">
+              <div class="barTop">
+                <div class="muted">Confidence</div>
+                <div style="font-weight:900" id="latestConf">—%</div>
+              </div>
+              <div class="bar"><div id="confBar"></div></div>
             </div>
           </div>
 
           <div style="min-width:240px; flex: 1; display:flex; justify-content:flex-end;">
             <div class="k" style="max-width:360px; width:100%">
-              <div class="h">Next action</div>
-              <div class="v small" id="latestNextAction">—</div>
-              <div class="chips" id="latestChips"></div>
+              <div class="h">Key details</div>
+              <div class="v small" id="latestDetails">—</div>
+              <div class="kv" style="margin-top:12px">
+                <div class="k">
+                  <div class="h">Risk / Daily cap</div>
+                  <div class="v" id="latestRisk">—</div>
+                </div>
+                <div class="k">
+                  <div class="h">Capital (₹)</div>
+                  <div class="v" id="latestCapital">—</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="kv">
-          <div class="k">
-            <div class="h">Market / Instrument</div>
-            <div class="v" id="latestInstrument">—</div>
-          </div>
-          <div class="k">
-            <div class="h">Mode</div>
-            <div class="v" id="latestMode">—</div>
-          </div>
-          <div class="k">
-            <div class="h">Budget (₹)</div>
-            <div class="v" id="latestBudget">—</div>
-          </div>
-          <div class="k">
-            <div class="h">Risk / Daily cap</div>
-            <div class="v" id="latestRisk">—</div>
-          </div>
-          <div class="k">
-            <div class="h">Support</div>
-            <div class="v small" id="latestSupport">—</div>
-          </div>
-          <div class="k">
-            <div class="h">Resistance</div>
-            <div class="v small" id="latestResistance">—</div>
-          </div>
-        </div>
-
-        <div class="foot" id="latestNotes"></div>
+        <div class="foot" id="latestFoot"></div>
       </div>
     </section>
 
-    <!-- All verdicts -->
-    <section class="panel" aria-label="All verdicts">
+    <!-- All -->
+    <section class="panel" aria-label="All records">
       <div class="hd">
         <div class="t">All records</div>
         <div class="meta"><span class="muted">Source:</span> <span id="sourceLabel">embedded</span></div>
       </div>
       <div class="bd">
         <div class="row">
-          <input type="search" id="q" placeholder="Search (record_id, instrument, market, notes…)" />
+          <input type="search" id="q" placeholder="Search (record_id, instrument, market, reason…)" />
           <div class="muted" id="countLabel">0 rows</div>
         </div>
 
@@ -233,7 +231,8 @@
                 <th>Record</th>
                 <th>Instrument</th>
                 <th>Verdict</th>
-                <th>Next action</th>
+                <th>Confidence</th>
+                <th>Reason</th>
               </tr>
             </thead>
             <tbody id="rows"></tbody>
@@ -241,8 +240,8 @@
         </div>
 
         <div class="foot">
-          To use a real CSV file in your repo, create <code class="inline">verdict.csv</code> in the same folder as this
-          <code class="inline">index.html</code>. This page will auto-load it.
+          Create <code class="inline">verdict.csv</code> next to this <code class="inline">index.html</code> with columns:
+          <code class="inline">record_id,date,capital_inr,market,instrument,mode,verdict,confidence_score_percent,bias_reason,risk_per_trade_inr,daily_loss_cap_inr</code>
         </div>
       </div>
     </section>
@@ -251,10 +250,9 @@
 
 <script>
 /** ====== CONFIG ====== **/
-const CSV_URL = "verdict.csv"; // if present in repo, it will be loaded
-const EMBEDDED_CSV = `record_id,created_date,tz,budget_inr,market,instrument,mode,verdict,verdict_rule,setup,risk_per_trade_inr,daily_loss_cap_inr,max_trades_per_day,levels_support,levels_resistance,next_action,notes
-MCXGOLD-20260220-01,2026-02-20,Asia/Kolkata,35000,MCX,Gold Mini Futures,Intraday,CHANGE,"GO only if required_margin<=35000 else CHANGE","Range-first; breakout-only with 15m confirmation",350,700,2,"153200-154000","156800-157200","Check your broker margin for Gold Mini; if >35000 trade Gold ETF instead","35k is borderline for Gold Mini margins; avoid over-leverage/MIS surprise margin hikes"
-MCXGOLD-20260220-02,2026-02-20,Asia/Kolkata,35000,NSE,Gold ETF (e.g., GoldBees),Intraday,GO,"Use ETF if futures margin not feasible","VWAP + range scalp; no chasing",350,700,2,"Prior day low/VWAP bands","Prior day high/VWAP bands","If you want, share your broker + product (MIS/CNC) and I’ll set exact ETF quantity + stop levels","ETF intraday is executable with 35k and reduces tail-risk vs futures"`;
+const CSV_URL = "verdict.csv";
+const EMBEDDED_CSV = `record_id,date,capital_inr,market,instrument,mode,verdict,confidence_score_percent,bias_reason,risk_per_trade_inr,daily_loss_cap_inr
+MCXGOLD-20260220-V1,2026-02-20,35000,MCX,Gold Mini,Intraday,SELL,62,"Range resistance rejection probability higher than breakout probability",350,700`;
 
 /** ====== CSV PARSER (handles quotes) ====== **/
 function parseCSV(text){
@@ -285,12 +283,12 @@ function parseCSV(text){
     if(row.length > 1 || row[0] !== "") pushRow();
   }
 
-  const header = rows.shift() || [];
+  const header = (rows.shift() || []).map(h => (h||"").trim());
   return rows
     .filter(r => r.some(x => (x||"").trim() !== ""))
     .map(r => {
       const obj = {};
-      header.forEach((h, idx)=> obj[h.trim()] = (r[idx] ?? "").trim());
+      header.forEach((h, idx)=> obj[h] = (r[idx] ?? "").trim());
       return obj;
     });
 }
@@ -299,41 +297,37 @@ function safeNum(x){
   const n = Number(String(x||"").replace(/[^\d.-]/g,""));
   return Number.isFinite(n) ? n : null;
 }
-
-function verdictTag(v){
-  const vv = (v||"").toUpperCase();
-  if(vv === "GO" || vv === "BUY") return {cls:"go", dot:"ok", label: vv};
-  if(vv === "CHANGE" || vv === "HOLD") return {cls:"change", dot:"warn", label: vv};
-  if(vv === "NO" || vv === "NO-GO" || vv === "SELL") return {cls:"nogo", dot:"bad", label: vv};
-  return {cls:"change", dot:"warn", label: vv || "—"};
+function fmtINR(n){
+  if(n == null) return "—";
+  try { return new Intl.NumberFormat("en-IN").format(n); }
+  catch { return String(n); }
 }
-
+function verdictStyle(v){
+  const vv = (v||"").toUpperCase();
+  if(vv === "BUY" || vv === "GO") return {cls:"buy", dot:"ok", label: vv};
+  if(vv === "SELL" || vv === "NO" || vv === "NO-GO") return {cls:"sell", dot:"bad", label: vv};
+  return {cls:"hold", dot:"warn", label: vv || "—"};
+}
 function pickLatest(records){
   const toTime = (d)=> {
     const t = Date.parse(d);
     return Number.isFinite(t) ? t : -Infinity;
   };
   return [...records].sort((a,b)=>{
-    const ta = toTime(a.created_date);
-    const tb = toTime(b.created_date);
+    const ta = toTime(a.date);
+    const tb = toTime(b.date);
     if(tb !== ta) return tb - ta;
     return String(b.record_id||"").localeCompare(String(a.record_id||""));
   })[0] || null;
 }
 
-function fmtINR(n){
-  if(n == null) return "—";
-  try { return new Intl.NumberFormat("en-IN").format(n); }
-  catch { return String(n); }
-}
-
-/** ====== UI ====== **/
+/** ====== STATE ====== **/
 let STATE = { source:"embedded", records:[] };
 
+/** ====== RENDER ====== **/
 function render(){
   const {records, source} = STATE;
   document.getElementById("sourceLabel").textContent = source;
-  document.getElementById("countLabel").textContent = `${records.length} rows`;
 
   const latest = pickLatest(records);
   if(!latest){
@@ -342,51 +336,37 @@ function render(){
   }
   clearLatestError();
 
-  const tag = verdictTag(latest.verdict);
-  document.getElementById("latestVerdict").textContent = tag.label || "—";
-  document.getElementById("latestDot").className = `dot ${tag.dot}`;
-  document.getElementById("latestRule").textContent = latest.verdict_rule || "—";
+  const vs = verdictStyle(latest.verdict);
+  document.getElementById("latestVerdict").textContent = vs.label;
+  document.getElementById("latestDot").className = `dot ${vs.dot}`;
+  document.getElementById("latestReason").textContent = latest.bias_reason || "—";
 
   document.getElementById("latestMeta").textContent =
-    `${latest.created_date || "—"} • ${latest.market || "—"} • ${latest.record_id || "—"}`;
-
-  document.getElementById("latestInstrument").textContent =
-    `${latest.market || "—"} / ${latest.instrument || "—"}`;
-
-  document.getElementById("latestMode").textContent = latest.mode || "—";
-
-  const budget = safeNum(latest.budget_inr);
-  document.getElementById("latestBudget").textContent = budget != null ? `₹${fmtINR(budget)}` : "—";
-
-  const r = safeNum(latest.risk_per_trade_inr);
-  const cap = safeNum(latest.daily_loss_cap_inr);
-  const mt = latest.max_trades_per_day || "—";
-  document.getElementById("latestRisk").textContent =
-    `₹${fmtINR(r)} / ₹${fmtINR(cap)} • max ${mt}/day`;
-
-  document.getElementById("latestSupport").textContent = latest.levels_support || "—";
-  document.getElementById("latestResistance").textContent = latest.levels_resistance || "—";
-  document.getElementById("latestNextAction").textContent = latest.next_action || "—";
-
-  const chips = document.getElementById("latestChips");
-  chips.innerHTML = "";
-  const chipItems = [
-    ["Setup", latest.setup],
-    ["TZ", latest.tz],
-  ].filter(x => x[1] && x[1] !== "—");
-
-  for(const [k,v] of chipItems){
-    const el = document.createElement("div");
-    el.className = "chip";
-    el.textContent = `${k}: ${v}`;
-    chips.appendChild(el);
-  }
-
-  const notes = (latest.notes || "").trim();
-  document.getElementById("latestNotes").textContent = notes ? `Notes: ${notes}` : "";
+    `${latest.date || "—"} • ${latest.market || "—"} • ${latest.record_id || "—"}`;
 
   document.getElementById("subtitle").textContent =
-    `Live verdict dashboard • latest update: ${latest.created_date || "—"}`;
+    `Live verdict dashboard • latest update: ${latest.date || "—"}`;
+
+  const conf = safeNum(latest.confidence_score_percent);
+  document.getElementById("latestConf").textContent = (conf == null ? "—" : `${conf}%`);
+  const bar = document.getElementById("confBar");
+  const pct = Math.max(0, Math.min(100, conf ?? 0));
+  bar.style.width = `${pct}%`;
+  // match verdict to bar color
+  bar.style.background = (vs.dot === "ok") ? "var(--ok)" : (vs.dot === "bad") ? "var(--bad)" : "var(--warn)";
+
+  const cap = safeNum(latest.capital_inr);
+  document.getElementById("latestCapital").textContent = cap == null ? "—" : `₹${fmtINR(cap)}`;
+
+  const rpt = safeNum(latest.risk_per_trade_inr);
+  const dlc = safeNum(latest.daily_loss_cap_inr);
+  document.getElementById("latestRisk").textContent = `₹${fmtINR(rpt)} / ₹${fmtINR(dlc)}`;
+
+  document.getElementById("latestDetails").textContent =
+    `${latest.market || "—"} / ${latest.instrument || "—"} • ${latest.mode || "—"}`;
+
+  document.getElementById("latestFoot").textContent =
+    `Confidence is based on your score column (0–100). This page does not calculate signals; it only displays your CSV.`;
 
   renderTable(records);
 }
@@ -404,43 +384,47 @@ function renderTable(records){
   document.getElementById("countLabel").textContent = `${filtered.length} rows`;
 
   const sorted = [...filtered].sort((a,b)=>{
-    const ta = Date.parse(a.created_date);
-    const tb = Date.parse(b.created_date);
+    const ta = Date.parse(a.date);
+    const tb = Date.parse(b.date);
     return (Number.isFinite(tb)?tb:0) - (Number.isFinite(ta)?ta:0);
   });
 
   for(const r of sorted){
-    const tag = verdictTag(r.verdict);
+    const vs = verdictStyle(r.verdict);
+    const conf = safeNum(r.confidence_score_percent);
+
     const tr = document.createElement("tr");
 
     const tdDate = document.createElement("td");
-    tdDate.textContent = r.created_date || "—";
+    tdDate.textContent = r.date || "—";
 
     const tdId = document.createElement("td");
-    tdId.innerHTML = `<div style="font-weight:900">${escapeHTML(r.record_id||"—")}</div>
-                      <div class="muted">${escapeHTML(r.market||"—")}</div>`;
+    tdId.innerHTML = `<div style="font-weight:900">${esc(r.record_id||"—")}</div>
+                      <div class="muted">₹${esc(r.capital_inr||"—")}</div>`;
 
     const tdInst = document.createElement("td");
-    tdInst.innerHTML = `<div style="font-weight:800">${escapeHTML(r.instrument||"—")}</div>
-                        <div class="muted">${escapeHTML(r.mode||"—")}</div>`;
+    tdInst.innerHTML = `<div style="font-weight:900">${esc(r.market||"—")} / ${esc(r.instrument||"—")}</div>
+                        <div class="muted">${esc(r.mode||"—")}</div>`;
 
     const tdVerd = document.createElement("td");
-    tdVerd.innerHTML = `<span class="tag ${tag.cls}">
-                          <span class="dot ${tag.dot}" style="width:8px;height:8px"></span>
-                          ${escapeHTML(tag.label)}
-                        </span>
-                        <div class="muted" style="margin-top:6px">${escapeHTML(r.verdict_rule||"")}</div>`;
+    tdVerd.innerHTML = `<span class="tag ${vs.cls}">
+                          <span class="dot ${vs.dot}" style="width:8px;height:8px"></span>
+                          ${esc(vs.label)}
+                        </span>`;
 
-    const tdAct = document.createElement("td");
-    tdAct.innerHTML = `<div style="font-weight:800">${escapeHTML(r.next_action||"—")}</div>
-                       <div class="muted" style="margin-top:6px">${escapeHTML(r.notes||"")}</div>`;
+    const tdConf = document.createElement("td");
+    tdConf.textContent = conf == null ? "—" : `${conf}%`;
 
-    tr.append(tdDate, tdId, tdInst, tdVerd, tdAct);
+    const tdReason = document.createElement("td");
+    tdReason.innerHTML = `<div style="font-weight:800">${esc(r.bias_reason||"—")}</div>
+                          <div class="muted" style="margin-top:6px">Risk: ₹${esc(r.risk_per_trade_inr||"—")} • Cap: ₹${esc(r.daily_loss_cap_inr||"—")}</div>`;
+
+    tr.append(tdDate, tdId, tdInst, tdVerd, tdConf, tdReason);
     tbody.appendChild(tr);
   }
 }
 
-function escapeHTML(s){
+function esc(s){
   return String(s||"")
     .replaceAll("&","&amp;")
     .replaceAll("<","&lt;")
@@ -460,7 +444,7 @@ function clearLatestError(){
   el.textContent = "";
 }
 
-/** ====== LOADERS ====== **/
+/** ====== LOAD ====== **/
 async function loadCSV(){
   try{
     const res = await fetch(CSV_URL, {cache:"no-store"});
@@ -477,22 +461,7 @@ async function loadCSV(){
   }
 }
 
-/** ====== EXPORT JSON ====== **/
-function exportLatestJSON(){
-  const latest = pickLatest(STATE.records);
-  if(!latest) return;
-
-  const blob = new Blob([JSON.stringify(latest, null, 2)], {type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `${latest.record_id || "latest"}-verdict.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(()=> URL.revokeObjectURL(a.href), 1500);
-}
-
-/** ====== EXPORT PDF (jsPDF) ====== **/
+/** ====== PDF EXPORT ====== **/
 function wrapLines(doc, text, x, y, maxWidth, lineHeight){
   const lines = doc.splitTextToSize(String(text || "—"), maxWidth);
   doc.text(lines, x, y);
@@ -505,15 +474,7 @@ function exportLatestPDF(){
 
   const jsPDF = window.jspdf && window.jspdf.jsPDF;
   if(!jsPDF){
-    // fallback: print (user can "Save as PDF")
-    const html = buildPrintableHTML(latest);
-    const w = window.open("", "_blank");
-    if(!w) return;
-    w.document.open();
-    w.document.write(html);
-    w.document.close();
-    w.focus();
-    setTimeout(()=> w.print(), 250);
+    window.print(); // fallback
     return;
   }
 
@@ -523,10 +484,9 @@ function exportLatestPDF(){
   const maxW = pageW - margin*2;
   let y = 48;
 
-  const title = "Gold MCX Verdict Report";
   doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
-  doc.text(title, margin, y);
+  doc.text("Gold MCX Verdict Report", margin, y);
   y += 18;
 
   doc.setFont("helvetica", "normal");
@@ -534,91 +494,29 @@ function exportLatestPDF(){
   doc.text(`Generated: ${new Date().toLocaleString()}`, margin, y);
   y += 18;
 
-  // Key fields
   doc.setFont("helvetica", "bold"); doc.setFontSize(12);
   doc.text(`Verdict: ${(latest.verdict || "—").toUpperCase()}`, margin, y);
   y += 16;
 
   doc.setFont("helvetica", "normal"); doc.setFontSize(11);
   y = wrapLines(doc, `Record ID: ${latest.record_id || "—"}`, margin, y, maxW, 14);
-  y = wrapLines(doc, `Date: ${latest.created_date || "—"}   TZ: ${latest.tz || "—"}`, margin, y, maxW, 14);
+  y = wrapLines(doc, `Date: ${latest.date || "—"}`, margin, y, maxW, 14);
   y = wrapLines(doc, `Market: ${latest.market || "—"}   Instrument: ${latest.instrument || "—"}`, margin, y, maxW, 14);
-  y = wrapLines(doc, `Mode: ${latest.mode || "—"}   Budget (INR): ${latest.budget_inr || "—"}`, margin, y, maxW, 14);
-  y = wrapLines(doc, `Risk/trade: ${latest.risk_per_trade_inr || "—"}   Daily cap: ${latest.daily_loss_cap_inr || "—"}   Max trades/day: ${latest.max_trades_per_day || "—"}`, margin, y, maxW, 14);
-  y += 6;
-
-  doc.setFont("helvetica", "bold");
-  doc.text("Rules / Setup", margin, y); y += 14;
-  doc.setFont("helvetica", "normal");
-  y = wrapLines(doc, `Verdict rule: ${latest.verdict_rule || "—"}`, margin, y, maxW, 14);
-  y = wrapLines(doc, `Setup: ${latest.setup || "—"}`, margin, y, maxW, 14);
-  y += 6;
-
-  doc.setFont("helvetica", "bold");
-  doc.text("Levels", margin, y); y += 14;
-  doc.setFont("helvetica", "normal");
-  y = wrapLines(doc, `Support: ${latest.levels_support || "—"}`, margin, y, maxW, 14);
-  y = wrapLines(doc, `Resistance: ${latest.levels_resistance || "—"}`, margin, y, maxW, 14);
-  y += 6;
-
-  doc.setFont("helvetica", "bold");
-  doc.text("Next Action", margin, y); y += 14;
-  doc.setFont("helvetica", "normal");
-  y = wrapLines(doc, latest.next_action || "—", margin, y, maxW, 14);
-  y += 6;
-
-  doc.setFont("helvetica", "bold");
-  doc.text("Notes", margin, y); y += 14;
-  doc.setFont("helvetica", "normal");
-  y = wrapLines(doc, latest.notes || "—", margin, y, maxW, 14);
+  y = wrapLines(doc, `Mode: ${latest.mode || "—"}   Capital (INR): ${latest.capital_inr || "—"}`, margin, y, maxW, 14);
+  y = wrapLines(doc, `Confidence: ${latest.confidence_score_percent || "—"}%`, margin, y, maxW, 14);
+  y = wrapLines(doc, `Bias reason: ${latest.bias_reason || "—"}`, margin, y, maxW, 14);
+  y = wrapLines(doc, `Risk/trade: ${latest.risk_per_trade_inr || "—"}   Daily cap: ${latest.daily_loss_cap_inr || "—"}`, margin, y, maxW, 14);
 
   const fname = `${latest.record_id || "latest"}-verdict.pdf`;
   doc.save(fname);
 }
 
-function buildPrintableHTML(latest){
-  const esc = (s)=> String(s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
-  return `<!doctype html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gold MCX Verdict Report</title>
-<style>
-  body{font-family:Arial,sans-serif;padding:18px}
-  h1{margin:0 0 6px 0}
-  .muted{color:#555}
-  .k{margin:10px 0}
-  .k b{display:inline-block;min-width:140px}
-  hr{margin:14px 0}
-</style></head><body>
-<h1>Gold MCX Verdict Report</h1>
-<div class="muted">Generated: ${esc(new Date().toLocaleString())}</div>
-<hr>
-<div class="k"><b>Verdict</b> ${esc((latest.verdict||"—").toUpperCase())}</div>
-<div class="k"><b>Record ID</b> ${esc(latest.record_id)}</div>
-<div class="k"><b>Date / TZ</b> ${esc(latest.created_date)} / ${esc(latest.tz)}</div>
-<div class="k"><b>Market</b> ${esc(latest.market)}</div>
-<div class="k"><b>Instrument</b> ${esc(latest.instrument)}</div>
-<div class="k"><b>Mode</b> ${esc(latest.mode)}</div>
-<div class="k"><b>Budget (INR)</b> ${esc(latest.budget_inr)}</div>
-<div class="k"><b>Risk/trade</b> ${esc(latest.risk_per_trade_inr)} &nbsp;&nbsp; <b>Daily cap</b> ${esc(latest.daily_loss_cap_inr)} &nbsp;&nbsp; <b>Max/day</b> ${esc(latest.max_trades_per_day)}</div>
-<hr>
-<div class="k"><b>Verdict rule</b> ${esc(latest.verdict_rule)}</div>
-<div class="k"><b>Setup</b> ${esc(latest.setup)}</div>
-<div class="k"><b>Support</b> ${esc(latest.levels_support)}</div>
-<div class="k"><b>Resistance</b> ${esc(latest.levels_resistance)}</div>
-<hr>
-<div class="k"><b>Next action</b><br>${esc(latest.next_action)}</div>
-<div class="k"><b>Notes</b><br>${esc(latest.notes)}</div>
-<script>setTimeout(()=>window.print(),250)</script>
-</body></html>`;
-}
-
 /** ====== INIT ====== **/
 document.getElementById("q").addEventListener("input", ()=> renderTable(STATE.records));
 document.getElementById("btnReload").addEventListener("click", async ()=>{
-  document.getElementById("subtitle").textContent = "Reloading verdicts…";
+  document.getElementById("subtitle").textContent = "Reloading…";
   await boot();
 });
-document.getElementById("btnExport").addEventListener("click", exportLatestJSON);
 document.getElementById("btnPdf").addEventListener("click", exportLatestPDF);
 
 async function boot(){
