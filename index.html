@@ -1,89 +1,39 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Admin - Upload MCX CSV</title>
-  <style>
-    body { font-family:system-ui; background:#0b0f14; color:#fff; padding:30px; }
-    .card { background:#111722; padding:20px; border-radius:12px; max-width: 720px; }
-    label { display:block; margin: 10px 0 6px; color:#9aa7b2; font-size: 12px; }
-    input[type="text"] { width: 100%; padding: 10px 12px; border-radius: 10px; border:1px solid #223; background:#0b0f14; color:#fff; }
-    button { padding:10px 20px; border-radius:10px; border:none; background:#238636; color:white; cursor:pointer; margin-top: 12px; }
-    button:hover { filter: brightness(1.08); }
-    .msg { margin-top:15px; color:#9aa7b2; white-space:pre-wrap; word-break: break-word; }
-    .err { color:#ff7b72; }
-    code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 8px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold MCX Verdict</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { text-align: center; margin-bottom: 20px; }
+        .verdict { font-size: 2em; text-align: center; margin-top: 10px; }
+        .confidence { font-size: 1.5em; text-align: center; margin-top: 10px; color: #555; }
+        .signals { margin-top: 20px; }
+        .signals ul { list-style-type: none; padding-left: 0; }
+        .signals li { background: #f1f1f1; margin-bottom: 5px; padding: 8px; border-radius: 4px; }
+        .footer { text-align: center; margin-top: 20px; font-size: 0.9em; color: #777; }
+    </style>
 </head>
 <body>
-
-<h2>Upload MCX Bhavcopy CSV</h2>
-
-<div class="card">
-  <label>Backend API Base (must be HTTPS if this page is HTTPS)</label>
-  <input id="apiBase" type="text" placeholder="https://your-backend.com" />
-
-  <label>CSV File</label>
-  <input type="file" id="file" accept=".csv">
-
-  <button id="btnUpload">Upload & Update</button>
-
-  <div class="msg" id="msg"></div>
-  <div class="msg" id="hint">
-    If you are using GitHub Pages (HTTPS), you cannot upload to <code>http://127.0.0.1:3000</code>.
-    Use <code>http://127.0.0.1:3000/admin.html</code> locally OR deploy backend to HTTPS.
-  </div>
-</div>
-
-<script>
-const msg = document.getElementById("msg");
-const apiBaseInput = document.getElementById("apiBase");
-
-// Default: if you opened this from backend, use same origin.
-apiBaseInput.value = location.origin;
-
-document.getElementById("btnUpload").addEventListener("click", async () => {
-  msg.classList.remove("err");
-  msg.textContent = "Uploading...";
-
-  const fileInput = document.getElementById("file");
-  if (!fileInput.files.length) {
-    msg.classList.add("err");
-    msg.textContent = "Select a CSV file first.";
-    return;
-  }
-
-  const apiBase = apiBaseInput.value.trim().replace(/\/$/, "");
-  const url = apiBase + "/admin/upload";
-
-  // Mixed content guard: https page cannot call http backend
-  if (location.protocol === "https:" && url.startsWith("http://")) {
-    msg.classList.add("err");
-    msg.textContent =
-      "Blocked by browser: HTTPS page cannot upload to HTTP backend (mixed content).\n" +
-      "Open admin from the backend (http://127.0.0.1:3000/admin.html) OR deploy backend to HTTPS.";
-    return;
-  }
-
-  const fd = new FormData();
-  fd.append("file", fileInput.files[0]);
-
-  try {
-    const res = await fetch(url, { method: "POST", body: fd });
-    const text = await res.text();
-
-    if (!res.ok) {
-      msg.classList.add("err");
-      msg.textContent = `Upload failed (HTTP ${res.status})\n\n` + text;
-      return;
-    }
-
-    msg.textContent = "OK\n\n" + text;
-  } catch (e) {
-    msg.classList.add("err");
-    msg.textContent = "Request failed:\n" + (e.message || String(e));
-  }
-});
-</script>
+    <div class="container">
+        <h1>Gold MCX Verdict</h1>
+        {% if verdict != 'N/A' %}
+            <div class="verdict">Verdict: <strong>{{ verdict }}</strong></div>
+            <div class="confidence">Confidence: {{ confidence | round(1) }}%</div>
+            <div class="signals">
+                <h3>Individual Signals</h3>
+                <ul>
+                    {% for sig in signals %}
+                        <li>{{ sig }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="footer">Last updated: {{ last_update }}</div>
+        {% else %}
+            <p>No data available. Please upload a CSV file via the admin page.</p>
+        {% endif %}
+    </div>
 </body>
 </html>
