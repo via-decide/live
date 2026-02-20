@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -130,8 +129,8 @@ tr:hover td{background:rgba(255,255,255,.02)}
 select{min-width:160px}
 .smallNote{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.35}
 
-/* Terms banner */
-.termsBanner{
+/* Updated ONE-LINE CTA banner */
+.ctaBanner{
   border:1px solid rgba(255,255,255,.08);
   background:rgba(255,255,255,.03);
   border-radius:14px;
@@ -161,13 +160,11 @@ select{min-width:160px}
     </div>
   </header>
 
-  <!-- TERMS CTA -->
-  <section id="termsBanner" class="termsBanner">
-    <div style="font-size:13px;color:#9fb0c3;font-weight:800;line-height:1.35">
-      This dashboard shows <b>verdicts / recommendations only</b>.
-      It is <b>not a trading call</b> and <b>does not guarantee profit</b>.
+  <!-- UPDATED ONE-LINE TRUST CTA -->
+  <section class="ctaBanner">
+    <div style="font-size:13px;color:#9fb0c3;font-weight:850;line-height:1.35">
+      Transparent: this dashboard only displays verdicts from your uploaded data — not financial advice, not a trading call, and no profit is guaranteed.
     </div>
-    <button id="openTerms" class="btn">View Terms</button>
   </section>
 
   <!-- Latest -->
@@ -193,7 +190,7 @@ select{min-width:160px}
           <div class="bar"><div id="confBar"></div></div>
         </div>
 
-        <!-- Live price input (commodity-aware) -->
+        <!-- Live price input -->
         <div class="k" style="margin-top:12px">
           <div class="h">Live price input</div>
           <div class="inputRow">
@@ -208,7 +205,7 @@ select{min-width:160px}
             <button class="btn" id="btnCalc">Calculate</button>
           </div>
           <div class="smallNote">
-            Select commodity + enter live price. Verdict/confidence updates using that commodity’s latest CSV row.
+            Updates the Latest card with the computed live verdict (fallback to latest available row if selected commodity is missing).
             JSON saved to <span class="v mono">localStorage: LIVE_VERDICT_JSON</span>.
           </div>
           <div id="calcMsg" class="smallNote"></div>
@@ -216,7 +213,7 @@ select{min-width:160px}
 
         <div class="grid">
           <div class="k"><div class="h">Instrument</div><div class="v" id="latestInst">—</div></div>
-          <div class="k"><div class="h">LTP</div><div class="v" id="latestLtp">—</div></div>
+          <div class="k"><div class="h" id="ltpLabel">LTP (CSV)</div><div class="v" id="latestLtp">—</div></div>
 
           <div class="k"><div class="h">Entry zone</div><div class="v small" id="latestEntry">—</div></div>
           <div class="k"><div class="h">Invalid if above</div><div class="v" id="latestInvalid">—</div></div>
@@ -264,57 +261,16 @@ select{min-width:160px}
   </section>
 </div>
 
-<!-- TERMS MODAL -->
-<div id="termsModal" style="
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.7);
-display:none;
-align-items:center;
-justify-content:center;
-z-index:9999;
-padding:20px;">
-  <div style="
-  max-width:520px;
-  width:100%;
-  background:#0f1722;
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:16px;
-  padding:20px;">
-    <h3 style="margin-top:0">Terms & Disclaimer</h3>
-    <p style="font-size:13px;color:#9fb0c3;line-height:1.5;margin-bottom:0">
-      • This dashboard provides <b>informational verdicts and trade ideas only</b>.<br><br>
-      • It is <b>NOT financial advice</b> and <b>NOT a trading call</b>.<br><br>
-      • No guarantees of profit, performance, or accuracy are made.<br><br>
-      • Markets involve risk. You are solely responsible for your trades and capital.<br><br>
-      • Always verify with your broker, risk plan, and personal judgment before acting.
-    </p>
-
-    <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px">
-      <button id="closeTerms" class="btn">Close</button>
-      <button id="acceptTerms" class="btn">I Understand</button>
-    </div>
-  </div>
-</div>
-
 <script>
 /** ====== SETTINGS ====== **/
 const LS_CSV_KEY = "VERDICT_CSV";         // written by admin.html
 const LS_CSV_TS  = "VERDICT_CSV_TS";
-const LS_LIVE_JSON = "LIVE_VERDICT_JSON"; // generated JSON stored here
-const TERMS_KEY = "TERMS_ACCEPTED_V1";
+const LS_LIVE_JSON = "LIVE_VERDICT_JSON";
 const CSV_URL = "verdict.csv";
 
-/** Embedded fallback */
+/** Embedded fallback (gold only) */
 const EMBEDDED = `record_id,date,ltp,capital_inr,market,instrument,mode,verdict,confidence_score_percent,entry_zone,invalid_if_above,risk_per_trade_inr,daily_loss_cap_inr
 MCXGOLD-20260220-V2,2026-02-20,154700,35000,MCX,Gold Futures (02APR2026),Intraday,SELL,68,"Below 154600 breakdown","155200",350,700`;
-
-/** ====== TERMS ====== **/
-const modal=document.getElementById("termsModal");
-document.getElementById("openTerms").onclick=()=>modal.style.display="flex";
-document.getElementById("closeTerms").onclick=()=>modal.style.display="none";
-document.getElementById("acceptTerms").onclick=()=>{ localStorage.setItem(TERMS_KEY,"1"); modal.style.display="none"; };
-if(!localStorage.getItem(TERMS_KEY)) modal.style.display="flex";
 
 /** ====== CSV PARSER ====== **/
 function parseCSV(text){
@@ -380,7 +336,7 @@ function esc(s){
     .replaceAll("'","&#039;");
 }
 
-/** ====== LIVE VERDICT LOGIC (same as gold version) ====== **/
+/** ====== LIVE VERDICT LOGIC (simple threshold parsing) ====== **/
 function extractFirstNumber(s){
   const m = String(s||"").replace(/,/g,"").match(/(-?\d+(\.\d+)?)/);
   return m ? Number(m[1]) : null;
@@ -393,13 +349,9 @@ function computeLiveUpdate(row, livePrice){
 
   let verdict = (row.verdict||"HOLD").toUpperCase();
   let conf = baseConf;
-  let reason = "Based on CSV template";
 
   if(invalidAbove != null && livePrice > invalidAbove){
-    verdict = "HOLD";
-    conf = Math.max(10, Math.min(35, baseConf * 0.5));
-    reason = `Invalidated: live price (${livePrice}) > invalid_if_above (${invalidAbove})`;
-    return { verdict, conf, reason, invalidated:true };
+    return { verdict:"HOLD", conf:Math.max(10, Math.min(35, baseConf*0.5)), reason:"Invalidated", invalidated:true };
   }
 
   const isBelow = entryText.includes("below");
@@ -407,44 +359,25 @@ function computeLiveUpdate(row, livePrice){
 
   if(entryNum != null && isBelow){
     if(livePrice < entryNum){
-      verdict = "SELL";
       const dist = Math.min(1, Math.max(0, (entryNum - livePrice) / Math.max(1, entryNum*0.01)));
-      conf = Math.max(baseConf, Math.min(95, baseConf + dist*20));
-      reason = `Trigger: price (${livePrice}) below entry threshold (${entryNum})`;
-    }else{
-      verdict = "HOLD";
-      conf = Math.max(15, Math.min(55, baseConf * 0.7));
-      reason = `No trigger: price (${livePrice}) not below entry threshold (${entryNum})`;
+      return { verdict:"SELL", conf:Math.max(baseConf, Math.min(95, baseConf + dist*20)), reason:"Trigger below", invalidated:false };
     }
-  } else if(entryNum != null && isAbove){
-    if(livePrice > entryNum){
-      verdict = "BUY";
-      const dist = Math.min(1, Math.max(0, (livePrice - entryNum) / Math.max(1, entryNum*0.01)));
-      conf = Math.max(baseConf, Math.min(95, baseConf + dist*20));
-      reason = `Trigger: price (${livePrice}) above entry threshold (${entryNum})`;
-    }else{
-      verdict = "HOLD";
-      conf = Math.max(15, Math.min(55, baseConf * 0.7));
-      reason = `No trigger: price (${livePrice}) not above entry threshold (${entryNum})`;
-    }
-  } else {
-    verdict = (row.verdict||"HOLD").toUpperCase();
-    if(invalidAbove != null){
-      const headroom = Math.max(0, invalidAbove - livePrice);
-      const factor = Math.min(1, headroom / Math.max(1, invalidAbove*0.01));
-      conf = Math.max(10, Math.min(90, baseConf * (0.7 + factor*0.3)));
-      reason = `Fallback: entry_zone not parseable; using CSV verdict`;
-    } else {
-      conf = baseConf;
-      reason = `Fallback: using CSV verdict`;
-    }
+    return { verdict:"HOLD", conf:Math.max(15, Math.min(55, baseConf*0.7)), reason:"No trigger", invalidated:false };
   }
 
-  return { verdict, conf, reason, invalidated:false };
+  if(entryNum != null && isAbove){
+    if(livePrice > entryNum){
+      const dist = Math.min(1, Math.max(0, (livePrice - entryNum) / Math.max(1, entryNum*0.01)));
+      return { verdict:"BUY", conf:Math.max(baseConf, Math.min(95, baseConf + dist*20)), reason:"Trigger above", invalidated:false };
+    }
+    return { verdict:"HOLD", conf:Math.max(15, Math.min(55, baseConf*0.7)), reason:"No trigger", invalidated:false };
+  }
+
+  return { verdict, conf:baseConf, reason:"Fallback", invalidated:false };
 }
 
 /** ====== STATE ====== **/
-let STATE = { source:"—", records:[], filter:"ALL" };
+let STATE = { source:"—", records:[], filter:"ALL", liveOverride:null };
 
 /** ====== RENDER ====== **/
 function render(){
@@ -456,8 +389,8 @@ function render(){
 
   document.getElementById("sourceLabel").textContent = STATE.source;
 
-  const latest = pickLatest(filtered);
-  if(!latest){
+  const baseLatest = pickLatest(filtered);
+  if(!baseLatest){
     document.getElementById("latestBlock").style.display="none";
     document.getElementById("latestEmpty").style.display="block";
     document.getElementById("tableWrap").style.display="none";
@@ -468,32 +401,36 @@ function render(){
   document.getElementById("latestEmpty").style.display="none";
   document.getElementById("latestBlock").style.display="block";
 
-  document.getElementById("subtitle").textContent = `Latest update: ${latest.date || "—"}`;
-  document.getElementById("latestVerdict").textContent = (latest.verdict||"—").toUpperCase();
-  document.getElementById("latestDot").className = `dot ${verdictDot(latest.verdict)}`;
+  const show = STATE.liveOverride?.displayRow ? STATE.liveOverride.displayRow : baseLatest;
+  const isLive = !!STATE.liveOverride?.displayRow;
 
-  const ltp = safeNum(latest.ltp);
-  const cap = safeNum(latest.capital_inr);
-  const rpt = safeNum(latest.risk_per_trade_inr);
-  const dlc = safeNum(latest.daily_loss_cap_inr);
-  const conf = Math.max(0, Math.min(100, safeNum(latest.confidence_score_percent) ?? 0));
+  document.getElementById("subtitle").textContent =
+    isLive ? `Live updated: ${new Date(STATE.liveOverride.ts).toLocaleString()}` : `Latest update: ${show.date || "—"}`;
 
-  document.getElementById("latestMeta").textContent = `${latest.market||"—"} • ${latest.mode||"—"} • ${latest.record_id||"—"}`;
-  document.getElementById("latestInst").textContent = `${latest.market||"—"} / ${latest.instrument||"—"}`;
+  document.getElementById("latestVerdict").textContent = (show.verdict||"—").toUpperCase();
+  document.getElementById("latestDot").className = `dot ${verdictDot(show.verdict)}`;
+
+  const ltp = safeNum(show.ltp);
+  const cap = safeNum(show.capital_inr);
+  const rpt = safeNum(show.risk_per_trade_inr);
+  const dlc = safeNum(show.daily_loss_cap_inr);
+  const conf = Math.max(0, Math.min(100, safeNum(show.confidence_score_percent) ?? 0));
+
+  const metaBase = `${show.market||"—"} • ${show.mode||"—"} • ${show.record_id||"—"}`;
+  document.getElementById("latestMeta").textContent = isLive ? `LIVE • ${STATE.liveOverride.commodity} • ${metaBase}` : metaBase;
+
+  document.getElementById("latestInst").textContent = `${show.market||"—"} / ${show.instrument||"—"}`;
   document.getElementById("latestLtp").textContent = ltp==null ? "—" : `₹${fmtINR(ltp)}`;
-  document.getElementById("latestEntry").textContent = latest.entry_zone || "—";
-  document.getElementById("latestInvalid").textContent = latest.invalid_if_above || "—";
+  document.getElementById("ltpLabel").textContent = isLive ? "LTP (Live)" : "LTP (CSV)";
+  document.getElementById("latestEntry").textContent = show.entry_zone || "—";
+  document.getElementById("latestInvalid").textContent = show.invalid_if_above || "—";
   document.getElementById("latestCap").textContent = cap==null ? "—" : `₹${fmtINR(cap)}`;
   document.getElementById("latestRisk").textContent = `₹${fmtINR(rpt)} / ₹${fmtINR(dlc)}`;
 
   document.getElementById("latestConf").textContent = `${conf}%`;
   const bar = document.getElementById("confBar");
   bar.style.width = `${conf}%`;
-  bar.style.background = (verdictDot(latest.verdict)==="bad") ? "var(--bad)" : (verdictDot(latest.verdict)==="ok") ? "var(--ok)" : "var(--warn)";
-
-  // sync live commodity dropdown to current filter (if not ALL)
-  const lc = document.getElementById("liveCommodity");
-  if(STATE.filter !== "ALL") lc.value = STATE.filter;
+  bar.style.background = (verdictDot(show.verdict)==="bad") ? "var(--bad)" : (verdictDot(show.verdict)==="ok") ? "var(--ok)" : "var(--warn)";
 
   // table
   const tbody=document.getElementById("rows");
@@ -521,8 +458,6 @@ function render(){
     `;
     tbody.appendChild(tr);
   }
-
-  document.getElementById("calcMsg").textContent = "";
 }
 
 /** ====== LOAD ORDER: localStorage(admin) -> verdict.csv -> embedded ====== **/
@@ -551,98 +486,78 @@ async function loadData(){
   }
 }
 
-/** ====== BACKEND POST (optional) ====== **/
-async function postLiveToBackend(payload){
-  try{
-    const res = await fetch("/api/live", {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify(payload)
-    });
-    if(!res.ok) throw new Error("backend not ok");
-    return await res.json().catch(()=>({ok:true}));
-  }catch{
-    return null;
-  }
-}
-
-/** ====== COMMODITY-AWARE LIVE CALC ====== **/
+/** ====== LIVE CALC (commodity-aware with fallback) ====== **/
 async function onCalculate(){
-  const liveCommodity = document.getElementById("liveCommodity").value; // GOLD/SILVER/...
-  const v = safeNum(document.getElementById("livePrice").value);
-  if(v == null || v <= 0){
-    document.getElementById("calcMsg").textContent = "Enter a valid live price.";
+  const chosen = document.getElementById("liveCommodity").value;
+  const livePrice = safeNum(document.getElementById("livePrice").value);
+  const msgEl = document.getElementById("calcMsg");
+
+  if(livePrice == null || livePrice <= 0){
+    msgEl.textContent = "Enter a valid live price.";
     return;
   }
 
-  // use latest row from selected commodity (not current filter)
-  const forCommodity = (STATE.records || []).filter(r => commodityKeyFromInstrument(r.instrument) === liveCommodity);
-  const row = pickLatest(forCommodity);
+  const byChosen = (STATE.records||[]).filter(r => commodityKeyFromInstrument(r.instrument) === chosen);
+  let row = pickLatest(byChosen);
 
+  let note = "";
   if(!row){
-    document.getElementById("calcMsg").textContent = `No data available for ${liveCommodity}.`;
-    return;
+    row = pickLatest(STATE.records||[]);
+    if(!row){
+      msgEl.textContent = "No data available (CSV empty).";
+      return;
+    }
+    const fallbackKey = commodityKeyFromInstrument(row.instrument);
+    note = `No ${chosen} row in CSV. Using latest available: ${fallbackKey} (${row.record_id}).`;
   }
 
-  const live = computeLiveUpdate(row, v);
+  const live = computeLiveUpdate(row, livePrice);
 
   const json = {
     type: "live_verdict_update",
     ts: Date.now(),
-    date: new Date().toISOString(),
-    commodity: liveCommodity,
+    commodity_selected: chosen,
+    commodity_used: commodityKeyFromInstrument(row.instrument),
+    note,
     record_id: row.record_id || null,
-    market: row.market || null,
     instrument: row.instrument || null,
-    mode: row.mode || null,
     csv_ltp: safeNum(row.ltp),
-    live_ltp: v,
-    entry_zone: row.entry_zone || null,
-    invalid_if_above: row.invalid_if_above || null,
-    verdict_prev: (row.verdict||"").toUpperCase(),
-    confidence_prev: safeNum(row.confidence_score_percent),
+    live_ltp: livePrice,
     verdict_live: live.verdict,
-    confidence_live: Math.round(live.conf*10)/10,
-    reason_live: live.reason,
-    invalidated: !!live.invalidated
+    confidence_live: Math.round(live.conf*10)/10
   };
-
   localStorage.setItem(LS_LIVE_JSON, JSON.stringify(json, null, 2));
-  const backendResp = await postLiveToBackend(json);
 
-  // reflect live result into that commodity's latest row in-memory (and UI if you're viewing it)
-  row.ltp = String(v);
-  row.verdict = live.verdict;
-  row.confidence_score_percent = String(Math.round(live.conf*10)/10);
+  const displayRow = Object.assign({}, row, {
+    ltp: String(livePrice),
+    verdict: live.verdict,
+    confidence_score_percent: String(Math.round(live.conf*10)/10)
+  });
 
+  STATE.liveOverride = { commodity: chosen, displayRow, note, ts: Date.now() };
   render();
 
-  document.getElementById("calcMsg").textContent =
-    backendResp
-      ? `Updated ${liveCommodity}. Saved locally + backend OK.`
-      : `Updated ${liveCommodity}. Saved locally. (Backend /api/live not available.)`;
+  msgEl.textContent = (note ? note + " " : "") + "Updated.";
 }
 
-/** ====== PDF EXPORT (current filter latest) ====== **/
+/** ====== PDF EXPORT ====== **/
 function wrap(doc, text, x, y, maxW){
   const lines = doc.splitTextToSize(String(text||"—"), maxW);
   doc.text(lines, x, y);
   return y + (lines.length * 14);
 }
 function exportPDF(){
-  const all = STATE.records || [];
-  const filtered = all.filter(r=>{
-    if(STATE.filter==="ALL") return true;
-    return commodityKeyFromInstrument(r.instrument) === STATE.filter;
-  });
-  const latest = pickLatest(filtered);
-  if(!latest){
-    alert("No data available for this filter.");
-    return;
-  }
-
   const jsPDF = window.jspdf && window.jspdf.jsPDF;
   if(!jsPDF){ window.print(); return; }
+
+  const latest = STATE.liveOverride?.displayRow
+    ? STATE.liveOverride.displayRow
+    : pickLatest((STATE.records||[]).filter(r=>{
+        if(STATE.filter==="ALL") return true;
+        return commodityKeyFromInstrument(r.instrument)===STATE.filter;
+      }));
+
+  if(!latest){ alert("No data available."); return; }
 
   const doc = new jsPDF({unit:"pt", format:"a4"});
   const margin=40, maxW=515;
@@ -671,6 +586,8 @@ function exportPDF(){
 /** ====== INIT ====== **/
 async function boot(){
   await loadData();
+  STATE.liveOverride = null;
+  document.getElementById("calcMsg").textContent = "";
   render();
 }
 
@@ -694,8 +611,6 @@ document.getElementById("btnCalc").addEventListener("click", onCalculate);
 document.getElementById("livePrice").addEventListener("keydown", (e)=>{
   if(e.key === "Enter") onCalculate();
 });
-
-// if user changes dropdown commodity, clear message
 document.getElementById("liveCommodity").addEventListener("change", ()=>{
   document.getElementById("calcMsg").textContent = "";
 });
