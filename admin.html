@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Admin • Upload Verdict CSV</title>
 <meta name="theme-color" content="#0b0f14" />
+
 <style>
 :root{
   color-scheme:dark;
@@ -15,707 +16,208 @@
   --ok:#2fe67a;
   --warn:#ffd24a;
   --bad:#ff5c7a;
-  --shadow: 0 10px 30px rgba(0,0,0,.35);
+  --shadow:0 10px 30px rgba(0,0,0,.35);
 }
 *{box-sizing:border-box}
 body{
   margin:0;
-  font-family:system-ui,Segoe UI,Roboto,Arial;
-  background:
-    radial-gradient(1000px 700px at 20% 0%,rgba(72,61,255,.15),transparent 60%),
-    radial-gradient(900px 600px at 90% 10%,rgba(0,212,255,.10),transparent 55%),
-    var(--bg);
+  font-family:system-ui;
+  background:var(--bg);
   color:var(--text);
   padding:24px;
 }
-.wrap{max-width:1100px;margin:auto}
+.wrap{max-width:1000px;margin:auto}
 header{
-  display:flex;justify-content:space-between;align-items:flex-start;
-  gap:12px;flex-wrap:wrap;margin-bottom:14px
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:16px
 }
 h1{margin:0;font-size:20px}
-.sub{color:var(--muted);font-size:13px;line-height:1.35}
+.sub{color:var(--muted);font-size:13px}
 .btn{
   border:1px solid var(--line);
   background:rgba(255,255,255,.05);
   color:var(--text);
-  padding:9px 12px;border-radius:12px;
-  cursor:pointer;font-weight:900;font-size:13px;
-  user-select:none;
+  padding:9px 12px;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:900;
+  font-size:13px
 }
 .btn:hover{background:rgba(255,255,255,.08)}
 .btn.ok{border-color:rgba(47,230,122,.35)}
 .btn.danger{border-color:rgba(255,92,122,.35)}
-.btn.ghost{background:transparent}
+
 .panel{
   border:1px solid var(--line);
   border-radius:16px;
   background:rgba(255,255,255,.02);
   box-shadow:var(--shadow);
-  overflow:hidden;
-  margin-bottom:14px
+  margin-bottom:14px;
+  overflow:hidden
 }
 .panel .hd{
   padding:12px 14px;
   border-bottom:1px solid var(--line);
   font-weight:950;
-  display:flex;justify-content:space-between;align-items:center;
-  gap:10px;flex-wrap:wrap
 }
 .panel .bd{padding:14px}
+
 textarea{
   width:100%;
   min-height:260px;
-  resize:vertical;
   border:1px solid var(--line);
   background:rgba(0,0,0,.25);
   color:var(--text);
   border-radius:14px;
   padding:12px;
-  outline:none;
-  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  font-family:monospace;
   font-size:12px;
-  line-height:1.4;
+  resize:vertical
 }
-input[type="text"]{
-  width:100%;
-  border:1px solid var(--line);
-  background:rgba(0,0,0,.25);
-  color:var(--text);
-  border-radius:14px;
-  padding:10px 12px;
-  outline:none;
-  font-size:13px;
-  font-weight:800;
-}
-.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center}
-.pill{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:7px 10px;border-radius:999px;
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.03);
-  font-weight:950;font-size:12px;
-}
-.dot{width:10px;height:10px;border-radius:50%}
-.okDot{background:var(--ok)}
-.warnDot{background:var(--warn)}
-.badDot{background:var(--bad)}
+
 .kv{
   display:grid;
   grid-template-columns:200px 1fr;
   gap:6px 12px;
-  font-size:13px;
+  font-size:13px
 }
-.kv .k{color:var(--muted);font-weight:800}
-.kv .v{font-weight:900}
-.grid2{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-@media (max-width:860px){ .grid2{grid-template-columns:1fr} .kv{grid-template-columns:160px 1fr;} }
-hr{border:none;border-top:1px solid var(--line);margin:12px 0}
-small{color:var(--muted)}
-code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
-.drop{
-  border:1px dashed rgba(255,255,255,.18);
-  border-radius:14px;
-  padding:10px 12px;
-  background:rgba(255,255,255,.02);
+.k{color:var(--muted);font-weight:800}
+.v{font-weight:900}
+
+.empty{
+  text-align:center;
+  padding:24px;
   color:var(--muted);
-  font-size:12px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
+  font-weight:900
 }
-.drop strong{color:var(--text)}
-.badge{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:6px 10px;border-radius:999px;
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.03);
-  font-size:12px;font-weight:950;
-}
-.tableWrap{overflow:auto;border:1px solid var(--line);border-radius:14px}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th,td{padding:10px 10px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left;vertical-align:top}
-th{color:var(--muted);font-weight:950;background:rgba(255,255,255,.02);position:sticky;top:0}
-tr:last-child td{border-bottom:none}
-.warnText{color:var(--warn);font-weight:900}
-.badText{color:var(--bad);font-weight:900}
-.okText{color:var(--ok);font-weight:900}
 </style>
 </head>
 
 <body>
 <div class="wrap">
-  <header>
-    <div>
-      <h1>Admin • Verdict CSV</h1>
-      <div class="sub">
-        Paste your CSV and click <b>Save</b>. The index page reads from <b>localStorage</b>.<br>
-        Works on GitHub Pages (no backend required).
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn ghost" id="btnImport">Import .csv</button>
-      <input id="filePick" type="file" accept=".csv,text/csv" style="display:none" />
-      <button class="btn" id="btnLoadSample">Load Sample</button>
-      <button class="btn ok" id="btnSave">Save</button>
-      <button class="btn" id="btnPreview">Preview</button>
-      <button class="btn" id="btnDownload">Download</button>
-      <button class="btn danger" id="btnClear">Clear</button>
-    </div>
-  </header>
 
-  <section class="panel">
-    <div class="hd">
-      <div>Frontend CTA (one line)</div>
-      <div class="pill" id="ctaPill"><span class="dot warnDot"></span><span id="ctaStatus">Not saved</span></div>
+<header>
+  <div>
+    <h1>Admin • Verdict CSV</h1>
+    <div class="sub">
+      Paste CSV below and click Save.  
+      Index reads from <b>localStorage.VERDICT_CSV</b>
     </div>
-    <div class="bd">
-      <div class="sub" style="margin-bottom:10px">
-        Keep this <b>one line</b>. No logic, just trust-building. Saved at <code>localStorage.VERDICT_CTA</code>.
-      </div>
-      <input id="ctaBox" type="text" maxlength="180" placeholder="Example: Verdicts use live price + OI/volume confirmation and cross-market drivers — audit-logged." />
-      <div class="row">
-        <button class="btn ok" id="btnSaveCTA">Save CTA</button>
-        <button class="btn danger" id="btnClearCTA">Clear CTA</button>
-        <span class="badge"><span class="dot warnDot"></span><span id="ctaLen">0</span>/180</span>
-      </div>
-    </div>
-  </section>
+  </div>
 
-  <section class="panel">
-    <div class="hd">
-      <div>Paste CSV</div>
-      <div class="pill" id="statusPill"><span class="dot warnDot"></span><span id="statusText">Not saved</span></div>
-    </div>
-    <div class="bd">
-      <div class="drop" id="dropZone">
-        <div><strong>Tip:</strong> Drag & drop a .csv file here, or use <b>Import .csv</b>.</div>
-        <div class="badge"><span class="dot warnDot"></span><span id="dropHint">No file</span></div>
-      </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn" id="btnSample">Load Sample</button>
+    <button class="btn ok" id="btnSave">Save</button>
+    <button class="btn" id="btnPreview">Preview</button>
+    <button class="btn danger" id="btnClear">Clear</button>
+  </div>
+</header>
 
-      <div style="margin-top:12px">
-        <textarea id="csvBox" spellcheck="false" placeholder="Paste CSV here..."></textarea>
-      </div>
+<section class="panel">
+  <div class="hd">Paste CSV</div>
+  <div class="bd">
+    <textarea id="csvBox" placeholder="Paste CSV here..."></textarea>
+    <div class="sub" style="margin-top:8px">
+Required columns:
+record_id,date,ltp,capital_inr,market,instrument,mode,verdict,confidence_score_percent,entry_zone,invalid_if_above,risk_per_trade_inr,daily_loss_cap_inr
+    </div>
+  </div>
+</section>
 
-      <div class="row">
-        <small>
-          Required columns (header row):<br>
-          <b>record_id,date,capital_inr,market,instrument,mode,verdict,confidence_score_percent,entry_zone,invalid_if_above,risk_per_trade_inr,daily_loss_cap_inr</b><br>
-          Notes: verdict ∈ <b>BUY/SELL/HOLD</b> (auto-normalized); confidence must be <b>0–100</b>.
-        </small>
-      </div>
+<section class="panel">
+  <div class="hd">Saved Status</div>
+  <div class="bd">
+    <div class="kv">
+      <div class="k">Saved rows</div><div class="v" id="savedRows">—</div>
+      <div class="k">Last saved</div><div class="v" id="savedAt">—</div>
     </div>
-  </section>
+    <div id="previewOut" style="margin-top:14px"></div>
+  </div>
+</section>
 
-  <section class="panel">
-    <div class="hd">
-      <div>Saved Status</div>
-      <div class="sub">Keys: <b>localStorage.VERDICT_CSV</b>, <b>localStorage.VERDICT_CSV_TS</b></div>
-    </div>
-    <div class="bd">
-      <div class="kv">
-        <div class="k">Saved rows</div><div class="v" id="savedRows">—</div>
-        <div class="k">Last saved</div><div class="v" id="savedAt">—</div>
-        <div class="k">Duplicate record_id</div><div class="v" id="dupCount">—</div>
-        <div class="k">Verdict breakdown</div><div class="v" id="verdictCounts">—</div>
-        <div class="k">Source used by index</div><div class="v">localStorage (admin) → verdict.csv → embedded</div>
-      </div>
-      <hr />
-      <div class="sub" id="previewHint">Click <b>Preview</b> to validate your CSV format.</div>
-      <div id="previewOut" style="margin-top:10px"></div>
-    </div>
-  </section>
 </div>
 
 <script>
-/** Keys must match index.html */
-const LS_CSV_KEY = "VERDICT_CSV";
-const LS_CSV_TS  = "VERDICT_CSV_TS";
-const LS_CTA_KEY = "VERDICT_CTA";
-const LS_CTA_TS  = "VERDICT_CTA_TS";
+const LS_CSV_KEY="VERDICT_CSV";
+const LS_CSV_TS="VERDICT_CSV_TS";
 
-/** Sample matches your format */
-const SAMPLE = `record_id,date,capital_inr,market,instrument,mode,verdict,confidence_score_percent,entry_zone,invalid_if_above,risk_per_trade_inr,daily_loss_cap_inr
-MCXSILVER-20260220-V1,2026-02-20,35000,MCX,Silver Futures (Current Month),Intraday,SELL,66,"Below intraday low breakdown","Above VWAP / minor resistance",350,700
-MCXZINC-20260220-V1,2026-02-20,35000,MCX,Zinc Futures (Current Month),Intraday,SELL,61,"Below intraday low breakdown","Above VWAP / minor resistance",350,700
-MCXCOPPER-20260220-V1,2026-02-20,35000,MCX,Copper Futures (Current Month),Intraday,SELL,63,"Below intraday low breakdown","Above VWAP / minor resistance",350,700`;
-
-/** Strict required header keys */
-const REQUIRED = [
-  "record_id","date","capital_inr","market","instrument","mode","verdict",
-  "confidence_score_percent","entry_zone","invalid_if_above","risk_per_trade_inr","daily_loss_cap_inr"
+const REQUIRED=[
+"record_id","date","ltp","capital_inr","market","instrument","mode","verdict",
+"confidence_score_percent","entry_zone","invalid_if_above","risk_per_trade_inr","daily_loss_cap_inr"
 ];
 
-/** Allowed verdict values (we normalize) */
-const VERDICT_CANON = ["BUY","SELL","HOLD"];
+const SAMPLE=`record_id,date,ltp,capital_inr,market,instrument,mode,verdict,confidence_score_percent,entry_zone,invalid_if_above,risk_per_trade_inr,daily_loss_cap_inr
+MCXGOLD-20260220-V1,2026-02-20,154700,35000,MCX,Gold Futures (02APR2026),Intraday,SELL,68,"Below 154600 breakdown","155200",350,700
+MCXSILVER-20260220-V1,2026-02-20,182450,35000,MCX,Silver Futures (05MAR2026),Intraday,SELL,64,"Below 182000 breakdown","183200",350,700
+MCXCRUDE-20260220-V1,2026-02-20,6280,35000,MCX,Crude Oil Futures (19MAR2026),Intraday,BUY,72,"Above 6240 breakout","6180",350,700
+MCXZINC-20260220-V1,2026-02-20,267.5,35000,MCX,Zinc Futures (28MAR2026),Intraday,SELL,61,"Below 266 breakdown","270",350,700
+MCXCOPPER-20260220-V1,2026-02-20,748.3,35000,MCX,Copper Futures (29MAR2026),Intraday,BUY,66,"Above 744 breakout","738",350,700`;
 
-/** Helpers */
-function esc(s){
-  return String(s||"")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-function nowTS(){ return String(Date.now()); }
-function toISODate(d){
-  // Accept YYYY-MM-DD or try Date parse; return "" if invalid
-  const s = String(d||"").trim();
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  const dd = new Date(s);
-  if(isNaN(dd.getTime())) return "";
-  const y = dd.getFullYear();
-  const m = String(dd.getMonth()+1).padStart(2,"0");
-  const day = String(dd.getDate()).padStart(2,"0");
-  return `${y}-${m}-${day}`;
-}
-function toNum(x){
-  const s = String(x??"").trim().replaceAll(",","");
-  if(s==="") return NaN;
-  const n = Number(s);
-  return Number.isFinite(n) ? n : NaN;
-}
-function normalizeVerdict(v){
-  const s = String(v||"").trim().toUpperCase();
-  if(s==="") return "";
-  if(s==="GO" || s==="BUY") return "BUY";
-  if(s==="CHANGE" || s==="SELL") return "SELL";
-  if(s==="NA" || s==="N/A") return "HOLD";
-  if(s==="HOLD") return "HOLD";
-  return s; // will fail validation if unknown
-}
-function cleanCSVText(text){
-  // normalize line endings, remove trailing spaces, ensure final newline
-  const t = String(text||"").replaceAll("\r\n","\n").replaceAll("\r","\n").trim();
-  return t ? (t + "\n") : "";
-}
-
-/** Quoted-safe CSV parse */
 function parseCSV(text){
-  const rows=[]; let i=0, f="", row=[], q=false;
-  const pf=()=>{ row.push(f); f=""; };
-  const pr=()=>{ rows.push(row); row=[]; };
-  while(i<text.length){
-    const c=text[i];
-    if(q){
-      if(c==='"'){ if(text[i+1]==='"'){ f+='"'; i++; } else q=false; }
-      else f+=c;
-    } else {
-      if(c==='"') q=true;
-      else if(c===',') pf();
-      else if(c==='\n'){ pf(); if(row.length>1 || (row[0]||"").trim()!=="") pr(); }
-      else if(c!=='\r') f+=c;
-    }
-    i++;
-  }
-  if(f.length || row.length){ pf(); if(row.length>1 || (row[0]||"").trim()!=="") pr(); }
-  const header=(rows.shift()||[]).map(x=>String(x||"").trim());
-  const out = rows
-    .filter(r=>r.some(x=>String(x||"").trim()!==""))
-    .map(r=>{
-      const o={};
-      header.forEach((h,idx)=> o[h]=String(r[idx]??"").trim());
-      return o;
-    });
-  return { header, rows: out };
+const rows=text.trim().split("\n").map(r=>r.split(","));
+const header=rows.shift().map(h=>h.trim());
+return {header,rows};
 }
 
-function setStatus(kind, text){
-  const pill=document.getElementById("statusPill");
-  const dot=pill.querySelector(".dot");
-  dot.className = "dot " + (kind==="ok" ? "okDot" : kind==="bad" ? "badDot" : "warnDot");
-  document.getElementById("statusText").textContent = text;
-}
-function setCTAStatus(kind, text){
-  const pill=document.getElementById("ctaPill");
-  const dot=pill.querySelector(".dot");
-  dot.className = "dot " + (kind==="ok" ? "okDot" : kind==="bad" ? "badDot" : "warnDot");
-  document.getElementById("ctaStatus").textContent = text;
+function validate(text){
+if(!text||text.trim().length<10)return{ok:false,msg:"CSV empty"};
+const {header,rows}=parseCSV(text);
+const missing=REQUIRED.filter(c=>!header.includes(c));
+if(missing.length)return{ok:false,msg:"Missing: "+missing.join(", ")};
+if(!rows.length)return{ok:false,msg:"No data rows"};
+return{ok:true,msg:"Valid CSV • "+rows.length+" rows"};
 }
 
 function readSaved(){
-  const raw = localStorage.getItem(LS_CSV_KEY);
-  const ts = localStorage.getItem(LS_CSV_TS);
-  const rows = raw ? raw.trim().split("\n").filter(Boolean).length - 1 : 0; // minus header
-  document.getElementById("savedRows").textContent = String(Math.max(rows,0));
-  if(ts){
-    const d = new Date(Number(ts));
-    document.getElementById("savedAt").textContent = isNaN(d.getTime()) ? "—" : d.toLocaleString();
-  } else {
-    document.getElementById("savedAt").textContent = "—";
-  }
-
-  // Stats
-  try{
-    if(raw && raw.trim().length){
-      const res = validate(raw, {quiet:true});
-      if(res.ok){
-        const ids = new Map();
-        let dup = 0;
-        const vc = {BUY:0,SELL:0,HOLD:0,OTHER:0};
-        for(const r of res.rows){
-          const id = String(r.record_id||"").trim();
-          if(id){
-            ids.set(id, (ids.get(id)||0)+1);
-          }
-          const v = String(r.verdict||"").toUpperCase();
-          if(vc[v]!==undefined) vc[v]++; else vc.OTHER++;
-        }
-        for(const [k,v] of ids.entries()){ if(v>1) dup++; }
-        document.getElementById("dupCount").textContent = dup ? `${dup} duplicate id(s)` : "0";
-        document.getElementById("verdictCounts").textContent =
-          `BUY ${vc.BUY} • SELL ${vc.SELL} • HOLD ${vc.HOLD}` + (vc.OTHER?` • OTHER ${vc.OTHER}`:"");
-      } else {
-        document.getElementById("dupCount").textContent = "—";
-        document.getElementById("verdictCounts").textContent = "—";
-      }
-    } else {
-      document.getElementById("dupCount").textContent = "0";
-      document.getElementById("verdictCounts").textContent = "—";
-    }
-  } catch {
-    document.getElementById("dupCount").textContent = "—";
-    document.getElementById("verdictCounts").textContent = "—";
-  }
-
-  return raw;
+const raw=localStorage.getItem(LS_CSV_KEY);
+const ts=localStorage.getItem(LS_CSV_TS);
+document.getElementById("savedRows").textContent=raw?(raw.match(/\n/g)||[]).length:"0";
+if(ts){
+const d=new Date(Number(ts));
+document.getElementById("savedAt").textContent=d.toLocaleString();
+}else{
+document.getElementById("savedAt").textContent="—";
+}
+return raw;
 }
 
-function readSavedCTA(){
-  const cta = localStorage.getItem(LS_CTA_KEY) || "";
-  const ts = localStorage.getItem(LS_CTA_TS);
-  if(cta){
-    setCTAStatus("ok", ts ? "Loaded saved CTA" : "Loaded CTA");
-  } else {
-    setCTAStatus("warn", "Not saved");
-  }
-  return cta;
-}
-
-/**
- * Validate + normalize rows.
- * options.quiet => skip heavy preview rendering
- */
-function validate(text, options={}){
-  const t = cleanCSVText(text);
-  if(t.length < 10) return { ok:false, msg:"Paste CSV (not empty)." };
-
-  const { header, rows } = parseCSV(t);
-  if(!header.length) return { ok:false, msg:"Missing header row." };
-
-  const missing = REQUIRED.filter(k => !header.includes(k));
-  if(missing.length) return { ok:false, msg:`Missing columns: ${missing.join(", ")}` };
-
-  if(rows.length < 1) return { ok:false, msg:"No data rows found." };
-
-  // Normalize and check each row
-  const outRows = [];
-  const errors = [];
-  const idSeen = new Set();
-  const idDup = new Set();
-
-  rows.forEach((r, idx)=>{
-    const rowNo = idx + 2; // header is row 1
-    const rr = {...r};
-
-    rr.record_id = String(rr.record_id||"").trim();
-    rr.date = toISODate(rr.date);
-    rr.capital_inr = String(rr.capital_inr||"").trim();
-    rr.market = String(rr.market||"").trim();
-    rr.instrument = String(rr.instrument||"").trim();
-    rr.mode = String(rr.mode||"").trim();
-
-    rr.verdict = normalizeVerdict(rr.verdict);
-    rr.confidence_score_percent = String(rr.confidence_score_percent||"").trim();
-
-    rr.entry_zone = String(rr.entry_zone||"").trim();
-    rr.invalid_if_above = String(rr.invalid_if_above||"").trim();
-
-    rr.risk_per_trade_inr = String(rr.risk_per_trade_inr||"").trim();
-    rr.daily_loss_cap_inr = String(rr.daily_loss_cap_inr||"").trim();
-
-    // basic required
-    if(!rr.record_id) errors.push(`Row ${rowNo}: record_id is empty.`);
-    if(!rr.date) errors.push(`Row ${rowNo}: invalid date (use YYYY-MM-DD).`);
-    if(!rr.market) errors.push(`Row ${rowNo}: market is empty.`);
-    if(!rr.instrument) errors.push(`Row ${rowNo}: instrument is empty.`);
-    if(!rr.mode) errors.push(`Row ${rowNo}: mode is empty.`);
-
-    // verdict check
-    const v = String(rr.verdict||"").toUpperCase();
-    if(!VERDICT_CANON.includes(v)) errors.push(`Row ${rowNo}: invalid verdict "${rr.verdict}" (use BUY/SELL/HOLD).`);
-    rr.verdict = v;
-
-    // confidence numeric 0-100
-    const conf = toNum(rr.confidence_score_percent);
-    if(!Number.isFinite(conf) || conf<0 || conf>100) errors.push(`Row ${rowNo}: confidence_score_percent must be 0–100.`);
-
-    // numeric sanity (optional but recommended)
-    const cap = toNum(rr.capital_inr);
-    if(!Number.isFinite(cap) || cap<=0) errors.push(`Row ${rowNo}: capital_inr must be a positive number.`);
-
-    const rptr = toNum(rr.risk_per_trade_inr);
-    if(!Number.isFinite(rptr) || rptr<=0) errors.push(`Row ${rowNo}: risk_per_trade_inr must be a positive number.`);
-
-    const dcap = toNum(rr.daily_loss_cap_inr);
-    if(!Number.isFinite(dcap) || dcap<=0) errors.push(`Row ${rowNo}: daily_loss_cap_inr must be a positive number.`);
-
-    // duplicates
-    if(rr.record_id){
-      if(idSeen.has(rr.record_id)) idDup.add(rr.record_id);
-      idSeen.add(rr.record_id);
-    }
-
-    outRows.push(rr);
-  });
-
-  if(idDup.size){
-    // warn only; still valid
-  }
-
-  if(errors.length){
-    return { ok:false, msg: errors[0] + (errors.length>1 ? ` (+${errors.length-1} more)` : ""), errors, header, rows: outRows };
-  }
-
-  return {
-    ok:true,
-    msg:`Valid CSV • ${outRows.length} rows` + (idDup.size ? ` • ${idDup.size} duplicate id(s)` : ""),
-    header, rows: outRows, duplicates: Array.from(idDup)
-  };
-}
-
-function renderPreview(res){
-  const out = document.getElementById("previewOut");
-  if(!res.ok){
-    const extra = (res.errors && res.errors.length>1)
-      ? `<div class="sub" style="margin-top:8px"><span class="warnText">More:</span> ${esc(res.errors.slice(1,6).join(" • "))}${res.errors.length>6?` … (+${res.errors.length-6})`:""}</div>`
-      : "";
-    out.innerHTML = `<div class="pill"><span class="dot badDot"></span><span>${esc(res.msg)}</span></div>${extra}`;
-    return;
-  }
-
-  const first = res.rows[0];
-  const dups = (res.duplicates && res.duplicates.length)
-    ? `<div class="sub" style="margin-top:8px"><span class="warnText">Duplicates:</span> ${esc(res.duplicates.slice(0,6).join(", "))}${res.duplicates.length>6?` … (+${res.duplicates.length-6})`:""}</div>`
-    : "";
-
-  // small table preview (top 8)
-  const sample = res.rows.slice(0,8);
-  const rowsHtml = sample.map(r=>`
-    <tr>
-      <td>${esc(r.record_id)}</td>
-      <td>${esc(r.date)}</td>
-      <td>${esc(r.market)}</td>
-      <td>${esc(r.instrument)}</td>
-      <td><span class="${r.verdict==='BUY'?'okText':r.verdict==='SELL'?'badText':'warnText'}">${esc(r.verdict)}</span> (${esc(r.confidence_score_percent)}%)</td>
-      <td>${esc(r.entry_zone)}</td>
-      <td>${esc(r.invalid_if_above)}</td>
-    </tr>
-  `).join("");
-
-  out.innerHTML = `
-    <div class="pill"><span class="dot okDot"></span><span>${esc(res.msg)}</span></div>
-    ${dups}
-    <div style="margin-top:10px" class="kv">
-      <div class="k">Example record</div><div class="v">${esc(first.record_id||"—")}</div>
-      <div class="k">Date</div><div class="v">${esc(first.date||"—")}</div>
-      <div class="k">Instrument</div><div class="v">${esc(first.market||"—")} / ${esc(first.instrument||"—")}</div>
-      <div class="k">Verdict</div><div class="v">${esc(first.verdict||"—")} (${esc(first.confidence_score_percent||"—")}%)</div>
-      <div class="k">Entry zone</div><div class="v">${esc(first.entry_zone||"—")}</div>
-      <div class="k">Invalid if</div><div class="v">${esc(first.invalid_if_above||"—")}</div>
-    </div>
-    <div style="margin-top:12px" class="tableWrap">
-      <table>
-        <thead>
-          <tr>
-            <th>record_id</th><th>date</th><th>market</th><th>instrument</th><th>verdict</th><th>entry_zone</th><th>invalid_if_above</th>
-          </tr>
-        </thead>
-        <tbody>${rowsHtml}</tbody>
-      </table>
-    </div>
-    <div class="sub" style="margin-top:8px">Showing first ${sample.length} rows.</div>
-  `;
-}
-
-/** Build a clean CSV (keeps required header order + normalized values) */
-function buildCleanCSV(res){
-  const lines = [];
-  lines.push(REQUIRED.join(","));
-  for(const r of res.rows){
-    // quote fields that contain comma/quote/newline
-    const get = (k)=>{
-      const v = String(r[k]??"");
-      if(/[,"\n]/.test(v)){
-        return `"${v.replaceAll('"','""')}"`;
-      }
-      return v;
-    };
-    lines.push(REQUIRED.map(get).join(","));
-  }
-  return cleanCSVText(lines.join("\n"));
-}
-
-function downloadText(filename, text){
-  const blob = new Blob([text], {type:"text/csv;charset=utf-8"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-
-/** ====== UI EVENTS ====== **/
-const box = document.getElementById("csvBox");
-const ctaBox = document.getElementById("ctaBox");
-const filePick = document.getElementById("filePick");
-const dropZone = document.getElementById("dropZone");
-const dropHint = document.getElementById("dropHint");
-const ctaLen = document.getElementById("ctaLen");
-
-document.getElementById("btnLoadSample").onclick = ()=>{
-  box.value = SAMPLE;
-  setStatus("warn","Sample loaded (not saved)");
-  document.getElementById("previewOut").innerHTML = "";
+document.getElementById("btnSample").onclick=()=>{
+document.getElementById("csvBox").value=SAMPLE;
 };
 
-document.getElementById("btnPreview").onclick = ()=>{
-  const res = validate(box.value);
-  renderPreview(res);
+document.getElementById("btnPreview").onclick=()=>{
+const res=validate(document.getElementById("csvBox").value);
+document.getElementById("previewOut").innerHTML=res.ok
+?'<div style="color:var(--ok)">'+res.msg+'</div>'
+:'<div style="color:var(--bad)">'+res.msg+'</div>';
 };
 
-document.getElementById("btnSave").onclick = ()=>{
-  const res = validate(box.value);
-  if(!res.ok){
-    setStatus("bad", res.msg);
-    renderPreview(res);
-    return;
-  }
-  const clean = buildCleanCSV(res);
-  box.value = clean; // show normalized CSV
-  localStorage.setItem(LS_CSV_KEY, clean);
-  localStorage.setItem(LS_CSV_TS, nowTS());
-  setStatus("ok", `Saved • ${res.rows.length} rows`);
-  readSaved();
-  renderPreview(validate(clean));
-};
-
-document.getElementById("btnDownload").onclick = ()=>{
-  const res = validate(box.value);
-  if(!res.ok){
-    setStatus("bad", "Fix CSV before download.");
-    renderPreview(res);
-    return;
-  }
-  const clean = buildCleanCSV(res);
-  downloadText("verdict.csv", clean);
-  setStatus("ok", "Downloaded verdict.csv");
-};
-
-document.getElementById("btnClear").onclick = ()=>{
-  localStorage.removeItem(LS_CSV_KEY);
-  localStorage.removeItem(LS_CSV_TS);
-  setStatus("warn","Cleared (not saved)");
-  readSaved();
-  document.getElementById("previewOut").innerHTML = "";
-};
-
-document.getElementById("btnImport").onclick = ()=> filePick.click();
-
-filePick.addEventListener("change", async (e)=>{
-  const f = e.target.files && e.target.files[0];
-  if(!f) return;
-  const text = await f.text();
-  box.value = cleanCSVText(text);
-  setStatus("warn", `Imported ${f.name} (not saved)`);
-  dropHint.textContent = f.name;
-  document.getElementById("previewOut").innerHTML = "";
-  filePick.value = "";
-});
-
-function handleDropFile(file){
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ()=>{
-    box.value = cleanCSVText(reader.result);
-    setStatus("warn", `Imported ${file.name} (not saved)`);
-    dropHint.textContent = file.name;
-    document.getElementById("previewOut").innerHTML = "";
-  };
-  reader.readAsText(file);
+document.getElementById("btnSave").onclick=()=>{
+const text=document.getElementById("csvBox").value.trim();
+const res=validate(text);
+if(!res.ok){
+alert(res.msg);
+return;
 }
-
-dropZone.addEventListener("dragover", (e)=>{
-  e.preventDefault();
-  dropZone.style.background = "rgba(255,255,255,.04)";
-});
-dropZone.addEventListener("dragleave", ()=>{
-  dropZone.style.background = "rgba(255,255,255,.02)";
-});
-dropZone.addEventListener("drop", (e)=>{
-  e.preventDefault();
-  dropZone.style.background = "rgba(255,255,255,.02)";
-  const file = e.dataTransfer.files && e.dataTransfer.files[0];
-  if(file) handleDropFile(file);
-});
-
-box.addEventListener("input", ()=>{
-  setStatus("warn","Edited (not saved)");
-});
-
-/** CTA controls */
-ctaBox.addEventListener("input", ()=>{
-  ctaLen.textContent = String(ctaBox.value.length);
-  setCTAStatus("warn","Edited (not saved)");
-});
-
-document.getElementById("btnSaveCTA").onclick = ()=>{
-  const v = String(ctaBox.value||"").trim();
-  if(!v){
-    setCTAStatus("bad","CTA cannot be empty");
-    return;
-  }
-  // one-line enforcement
-  const one = v.replaceAll("\n"," ").replace(/\s+/g," ").trim();
-  ctaBox.value = one;
-  ctaLen.textContent = String(one.length);
-  localStorage.setItem(LS_CTA_KEY, one);
-  localStorage.setItem(LS_CTA_TS, nowTS());
-  setCTAStatus("ok","CTA saved");
+localStorage.setItem(LS_CSV_KEY,text+"\n");
+localStorage.setItem(LS_CSV_TS,String(Date.now()));
+readSaved();
+alert("Saved successfully");
 };
 
-document.getElementById("btnClearCTA").onclick = ()=>{
-  localStorage.removeItem(LS_CTA_KEY);
-  localStorage.removeItem(LS_CTA_TS);
-  ctaBox.value = "";
-  ctaLen.textContent = "0";
-  setCTAStatus("warn","CTA cleared");
+document.getElementById("btnClear").onclick=()=>{
+localStorage.removeItem(LS_CSV_KEY);
+localStorage.removeItem(LS_CSV_TS);
+readSaved();
+document.getElementById("previewOut").innerHTML="";
 };
 
-/** ====== INIT ====== **/
-const saved = readSaved();
-if(saved){
-  box.value = saved;
-  setStatus("ok","Loaded saved CSV");
-} else {
-  setStatus("warn","Not saved");
-}
-const savedCTA = readSavedCTA();
-if(savedCTA){
-  ctaBox.value = savedCTA;
-  ctaLen.textContent = String(savedCTA.length);
-} else {
-  ctaLen.textContent = "0";
-}
+readSaved();
 </script>
+
 </body>
 </html>
