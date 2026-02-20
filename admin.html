@@ -1,391 +1,194 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin • Verdict CSV Paste</title>
-  <meta name="theme-color" content="#0b0f14" />
-  <style>
-    :root{
-      color-scheme: dark;
-      --bg:#0b0f14;
-      --panel:#0f1722;
-      --card:#111c2a;
-      --muted:#9fb0c3;
-      --text:#e6edf3;
-      --line:rgba(255,255,255,.08);
-      --ok:#2fe67a;
-      --warn:#ffd24a;
-      --bad:#ff5c7a;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --chip:#0c1320;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      background:
-        radial-gradient(1200px 800px at 20% 0%, rgba(72, 61, 255, 0.18), transparent 60%),
-        radial-gradient(900px 600px at 90% 10%, rgba(0, 212, 255, 0.12), transparent 55%),
-        var(--bg);
-      color:var(--text);
-      padding:24px;
-    }
-    .wrap{max-width:1000px;margin:0 auto}
-    header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-    h1{margin:0;font-size:20px}
-    .sub{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.35}
-    .panel{
-      border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02));
-      border-radius:18px;
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .hd{padding:14px 16px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.18);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-    .hd .t{font-weight:900;font-size:13px}
-    .hd .meta{color:var(--muted);font-size:12px}
-    .bd{padding:16px}
-    textarea{
-      width:100%;
-      min-height:320px;
-      resize:vertical;
-      padding:12px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.25);
-      color:var(--text);
-      outline:none;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size:12px;
-      line-height:1.4;
-    }
-    .row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:12px}
-    .btn{
-      appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.03);
-      color:var(--text);padding:10px 12px;border-radius:12px;cursor:pointer;
-      font-weight:800;font-size:13px;
-    }
-    .btn:hover{background:rgba(255,255,255,.06)}
-    .btn.primary{border-color:rgba(46,230,122,.35);background:rgba(46,230,122,.10)}
-    .btn.primary:hover{background:rgba(46,230,122,.14)}
-    .btn.danger{border-color:rgba(255,92,122,.35);background:rgba(255,92,122,.10)}
-    .btn.danger:hover{background:rgba(255,92,122,.14)}
-    .stat{color:var(--muted);font-size:12px}
-    .msg{
-      margin-top:12px;
-      border-radius:14px;
-      padding:10px 12px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.02);
-      font-size:12px;
-      line-height:1.35;
-      white-space:pre-wrap;
-    }
-    .msg.ok{border-color:rgba(46,230,122,.35);background:rgba(46,230,122,.10)}
-    .msg.bad{border-color:rgba(255,92,122,.35);background:rgba(255,92,122,.10)}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
-    @media (max-width:900px){.grid{grid-template-columns:1fr}}
-    .card{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.02);
-      border-radius:16px;
-      padding:12px;
-    }
-    .card .h{color:var(--muted);font-size:12px;margin-bottom:6px}
-    .card .v{font-weight:900}
-    .pill{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:7px 10px;border-radius:999px;border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
-      font-weight:900;font-size:12px;
-      margin-left:8px;
-    }
-    .dot{width:10px;height:10px;border-radius:50%}
-    .okdot{background:var(--ok)}
-    .warndot{background:var(--warn)}
-    .baddot{background:var(--bad)}
-    .link{
-      color:rgba(0,212,255,.85);
-      text-decoration:none;
-      font-weight:800;
-    }
-    .link:hover{text-decoration:underline}
-    code.inline{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:8px}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Admin • Update Verdict CSV</title>
+<meta name="theme-color" content="#0b0f14" />
+<style>
+:root{color-scheme:dark;--bg:#0b0f14;--text:#e6edf3;--muted:#9fb0c3;--line:rgba(255,255,255,.08);--ok:#2fe67a;--bad:#ff5c7a}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text);padding:24px}
+.wrap{max-width:900px;margin:auto}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+h1{margin:0;font-size:20px}
+.sub{color:var(--muted);font-size:12px;line-height:1.35;margin-top:6px}
+.panel{border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.02);overflow:hidden}
+.hd{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.bd{padding:14px}
+textarea{
+  width:100%;min-height:340px;resize:vertical;
+  padding:12px;border-radius:14px;border:1px solid var(--line);
+  background:rgba(0,0,0,.25);color:var(--text);
+  font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+  font-size:12px;line-height:1.45;outline:none
+}
+.btn{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);padding:10px 12px;border-radius:12px;cursor:pointer;font-weight:900;font-size:13px}
+.btn:hover{background:rgba(255,255,255,.08)}
+.btn.primary{border-color:rgba(47,230,122,.35);background:rgba(47,230,122,.12)}
+.btn.danger{border-color:rgba(255,92,122,.35);background:rgba(255,92,122,.12)}
+.row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.msg{margin-top:12px;border-radius:14px;padding:10px 12px;border:1px solid var(--line);background:rgba(255,255,255,.02);white-space:pre-wrap;font-size:12px;line-height:1.35}
+.msg.ok{border-color:rgba(47,230,122,.35);background:rgba(47,230,122,.10)}
+.msg.bad{border-color:rgba(255,92,122,.35);background:rgba(255,92,122,.10)}
+code.inline{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:8px}
+a{color:rgba(0,212,255,.9);text-decoration:none;font-weight:900}
+a:hover{text-decoration:underline}
+</style>
 </head>
+
 <body>
 <div class="wrap">
   <header>
     <div>
-      <h1>Admin • Paste Verdict CSV</h1>
+      <h1>Admin • Update Verdict CSV</h1>
       <div class="sub">
-        Static GitHub Pages compatible: this page saves your pasted CSV into <code class="inline">localStorage</code>.
-        Your <code class="inline">index.html</code> should read from localStorage first (if present), then fallback to <code class="inline">verdict.csv</code>.
+        Paste your latest CSV (new template). Click <code class="inline">Save</code>.
+        Then open <a href="./index.html">index</a> to see it reflected instantly.
       </div>
     </div>
-    <div class="sub">
-      <a class="link" href="./index.html">Open Index</a>
-    </div>
+    <div class="sub" id="meta">No saved data</div>
   </header>
 
   <section class="panel">
     <div class="hd">
-      <div class="t">CSV Input</div>
-      <div class="meta" id="meta">No saved draft</div>
+      <div style="font-weight:950">CSV Paste</div>
+      <div class="sub">Stored in localStorage</div>
     </div>
     <div class="bd">
-      <textarea id="csv" spellcheck="false" placeholder="Paste your verdict CSV here..."></textarea>
+      <textarea id="csv" spellcheck="false"></textarea>
 
       <div class="row">
-        <div class="stat" id="stat">0 chars</div>
+        <div class="sub" id="stat">0 chars</div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
-          <button class="btn" id="btnLoadSample">Load sample</button>
+          <button class="btn" id="btnSample">Load sample</button>
           <button class="btn" id="btnValidate">Validate</button>
-          <button class="btn primary" id="btnSave">Save to Index</button>
-          <button class="btn danger" id="btnClear">Clear saved</button>
+          <button class="btn primary" id="btnSave">Save</button>
+          <button class="btn danger" id="btnClear">Clear</button>
         </div>
       </div>
 
       <div id="msg" class="msg" style="display:none"></div>
-
-      <div class="grid" id="preview" style="display:none">
-        <div class="card">
-          <div class="h">Latest record_id</div>
-          <div class="v" id="p_id">—</div>
-        </div>
-        <div class="card">
-          <div class="h">Latest verdict</div>
-          <div class="v">
-            <span id="p_verdict">—</span>
-            <span class="pill" id="p_pill" style="display:none">
-              <span class="dot" id="p_dot"></span>
-              <span id="p_rule">—</span>
-            </span>
-          </div>
-        </div>
-        <div class="card">
-          <div class="h">Latest instrument</div>
-          <div class="v" id="p_inst">—</div>
-        </div>
-        <div class="card">
-          <div class="h">Latest next_action</div>
-          <div class="v" id="p_act">—</div>
-        </div>
-      </div>
-
-      <div class="sub" style="margin-top:12px">
-        Stored key: <code class="inline">VERDICT_CSV</code> • Timestamp key: <code class="inline">VERDICT_CSV_TS</code>
-      </div>
     </div>
   </section>
 </div>
 
 <script>
-/** ====== CONFIG ====== **/
-const LS_KEY = "VERDICT_CSV";
-const LS_TS  = "VERDICT_CSV_TS";
+const LS_KEY="VERDICT_CSV";
+const LS_TS="VERDICT_CSV_TS";
 
-const SAMPLE = `record_id,created_date,tz,budget_inr,market,instrument,mode,verdict,verdict_rule,setup,risk_per_trade_inr,daily_loss_cap_inr,max_trades_per_day,levels_support,levels_resistance,next_action,notes
-MCXGOLD-20260220-01,2026-02-20,Asia/Kolkata,35000,MCX,Gold Mini Futures,Intraday,CHANGE,"GO only if required_margin<=35000 else CHANGE","Range-first; breakout-only with 15m confirmation",350,700,2,"153200-154000","156800-157200","Check your broker margin for Gold Mini; if >35000 trade Gold ETF instead","35k is borderline for Gold Mini margins; avoid over-leverage/MIS surprise margin hikes"
-MCXGOLD-20260220-02,2026-02-20,Asia/Kolkata,35000,NSE,Gold ETF (e.g., GoldBees),Intraday,GO,"Use ETF if futures margin not feasible","VWAP + range scalp; no chasing",350,700,2,"Prior day low/VWAP bands","Prior day high/VWAP bands","If you want, share your broker + product (MIS/CNC) and I’ll set exact ETF quantity + stop levels","ETF intraday is executable with 35k and reduces tail-risk vs futures"`;
+const SAMPLE=`record_id,date,ltp,capital_inr,market,instrument,mode,verdict,confidence_score_percent,entry_zone,invalid_if_above,risk_per_trade_inr,daily_loss_cap_inr
+MCXGOLD-20260220-V2,2026-02-20,154700,35000,MCX,Gold Futures (02APR2026),Intraday,SELL,68,"Below 154600 breakdown","155200",350,700`;
 
-/** ====== CSV PARSER (handles quotes) ====== **/
 function parseCSV(text){
-  const rows = [];
-  let i=0, field="", row=[], inQuotes=false;
-  const pushField=()=>{ row.push(field); field=""; };
-  const pushRow=()=>{ rows.push(row); row=[]; };
-
-  while(i < text.length){
-    const c = text[i];
-    if(inQuotes){
-      if(c === '"'){
-        if(text[i+1] === '"'){ field += '"'; i++; }
-        else { inQuotes = false; }
-      } else field += c;
-    } else {
-      if(c === '"') inQuotes = true;
-      else if(c === ',') pushField();
-      else if(c === '\n'){
-        pushField();
-        if(row.length > 1 || row[0] !== "") pushRow();
-      } else if(c !== '\r') field += c;
+  const rows=[]; let i=0, f="", row=[], q=false;
+  const pf=()=>{ row.push(f); f=""; };
+  const pr=()=>{ rows.push(row); row=[]; };
+  while(i<text.length){
+    const c=text[i];
+    if(q){
+      if(c==='"'){
+        if(text[i+1]==='"'){ f+='"'; i++; } else q=false;
+      } else f+=c;
+    }else{
+      if(c==='"') q=true;
+      else if(c===',') pf();
+      else if(c==='\n'){ pf(); if(row.length>1 || (row[0]||"").trim()!=="") pr(); }
+      else if(c!=='\r') f+=c;
     }
     i++;
   }
-  if(field.length || row.length){
-    pushField();
-    if(row.length > 1 || row[0] !== "") pushRow();
-  }
-
-  const header = (rows.shift() || []).map(h => (h||"").trim());
+  if(f.length || row.length){ pf(); if(row.length>1 || (row[0]||"").trim()!=="") pr(); }
+  const header=(rows.shift()||[]).map(x=>String(x||"").trim());
   return rows
-    .filter(r => r.some(x => (x||"").trim() !== ""))
-    .map(r => {
-      const obj = {};
-      header.forEach((h, idx)=> obj[h] = (r[idx] ?? "").trim());
-      return obj;
+    .filter(r=>r.some(x=>String(x||"").trim()!==""))
+    .map(r=>{
+      const o={};
+      header.forEach((h,idx)=>o[h]=String(r[idx]??"").trim());
+      return o;
     });
 }
 
-function pickLatest(records){
-  const toTime = (d)=> {
-    const t = Date.parse(d);
-    return Number.isFinite(t) ? t : -Infinity;
-  };
-  return [...records].sort((a,b)=>{
-    const ta = toTime(a.created_date);
-    const tb = toTime(b.created_date);
-    if(tb !== ta) return tb - ta;
-    return String(b.record_id||"").localeCompare(String(a.record_id||""));
-  })[0] || null;
+function setMeta(){
+  const ts=localStorage.getItem(LS_TS);
+  const meta=document.getElementById("meta");
+  if(!ts){ meta.textContent="No saved data"; return; }
+  const d=new Date(Number(ts));
+  meta.textContent="Saved: " + (isNaN(d.getTime()) ? ts : d.toLocaleString());
 }
-
-function verdictBadge(v){
-  const vv = (v||"").toUpperCase();
-  if(vv === "GO" || vv === "BUY") return {dot:"okdot"};
-  if(vv === "CHANGE" || vv === "HOLD") return {dot:"warndot"};
-  if(vv === "NO" || vv === "NO-GO" || vv === "SELL") return {dot:"baddot"};
-  return {dot:"warndot"};
-}
-
-/** ====== UI ====== **/
-const $csv = document.getElementById("csv");
-const $stat = document.getElementById("stat");
-const $meta = document.getElementById("meta");
-const $msg = document.getElementById("msg");
-const $preview = document.getElementById("preview");
 
 function setMsg(text, kind){
-  $msg.style.display = "block";
-  $msg.className = "msg " + (kind || "");
-  $msg.textContent = text;
+  const el=document.getElementById("msg");
+  el.style.display="block";
+  el.className="msg " + (kind||"");
+  el.textContent=text;
 }
 function clearMsg(){
-  $msg.style.display = "none";
-  $msg.textContent = "";
-  $msg.className = "msg";
-}
-function setMeta(){
-  const ts = localStorage.getItem(LS_TS);
-  if(ts){
-    const d = new Date(Number(ts));
-    $meta.textContent = `Saved: ${isNaN(d.getTime()) ? ts : d.toLocaleString()}`;
-  }else{
-    $meta.textContent = "No saved draft";
-  }
+  const el=document.getElementById("msg");
+  el.style.display="none";
+  el.textContent="";
+  el.className="msg";
 }
 
-function updateStat(){
-  $stat.textContent = `${($csv.value || "").length} chars`;
+function validate(raw){
+  const t=(raw||"").trim();
+  if(!t) return {ok:false, error:"CSV is empty."};
+
+  const rows=parseCSV(t);
+  if(!rows.length) return {ok:false, error:"No rows found."};
+
+  const required=["record_id","date","market","instrument","verdict","confidence_score_percent","entry_zone","invalid_if_above"];
+  const missing=required.filter(k=>!(k in rows[0]));
+  if(missing.length) return {ok:false, error:"Missing columns: " + missing.join(", ")};
+
+  return {ok:true, rows};
 }
 
-function validateCSV(raw){
-  const text = (raw || "").trim();
-  if(!text) return {ok:false, error:"CSV is empty."};
+const $csv=document.getElementById("csv");
+const $stat=document.getElementById("stat");
 
-  const records = parseCSV(text);
-  if(!records.length) return {ok:false, error:"No rows found."};
+$csv.addEventListener("input", ()=>{ $stat.textContent = ($csv.value||"").length + " chars"; });
 
-  const required = ["record_id","created_date","verdict"];
-  const missing = required.filter(k => !(k in records[0]));
-  if(missing.length){
-    return {ok:false, error:`Missing required columns: ${missing.join(", ")}`};
-  }
-
-  // basic date parse check (soft)
-  const badDate = records.find(r => r.created_date && !Number.isFinite(Date.parse(r.created_date)));
-  if(badDate){
-    return {ok:true, warn:`Some created_date values may not parse correctly (example: ${badDate.created_date}).`, records};
-  }
-
-  return {ok:true, records};
-}
-
-function renderPreview(records){
-  const latest = pickLatest(records);
-  if(!latest){
-    $preview.style.display = "none";
-    return;
-  }
-  $preview.style.display = "grid";
-
-  document.getElementById("p_id").textContent = latest.record_id || "—";
-  document.getElementById("p_verdict").textContent = (latest.verdict || "—").toUpperCase();
-  document.getElementById("p_inst").textContent = `${latest.market || "—"} / ${latest.instrument || "—"}`;
-  document.getElementById("p_act").textContent = latest.next_action || "—";
-
-  const pill = document.getElementById("p_pill");
-  const dot = document.getElementById("p_dot");
-  const rule = document.getElementById("p_rule");
-
-  const vb = verdictBadge(latest.verdict);
-  pill.style.display = "inline-flex";
-  dot.className = `dot ${vb.dot}`;
-  rule.textContent = latest.verdict_rule || "—";
-}
-
-/** ====== ACTIONS ====== **/
-document.getElementById("btnLoadSample").addEventListener("click", ()=>{
-  $csv.value = SAMPLE;
-  updateStat();
+document.getElementById("btnSample").addEventListener("click", ()=>{
+  $csv.value=SAMPLE;
+  $stat.textContent=$csv.value.length + " chars";
   clearMsg();
-  const v = validateCSV($csv.value);
-  if(v.ok && v.records) renderPreview(v.records);
 });
 
 document.getElementById("btnValidate").addEventListener("click", ()=>{
   clearMsg();
-  const v = validateCSV($csv.value);
-  if(!v.ok){
-    setMsg(v.error, "bad");
-    $preview.style.display = "none";
-    return;
-  }
-  if(v.warn){
-    setMsg(`Valid with warning:\n- ${v.warn}\n\nRows: ${v.records.length}`, "");
-  }else{
-    setMsg(`Valid.\nRows: ${v.records.length}`, "ok");
-  }
-  renderPreview(v.records);
+  const v=validate($csv.value);
+  if(!v.ok) return setMsg(v.error, "bad");
+  setMsg("Valid.\nRows: " + v.rows.length, "ok");
 });
 
 document.getElementById("btnSave").addEventListener("click", ()=>{
   clearMsg();
-  const v = validateCSV($csv.value);
-  if(!v.ok){
-    setMsg(`Not saved.\n${v.error}`, "bad");
-    return;
-  }
+  const v=validate($csv.value);
+  if(!v.ok) return setMsg("Not saved.\n" + v.error, "bad");
+
   localStorage.setItem(LS_KEY, $csv.value.trim());
   localStorage.setItem(LS_TS, String(Date.now()));
   setMeta();
-  setMsg(`Saved to localStorage.\nOpen index.html to see the updated verdict.`, "ok");
+  setMsg("Saved.\nOpen index.html to see updated verdict.", "ok");
 });
 
 document.getElementById("btnClear").addEventListener("click", ()=>{
   localStorage.removeItem(LS_KEY);
   localStorage.removeItem(LS_TS);
   setMeta();
-  setMsg("Cleared saved CSV from localStorage.", "");
-  $preview.style.display = "none";
+  setMsg("Cleared saved CSV.", "");
 });
 
-$csv.addEventListener("input", ()=>{
-  updateStat();
-});
-
-/** ====== INIT ====== **/
 (function init(){
   setMeta();
-  updateStat();
-  const existing = localStorage.getItem(LS_KEY);
+  const existing=localStorage.getItem(LS_KEY);
   if(existing){
-    $csv.value = existing;
-    updateStat();
-    const v = validateCSV(existing);
-    if(v.ok && v.records) renderPreview(v.records);
+    $csv.value=existing;
+    $stat.textContent=$csv.value.length + " chars";
+  }else{
+    $csv.value=SAMPLE;
+    $stat.textContent=$csv.value.length + " chars";
   }
 })();
 </script>
