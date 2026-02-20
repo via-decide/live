@@ -1,39 +1,532 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gold MCX Verdict</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        h1 { text-align: center; margin-bottom: 20px; }
-        .verdict { font-size: 2em; text-align: center; margin-top: 10px; }
-        .confidence { font-size: 1.5em; text-align: center; margin-top: 10px; color: #555; }
-        .signals { margin-top: 20px; }
-        .signals ul { list-style-type: none; padding-left: 0; }
-        .signals li { background: #f1f1f1; margin-bottom: 5px; padding: 8px; border-radius: 4px; }
-        .footer { text-align: center; margin-top: 20px; font-size: 0.9em; color: #777; }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gold MCX Verdict</title>
+  <meta name="theme-color" content="#0b0f14" />
+  <style>
+    :root{
+      color-scheme: dark;
+      --bg:#0b0f14;
+      --panel:#0f1722;
+      --card:#111c2a;
+      --muted:#9fb0c3;
+      --text:#e6edf3;
+      --line:rgba(255,255,255,.08);
+      --ok:#2fe67a;
+      --warn:#ffd24a;
+      --bad:#ff5c7a;
+      --chip:#0c1320;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(1200px 800px at 20% 0%, rgba(72, 61, 255, 0.18), transparent 60%),
+        radial-gradient(900px 600px at 90% 10%, rgba(0, 212, 255, 0.12), transparent 55%),
+        var(--bg);
+      color:var(--text);
+      padding:24px;
+    }
+    .wrap{max-width:1000px;margin:0 auto}
+    header{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      margin-bottom:14px;
+    }
+    .brand{
+      display:flex;flex-direction:column;gap:4px;
+    }
+    .brand h1{margin:0;font-size:22px;letter-spacing:.2px}
+    .brand .sub{color:var(--muted);font-size:13px}
+    .top-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .btn{
+      appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.03);
+      color:var(--text);padding:10px 12px;border-radius:12px;cursor:pointer;
+      font-weight:600;font-size:13px;
+    }
+    .btn:hover{background:rgba(255,255,255,.06)}
+    .btn.primary{border-color:rgba(46,230,122,.35);background:rgba(46,230,122,.10)}
+    .btn.primary:hover{background:rgba(46,230,122,.14)}
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:14px;
+    }
+    @media (max-width:900px){ .grid{grid-template-columns:1fr} }
+    .panel{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02));
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .panel .hd{
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      background:rgba(0,0,0,.18);
+    }
+    .panel .hd .t{font-weight:800;font-size:14px}
+    .panel .hd .meta{color:var(--muted);font-size:12px}
+    .panel .bd{padding:16px}
+    .big{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    }
+    .verdict{
+      display:flex;flex-direction:column;gap:6px;
+    }
+    .verdict .label{color:var(--muted);font-size:12px}
+    .verdict .value{font-size:42px;line-height:1;font-weight:900;letter-spacing:.5px}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      font-weight:800;font-size:12px;
+    }
+    .dot{width:10px;height:10px;border-radius:50%}
+    .ok{background:var(--ok)}
+    .warn{background:var(--warn)}
+    .bad{background:var(--bad)}
+    .kv{
+      display:grid;grid-template-columns: 1fr 1fr;
+      gap:10px;margin-top:14px;
+    }
+    @media (max-width:560px){ .kv{grid-template-columns:1fr} }
+    .k{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.02);
+      border-radius:14px;
+      padding:12px;
+    }
+    .k .h{color:var(--muted);font-size:12px;margin-bottom:6px}
+    .k .v{font-weight:800}
+    .k .v.small{font-weight:700;color:var(--text);opacity:.92;font-size:13px;line-height:1.35}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .chip{
+      background:var(--chip);
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:7px 10px;
+      font-size:12px;color:var(--muted);font-weight:700;
+    }
+    .row{
+      display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    input[type="search"]{
+      width:min(420px, 100%);
+      padding:10px 12px;border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.25);
+      color:var(--text);
+      outline:none;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:12px;
+    }
+    th,td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+    th{color:var(--muted);text-align:left;font-weight:800;background:rgba(0,0,0,.12)}
+    tr:hover td{background:rgba(255,255,255,.02)}
+    .tag{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 9px;border-radius:999px;border:1px solid var(--line);
+      background:rgba(255,255,255,.02);
+      font-weight:900;font-size:11px;
+      white-space:nowrap;
+    }
+    .tag.go{border-color:rgba(46,230,122,.35);color:rgba(46,230,122,.95)}
+    .tag.change{border-color:rgba(255,210,74,.35);color:rgba(255,210,74,.95)}
+    .tag.nogo{border-color:rgba(255,92,122,.35);color:rgba(255,92,122,.95)}
+    .muted{color:var(--muted)}
+    .foot{
+      margin-top:14px;color:var(--muted);font-size:12px;line-height:1.35
+    }
+    .err{
+      border:1px solid rgba(255,92,122,.35);
+      background:rgba(255,92,122,.08);
+      padding:10px 12px;border-radius:14px;
+      color:#ffdbe2;
+    }
+    code.inline{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:8px}
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>Gold MCX Verdict</h1>
-        {% if verdict != 'N/A' %}
-            <div class="verdict">Verdict: <strong>{{ verdict }}</strong></div>
-            <div class="confidence">Confidence: {{ confidence | round(1) }}%</div>
-            <div class="signals">
-                <h3>Individual Signals</h3>
-                <ul>
-                    {% for sig in signals %}
-                        <li>{{ sig }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <div class="footer">Last updated: {{ last_update }}</div>
-        {% else %}
-            <p>No data available. Please upload a CSV file via the admin page.</p>
-        {% endif %}
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>Gold MCX Verdict</h1>
+      <div class="sub" id="subtitle">Loading verdicts…</div>
     </div>
+    <div class="top-actions">
+      <button class="btn" id="btnReload">Reload CSV</button>
+      <button class="btn primary" id="btnExport">Export latest as JSON</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- Latest verdict -->
+    <section class="panel" aria-label="Latest verdict">
+      <div class="hd">
+        <div class="t">Latest</div>
+        <div class="meta" id="latestMeta">—</div>
+      </div>
+      <div class="bd">
+        <div id="latestError" class="err" style="display:none"></div>
+
+        <div class="big">
+          <div class="verdict">
+            <div class="label">Verdict</div>
+            <div class="value" id="latestVerdict">—</div>
+            <div class="pill" id="latestPill" style="margin-top:6px">
+              <span class="dot warn" id="latestDot"></span>
+              <span id="latestRule">—</span>
+            </div>
+          </div>
+
+          <div style="min-width:240px; flex: 1; display:flex; justify-content:flex-end;">
+            <div class="k" style="max-width:360px; width:100%">
+              <div class="h">Next action</div>
+              <div class="v small" id="latestNextAction">—</div>
+              <div class="chips" id="latestChips"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="kv">
+          <div class="k">
+            <div class="h">Market / Instrument</div>
+            <div class="v" id="latestInstrument">—</div>
+          </div>
+          <div class="k">
+            <div class="h">Mode</div>
+            <div class="v" id="latestMode">—</div>
+          </div>
+          <div class="k">
+            <div class="h">Budget (₹)</div>
+            <div class="v" id="latestBudget">—</div>
+          </div>
+          <div class="k">
+            <div class="h">Risk / Daily cap</div>
+            <div class="v" id="latestRisk">—</div>
+          </div>
+          <div class="k">
+            <div class="h">Support</div>
+            <div class="v small" id="latestSupport">—</div>
+          </div>
+          <div class="k">
+            <div class="h">Resistance</div>
+            <div class="v small" id="latestResistance">—</div>
+          </div>
+        </div>
+
+        <div class="foot" id="latestNotes"></div>
+      </div>
+    </section>
+
+    <!-- All verdicts -->
+    <section class="panel" aria-label="All verdicts">
+      <div class="hd">
+        <div class="t">All records</div>
+        <div class="meta"><span class="muted">Source:</span> <span id="sourceLabel">embedded</span></div>
+      </div>
+      <div class="bd">
+        <div class="row">
+          <input type="search" id="q" placeholder="Search (record_id, instrument, market, notes…)" />
+          <div class="muted" id="countLabel">0 rows</div>
+        </div>
+
+        <div style="overflow:auto; border:1px solid var(--line); border-radius:14px">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Record</th>
+                <th>Instrument</th>
+                <th>Verdict</th>
+                <th>Next action</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+
+        <div class="foot">
+          To use a real CSV file in your repo, create <code class="inline">verdict.csv</code> in the same folder as this
+          <code class="inline">index.html</code>. This page will auto-load it.
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+/** ====== CONFIG ====== **/
+const CSV_URL = "verdict.csv"; // if present in repo, it will be loaded
+const EMBEDDED_CSV = `record_id,created_date,tz,budget_inr,market,instrument,mode,verdict,verdict_rule,setup,risk_per_trade_inr,daily_loss_cap_inr,max_trades_per_day,levels_support,levels_resistance,next_action,notes
+MCXGOLD-20260220-01,2026-02-20,Asia/Kolkata,35000,MCX,Gold Mini Futures,Intraday,CHANGE,"GO only if required_margin<=35000 else CHANGE","Range-first; breakout-only with 15m confirmation",350,700,2,"153200-154000","156800-157200","Check your broker margin for Gold Mini; if >35000 trade Gold ETF instead","35k is borderline for Gold Mini margins; avoid over-leverage/MIS surprise margin hikes"
+MCXGOLD-20260220-02,2026-02-20,Asia/Kolkata,35000,NSE,Gold ETF (e.g., GoldBees),Intraday,GO,"Use ETF if futures margin not feasible","VWAP + range scalp; no chasing",350,700,2,"Prior day low/VWAP bands","Prior day high/VWAP bands","If you want, share your broker + product (MIS/CNC) and I’ll set exact ETF quantity + stop levels","ETF intraday is executable with 35k and reduces tail-risk vs futures"`;
+
+/** ====== CSV PARSER (handles quotes) ====== **/
+function parseCSV(text){
+  const rows = [];
+  let i=0, field="", row=[], inQuotes=false;
+  const pushField=()=>{ row.push(field); field=""; };
+  const pushRow=()=>{ rows.push(row); row=[]; };
+
+  while(i < text.length){
+    const c = text[i];
+    if(inQuotes){
+      if(c === '"'){
+        if(text[i+1] === '"'){ field += '"'; i++; }
+        else { inQuotes = false; }
+      } else field += c;
+    } else {
+      if(c === '"') inQuotes = true;
+      else if(c === ',') pushField();
+      else if(c === '\n'){
+        pushField();
+        if(row.length > 1 || row[0] !== "") pushRow();
+      } else if(c !== '\r') field += c;
+    }
+    i++;
+  }
+  // last row
+  if(field.length || row.length){
+    pushField();
+    if(row.length > 1 || row[0] !== "") pushRow();
+  }
+
+  const header = rows.shift() || [];
+  return rows
+    .filter(r => r.some(x => (x||"").trim() !== ""))
+    .map(r => {
+      const obj = {};
+      header.forEach((h, idx)=> obj[h.trim()] = (r[idx] ?? "").trim());
+      return obj;
+    });
+}
+
+function safeNum(x){
+  const n = Number(String(x||"").replace(/[^\d.-]/g,""));
+  return Number.isFinite(n) ? n : null;
+}
+
+function verdictTag(v){
+  const vv = (v||"").toUpperCase();
+  if(vv === "GO" || vv === "BUY") return {cls:"go", dot:"ok", label: vv};
+  if(vv === "CHANGE" || vv === "HOLD") return {cls:"change", dot:"warn", label: vv};
+  if(vv === "NO" || vv === "NO-GO" || vv === "SELL") return {cls:"nogo", dot:"bad", label: vv};
+  return {cls:"change", dot:"warn", label: vv || "—"};
+}
+
+function pickLatest(records){
+  // Sort by created_date then record_id
+  const toTime = (d)=> {
+    const t = Date.parse(d);
+    return Number.isFinite(t) ? t : -Infinity;
+  };
+  return [...records].sort((a,b)=>{
+    const ta = toTime(a.created_date);
+    const tb = toTime(b.created_date);
+    if(tb !== ta) return tb - ta;
+    return String(b.record_id||"").localeCompare(String(a.record_id||""));
+  })[0] || null;
+}
+
+function fmtINR(n){
+  if(n == null) return "—";
+  try { return new Intl.NumberFormat("en-IN").format(n); }
+  catch { return String(n); }
+}
+
+/** ====== UI ====== **/
+let STATE = { source:"embedded", records:[] };
+
+function render(){
+  const {records, source} = STATE;
+  document.getElementById("sourceLabel").textContent = source;
+  document.getElementById("countLabel").textContent = `${records.length} rows`;
+
+  const latest = pickLatest(records);
+  if(!latest){
+    setLatestError("No records found in CSV.");
+    return;
+  }
+  clearLatestError();
+
+  const tag = verdictTag(latest.verdict);
+  document.getElementById("latestVerdict").textContent = tag.label || "—";
+  document.getElementById("latestDot").className = `dot ${tag.dot}`;
+  document.getElementById("latestRule").textContent = latest.verdict_rule || "—";
+
+  document.getElementById("latestMeta").textContent =
+    `${latest.created_date || "—"} • ${latest.market || "—"} • ${latest.record_id || "—"}`;
+
+  document.getElementById("latestInstrument").textContent =
+    `${latest.market || "—"} / ${latest.instrument || "—"}`;
+
+  document.getElementById("latestMode").textContent = latest.mode || "—";
+
+  const budget = safeNum(latest.budget_inr);
+  document.getElementById("latestBudget").textContent = budget != null ? `₹${fmtINR(budget)}` : "—";
+
+  const r = safeNum(latest.risk_per_trade_inr);
+  const cap = safeNum(latest.daily_loss_cap_inr);
+  const mt = latest.max_trades_per_day || "—";
+  document.getElementById("latestRisk").textContent =
+    `₹${fmtINR(r)} / ₹${fmtINR(cap)} • max ${mt}/day`;
+
+  document.getElementById("latestSupport").textContent = latest.levels_support || "—";
+  document.getElementById("latestResistance").textContent = latest.levels_resistance || "—";
+  document.getElementById("latestNextAction").textContent = latest.next_action || "—";
+
+  const chips = document.getElementById("latestChips");
+  chips.innerHTML = "";
+  const chipItems = [
+    ["Setup", latest.setup],
+    ["TZ", latest.tz],
+  ].filter(x => x[1] && x[1] !== "—");
+
+  for(const [k,v] of chipItems){
+    const el = document.createElement("div");
+    el.className = "chip";
+    el.textContent = `${k}: ${v}`;
+    chips.appendChild(el);
+  }
+
+  const notes = (latest.notes || "").trim();
+  document.getElementById("latestNotes").textContent = notes ? `Notes: ${notes}` : "";
+
+  // subtitle
+  document.getElementById("subtitle").textContent =
+    `Live verdict dashboard • latest update: ${latest.created_date || "—"}`;
+
+  // table
+  renderTable(records);
+}
+
+function renderTable(records){
+  const q = (document.getElementById("q").value || "").toLowerCase().trim();
+  const tbody = document.getElementById("rows");
+  tbody.innerHTML = "";
+
+  const filtered = !q ? records : records.filter(r=>{
+    const blob = Object.values(r).join(" ").toLowerCase();
+    return blob.includes(q);
+  });
+
+  document.getElementById("countLabel").textContent = `${filtered.length} rows`;
+
+  const sorted = [...filtered].sort((a,b)=>{
+    const ta = Date.parse(a.created_date);
+    const tb = Date.parse(b.created_date);
+    return (Number.isFinite(tb)?tb:0) - (Number.isFinite(ta)?ta:0);
+  });
+
+  for(const r of sorted){
+    const tag = verdictTag(r.verdict);
+    const tr = document.createElement("tr");
+
+    const tdDate = document.createElement("td");
+    tdDate.textContent = r.created_date || "—";
+
+    const tdId = document.createElement("td");
+    tdId.innerHTML = `<div style="font-weight:900">${escapeHTML(r.record_id||"—")}</div>
+                      <div class="muted">${escapeHTML(r.market||"—")}</div>`;
+
+    const tdInst = document.createElement("td");
+    tdInst.innerHTML = `<div style="font-weight:800">${escapeHTML(r.instrument||"—")}</div>
+                        <div class="muted">${escapeHTML(r.mode||"—")}</div>`;
+
+    const tdVerd = document.createElement("td");
+    tdVerd.innerHTML = `<span class="tag ${tag.cls}">
+                          <span class="dot ${tag.dot}" style="width:8px;height:8px"></span>
+                          ${escapeHTML(tag.label)}
+                        </span>
+                        <div class="muted" style="margin-top:6px">${escapeHTML(r.verdict_rule||"")}</div>`;
+
+    const tdAct = document.createElement("td");
+    tdAct.innerHTML = `<div style="font-weight:800">${escapeHTML(r.next_action||"—")}</div>
+                       <div class="muted" style="margin-top:6px">${escapeHTML(r.notes||"")}</div>`;
+
+    tr.append(tdDate, tdId, tdInst, tdVerd, tdAct);
+    tbody.appendChild(tr);
+  }
+}
+
+function escapeHTML(s){
+  return String(s||"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function setLatestError(msg){
+  const el = document.getElementById("latestError");
+  el.style.display = "block";
+  el.textContent = msg;
+}
+function clearLatestError(){
+  const el = document.getElementById("latestError");
+  el.style.display = "none";
+  el.textContent = "";
+}
+
+/** ====== LOADERS ====== **/
+async function loadCSV(){
+  // Try fetching verdict.csv first
+  try{
+    const res = await fetch(CSV_URL, {cache:"no-store"});
+    if(res.ok){
+      const text = await res.text();
+      const records = parseCSV(text);
+      STATE = { source: CSV_URL, records };
+      return;
+    }
+    throw new Error("verdict.csv not found");
+  }catch(e){
+    // fallback to embedded
+    const records = parseCSV(EMBEDDED_CSV);
+    STATE = { source: "embedded", records };
+  }
+}
+
+/** ====== EXPORT ====== **/
+function exportLatest(){
+  const latest = pickLatest(STATE.records);
+  if(!latest) return;
+
+  const blob = new Blob([JSON.stringify(latest, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${latest.record_id || "latest"}-verdict.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=> URL.revokeObjectURL(a.href), 1500);
+}
+
+/** ====== INIT ====== **/
+document.getElementById("q").addEventListener("input", ()=> renderTable(STATE.records));
+document.getElementById("btnReload").addEventListener("click", async ()=>{
+  document.getElementById("subtitle").textContent = "Reloading verdicts…";
+  await boot();
+});
+document.getElementById("btnExport").addEventListener("click", exportLatest);
+
+async function boot(){
+  await loadCSV();
+  render();
+}
+boot();
+</script>
 </body>
 </html>
