@@ -35,10 +35,9 @@
     header{
       display:flex;align-items:center;justify-content:space-between;gap:12px;
       margin-bottom:14px;
+      flex-wrap:wrap;
     }
-    .brand{
-      display:flex;flex-direction:column;gap:4px;
-    }
+    .brand{display:flex;flex-direction:column;gap:4px}
     .brand h1{margin:0;font-size:22px;letter-spacing:.2px}
     .brand .sub{color:var(--muted);font-size:13px}
     .top-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
@@ -50,11 +49,7 @@
     .btn:hover{background:rgba(255,255,255,.06)}
     .btn.primary{border-color:rgba(46,230,122,.35);background:rgba(46,230,122,.10)}
     .btn.primary:hover{background:rgba(46,230,122,.14)}
-    .grid{
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap:14px;
-    }
+    .grid{display:grid;grid-template-columns: 1.2fr .8fr;gap:14px}
     @media (max-width:900px){ .grid{grid-template-columns:1fr} }
     .panel{
       border:1px solid var(--line);
@@ -68,16 +63,13 @@
       border-bottom:1px solid var(--line);
       display:flex;align-items:center;justify-content:space-between;gap:10px;
       background:rgba(0,0,0,.18);
+      flex-wrap:wrap;
     }
     .panel .hd .t{font-weight:800;font-size:14px}
     .panel .hd .meta{color:var(--muted);font-size:12px}
     .panel .bd{padding:16px}
-    .big{
-      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;
-    }
-    .verdict{
-      display:flex;flex-direction:column;gap:6px;
-    }
+    .big{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .verdict{display:flex;flex-direction:column;gap:6px}
     .verdict .label{color:var(--muted);font-size:12px}
     .verdict .value{font-size:42px;line-height:1;font-weight:900;letter-spacing:.5px}
     .pill{
@@ -90,10 +82,7 @@
     .ok{background:var(--ok)}
     .warn{background:var(--warn)}
     .bad{background:var(--bad)}
-    .kv{
-      display:grid;grid-template-columns: 1fr 1fr;
-      gap:10px;margin-top:14px;
-    }
+    .kv{display:grid;grid-template-columns: 1fr 1fr;gap:10px;margin-top:14px}
     @media (max-width:560px){ .kv{grid-template-columns:1fr} }
     .k{
       border:1px solid var(--line);
@@ -112,10 +101,7 @@
       padding:7px 10px;
       font-size:12px;color:var(--muted);font-weight:700;
     }
-    .row{
-      display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;
-      margin-bottom:10px;
-    }
+    .row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}
     input[type="search"]{
       width:min(420px, 100%);
       padding:10px 12px;border-radius:12px;
@@ -124,11 +110,7 @@
       color:var(--text);
       outline:none;
     }
-    table{
-      width:100%;
-      border-collapse:collapse;
-      font-size:12px;
-    }
+    table{width:100%;border-collapse:collapse;font-size:12px}
     th,td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
     th{color:var(--muted);text-align:left;font-weight:800;background:rgba(0,0,0,.12)}
     tr:hover td{background:rgba(255,255,255,.02)}
@@ -143,9 +125,7 @@
     .tag.change{border-color:rgba(255,210,74,.35);color:rgba(255,210,74,.95)}
     .tag.nogo{border-color:rgba(255,92,122,.35);color:rgba(255,92,122,.95)}
     .muted{color:var(--muted)}
-    .foot{
-      margin-top:14px;color:var(--muted);font-size:12px;line-height:1.35
-    }
+    .foot{margin-top:14px;color:var(--muted);font-size:12px;line-height:1.35}
     .err{
       border:1px solid rgba(255,92,122,.35);
       background:rgba(255,92,122,.08);
@@ -154,6 +134,9 @@
     }
     code.inline{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:8px}
   </style>
+
+  <!-- jsPDF (client-side PDF export) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 
 <body>
@@ -165,6 +148,7 @@
     </div>
     <div class="top-actions">
       <button class="btn" id="btnReload">Reload CSV</button>
+      <button class="btn" id="btnPdf">Export as PDF</button>
       <button class="btn primary" id="btnExport">Export latest as JSON</button>
     </div>
   </header>
@@ -296,7 +280,6 @@ function parseCSV(text){
     }
     i++;
   }
-  // last row
   if(field.length || row.length){
     pushField();
     if(row.length > 1 || row[0] !== "") pushRow();
@@ -326,7 +309,6 @@ function verdictTag(v){
 }
 
 function pickLatest(records){
-  // Sort by created_date then record_id
   const toTime = (d)=> {
     const t = Date.parse(d);
     return Number.isFinite(t) ? t : -Infinity;
@@ -403,11 +385,9 @@ function render(){
   const notes = (latest.notes || "").trim();
   document.getElementById("latestNotes").textContent = notes ? `Notes: ${notes}` : "";
 
-  // subtitle
   document.getElementById("subtitle").textContent =
     `Live verdict dashboard • latest update: ${latest.created_date || "—"}`;
 
-  // table
   renderTable(records);
 }
 
@@ -482,7 +462,6 @@ function clearLatestError(){
 
 /** ====== LOADERS ====== **/
 async function loadCSV(){
-  // Try fetching verdict.csv first
   try{
     const res = await fetch(CSV_URL, {cache:"no-store"});
     if(res.ok){
@@ -493,14 +472,13 @@ async function loadCSV(){
     }
     throw new Error("verdict.csv not found");
   }catch(e){
-    // fallback to embedded
     const records = parseCSV(EMBEDDED_CSV);
     STATE = { source: "embedded", records };
   }
 }
 
-/** ====== EXPORT ====== **/
-function exportLatest(){
+/** ====== EXPORT JSON ====== **/
+function exportLatestJSON(){
   const latest = pickLatest(STATE.records);
   if(!latest) return;
 
@@ -514,13 +492,134 @@ function exportLatest(){
   setTimeout(()=> URL.revokeObjectURL(a.href), 1500);
 }
 
+/** ====== EXPORT PDF (jsPDF) ====== **/
+function wrapLines(doc, text, x, y, maxWidth, lineHeight){
+  const lines = doc.splitTextToSize(String(text || "—"), maxWidth);
+  doc.text(lines, x, y);
+  return y + (lines.length * lineHeight);
+}
+
+function exportLatestPDF(){
+  const latest = pickLatest(STATE.records);
+  if(!latest) return;
+
+  const jsPDF = window.jspdf && window.jspdf.jsPDF;
+  if(!jsPDF){
+    // fallback: print (user can "Save as PDF")
+    const html = buildPrintableHTML(latest);
+    const w = window.open("", "_blank");
+    if(!w) return;
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(()=> w.print(), 250);
+    return;
+  }
+
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const pageW = doc.internal.pageSize.getWidth();
+  const margin = 40;
+  const maxW = pageW - margin*2;
+  let y = 48;
+
+  const title = "Gold MCX Verdict Report";
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.text(title, margin, y);
+  y += 18;
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  doc.text(`Generated: ${new Date().toLocaleString()}`, margin, y);
+  y += 18;
+
+  // Key fields
+  doc.setFont("helvetica", "bold"); doc.setFontSize(12);
+  doc.text(`Verdict: ${(latest.verdict || "—").toUpperCase()}`, margin, y);
+  y += 16;
+
+  doc.setFont("helvetica", "normal"); doc.setFontSize(11);
+  y = wrapLines(doc, `Record ID: ${latest.record_id || "—"}`, margin, y, maxW, 14);
+  y = wrapLines(doc, `Date: ${latest.created_date || "—"}   TZ: ${latest.tz || "—"}`, margin, y, maxW, 14);
+  y = wrapLines(doc, `Market: ${latest.market || "—"}   Instrument: ${latest.instrument || "—"}`, margin, y, maxW, 14);
+  y = wrapLines(doc, `Mode: ${latest.mode || "—"}   Budget (INR): ${latest.budget_inr || "—"}`, margin, y, maxW, 14);
+  y = wrapLines(doc, `Risk/trade: ${latest.risk_per_trade_inr || "—"}   Daily cap: ${latest.daily_loss_cap_inr || "—"}   Max trades/day: ${latest.max_trades_per_day || "—"}`, margin, y, maxW, 14);
+  y += 6;
+
+  doc.setFont("helvetica", "bold");
+  doc.text("Rules / Setup", margin, y); y += 14;
+  doc.setFont("helvetica", "normal");
+  y = wrapLines(doc, `Verdict rule: ${latest.verdict_rule || "—"}`, margin, y, maxW, 14);
+  y = wrapLines(doc, `Setup: ${latest.setup || "—"}`, margin, y, maxW, 14);
+  y += 6;
+
+  doc.setFont("helvetica", "bold");
+  doc.text("Levels", margin, y); y += 14;
+  doc.setFont("helvetica", "normal");
+  y = wrapLines(doc, `Support: ${latest.levels_support || "—"}`, margin, y, maxW, 14);
+  y = wrapLines(doc, `Resistance: ${latest.levels_resistance || "—"}`, margin, y, maxW, 14);
+  y += 6;
+
+  doc.setFont("helvetica", "bold");
+  doc.text("Next Action", margin, y); y += 14;
+  doc.setFont("helvetica", "normal");
+  y = wrapLines(doc, latest.next_action || "—", margin, y, maxW, 14);
+  y += 6;
+
+  doc.setFont("helvetica", "bold");
+  doc.text("Notes", margin, y); y += 14;
+  doc.setFont("helvetica", "normal");
+  y = wrapLines(doc, latest.notes || "—", margin, y, maxW, 14);
+
+  const fname = `${latest.record_id || "latest"}-verdict.pdf`;
+  doc.save(fname);
+}
+
+function buildPrintableHTML(latest){
+  const esc = (s)=> String(s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+  return `<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gold MCX Verdict Report</title>
+<style>
+  body{font-family:Arial,sans-serif;padding:18px}
+  h1{margin:0 0 6px 0}
+  .muted{color:#555}
+  .k{margin:10px 0}
+  .k b{display:inline-block;min-width:140px}
+  hr{margin:14px 0}
+</style></head><body>
+<h1>Gold MCX Verdict Report</h1>
+<div class="muted">Generated: ${esc(new Date().toLocaleString())}</div>
+<hr>
+<div class="k"><b>Verdict</b> ${esc((latest.verdict||"—").toUpperCase())}</div>
+<div class="k"><b>Record ID</b> ${esc(latest.record_id)}</div>
+<div class="k"><b>Date / TZ</b> ${esc(latest.created_date)} / ${esc(latest.tz)}</div>
+<div class="k"><b>Market</b> ${esc(latest.market)}</div>
+<div class="k"><b>Instrument</b> ${esc(latest.instrument)}</div>
+<div class="k"><b>Mode</b> ${esc(latest.mode)}</div>
+<div class="k"><b>Budget (INR)</b> ${esc(latest.budget_inr)}</div>
+<div class="k"><b>Risk/trade</b> ${esc(latest.risk_per_trade_inr)} &nbsp;&nbsp; <b>Daily cap</b> ${esc(latest.daily_loss_cap_inr)} &nbsp;&nbsp; <b>Max/day</b> ${esc(latest.max_trades_per_day)}</div>
+<hr>
+<div class="k"><b>Verdict rule</b> ${esc(latest.verdict_rule)}</div>
+<div class="k"><b>Setup</b> ${esc(latest.setup)}</div>
+<div class="k"><b>Support</b> ${esc(latest.levels_support)}</div>
+<div class="k"><b>Resistance</b> ${esc(latest.levels_resistance)}</div>
+<hr>
+<div class="k"><b>Next action</b><br>${esc(latest.next_action)}</div>
+<div class="k"><b>Notes</b><br>${esc(latest.notes)}</div>
+<script>setTimeout(()=>window.print(),250)</script>
+</body></html>`;
+}
+
 /** ====== INIT ====== **/
 document.getElementById("q").addEventListener("input", ()=> renderTable(STATE.records));
 document.getElementById("btnReload").addEventListener("click", async ()=>{
   document.getElementById("subtitle").textContent = "Reloading verdicts…";
   await boot();
 });
-document.getElementById("btnExport").addEventListener("click", exportLatest);
+document.getElementById("btnExport").addEventListener("click", exportLatestJSON);
+document.getElementById("btnPdf").addEventListener("click", exportLatestPDF);
 
 async function boot(){
   await loadCSV();
