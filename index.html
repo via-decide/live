@@ -44,7 +44,6 @@ h1{margin:0;font-size:22px}
   cursor:pointer;font-weight:900;font-size:13px
 }
 .btn:hover{background:rgba(255,255,255,.08)}
-.btn.link{background:transparent}
 
 .panel{
   border:1px solid var(--line);
@@ -128,9 +127,22 @@ tr:hover td{background:rgba(255,255,255,.02)}
   font-weight:900
 }
 .smallNote{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.35}
+
+/* Terms banner */
+.termsBanner{
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.03);
+  border-radius:14px;
+  padding:12px 14px;
+  margin-bottom:14px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
 </style>
 
-<!-- PDF export -->
 <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 
@@ -142,11 +154,19 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="sub" id="subtitle">Loading…</div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn link" id="btnAdmin">Admin</button>
       <button class="btn" id="btnReload">Reload</button>
       <button class="btn" id="btnPdf">Export PDF</button>
     </div>
   </header>
+
+  <!-- TERMS CTA (no admin link from index) -->
+  <section id="termsBanner" class="termsBanner">
+    <div style="font-size:13px;color:#9fb0c3;font-weight:800;line-height:1.35">
+      This dashboard shows <b>verdicts / recommendations only</b>.
+      It is <b>not a trading call</b> and <b>does not guarantee profit</b>.
+    </div>
+    <button id="openTerms" class="btn">View Terms</button>
+  </section>
 
   <!-- Latest -->
   <section class="panel">
@@ -179,9 +199,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <button class="btn" id="btnCalc">Calculate</button>
           </div>
           <div class="smallNote">
-            This updates verdict + confidence using your CSV fields (<span class="v mono">entry_zone</span>, <span class="v mono">invalid_if_above</span>).
-            It also generates JSON and stores it to <span class="v mono">localStorage: LIVE_VERDICT_JSON</span>.
-            If a backend endpoint is available, it will POST to <span class="v mono">/api/live</span>.
+            This updates verdict + confidence using your CSV fields
+            (<span class="v mono">entry_zone</span>, <span class="v mono">invalid_if_above</span>).
+            It generates JSON and stores it in <span class="v mono">localStorage: LIVE_VERDICT_JSON</span>.
+            If a backend exists, it will POST to <span class="v mono">/api/live</span>.
           </div>
           <div id="calcMsg" class="smallNote"></div>
         </div>
@@ -236,17 +257,68 @@ tr:hover td{background:rgba(255,255,255,.02)}
   </section>
 </div>
 
+<!-- TERMS MODAL -->
+<div id="termsModal" style="
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.7);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:9999;
+padding:20px;">
+  <div style="
+  max-width:520px;
+  width:100%;
+  background:#0f1722;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:20px;">
+    <h3 style="margin-top:0">Terms & Disclaimer</h3>
+    <p style="font-size:13px;color:#9fb0c3;line-height:1.5;margin-bottom:0">
+      • This dashboard provides <b>informational verdicts and trade ideas only</b>.<br><br>
+      • It is <b>NOT financial advice</b> and <b>NOT a trading call</b>.<br><br>
+      • No guarantees of profit, performance, or accuracy are made.<br><br>
+      • Markets involve risk. You are solely responsible for your trades and capital.<br><br>
+      • Always verify with your broker, risk plan, and personal judgment before acting.
+    </p>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px">
+      <button id="closeTerms" class="btn">Close</button>
+      <button id="acceptTerms" class="btn">I Understand</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /** ====== SETTINGS ====== **/
-const LS_CSV_KEY = "VERDICT_CSV";         // from admin
-const LS_CSV_TS  = "VERDICT_CSV_TS";      // from admin
+const LS_CSV_KEY = "VERDICT_CSV";         // written by admin.html
+const LS_CSV_TS  = "VERDICT_CSV_TS";
 const LS_LIVE_JSON = "LIVE_VERDICT_JSON"; // generated JSON stored here
+const TERMS_KEY = "TERMS_ACCEPTED_V1";
 
-const CSV_URL = "verdict.csv";            // optional repo file
+const CSV_URL = "verdict.csv";
 
-/** Embedded fallback (your NEW template) */
+/** Embedded fallback (your new template) */
 const EMBEDDED = `record_id,date,ltp,capital_inr,market,instrument,mode,verdict,confidence_score_percent,entry_zone,invalid_if_above,risk_per_trade_inr,daily_loss_cap_inr
 MCXGOLD-20260220-V2,2026-02-20,154700,35000,MCX,Gold Futures (02APR2026),Intraday,SELL,68,"Below 154600 breakdown","155200",350,700`;
+
+/** ====== TERMS (CTA + modal) ====== **/
+const banner=document.getElementById("termsBanner");
+const modal=document.getElementById("termsModal");
+const openTerms=document.getElementById("openTerms");
+const acceptTerms=document.getElementById("acceptTerms");
+const closeTerms=document.getElementById("closeTerms");
+
+function showTerms(){ modal.style.display="flex"; }
+function hideTerms(){ modal.style.display="none"; }
+openTerms.onclick=showTerms;
+closeTerms.onclick=hideTerms;
+acceptTerms.onclick=()=>{ localStorage.setItem(TERMS_KEY,"1"); hideTerms(); };
+
+if(!localStorage.getItem(TERMS_KEY)){
+  showTerms();
+}
 
 /** ====== CSV PARSER (quoted safe) ====== **/
 function parseCSV(text){
@@ -320,15 +392,7 @@ function esc(s){
     .replaceAll("'","&#039;");
 }
 
-/** ====== LIVE PRICE LOGIC ======
-  Uses entry_zone + invalid_if_above to update verdict/confidence.
-  - If entry_zone includes "below <N>" => SELL bias trigger when price < N
-  - If entry_zone includes "above <N>" => BUY bias trigger when price > N
-  - invalid_if_above (number): if price > invalid => setup invalid -> HOLD with low confidence
-  Confidence adjustment:
-    base = CSV confidence_score_percent
-    distance factor increases confidence when moving away from trigger in the "right" direction
-*/
+/** ====== LIVE PRICE LOGIC ====== **/
 function extractFirstNumber(s){
   const m = String(s||"").replace(/,/g,"").match(/(-?\d+(\.\d+)?)/);
   return m ? Number(m[1]) : null;
@@ -343,7 +407,6 @@ function computeLiveUpdate(row, livePrice){
   let conf = baseConf;
   let reason = "Based on CSV template";
 
-  // invalidation rule
   if(invalidAbove != null && livePrice > invalidAbove){
     verdict = "HOLD";
     conf = Math.max(10, Math.min(35, baseConf * 0.5));
@@ -351,15 +414,13 @@ function computeLiveUpdate(row, livePrice){
     return { verdict, conf, reason, invalidated:true };
   }
 
-  // detect direction hints
   const isBelow = entryText.includes("below");
   const isAbove = entryText.includes("above");
 
   if(entryNum != null && isBelow){
-    // SELL trigger when price < entryNum
     if(livePrice < entryNum){
       verdict = "SELL";
-      const dist = Math.min(1, Math.max(0, (entryNum - livePrice) / Math.max(1, entryNum*0.01))); // scaled
+      const dist = Math.min(1, Math.max(0, (entryNum - livePrice) / Math.max(1, entryNum*0.01)));
       conf = Math.max(baseConf, Math.min(95, baseConf + dist*20));
       reason = `Trigger: price (${livePrice}) below entry threshold (${entryNum})`;
     }else{
@@ -368,7 +429,6 @@ function computeLiveUpdate(row, livePrice){
       reason = `No trigger: price (${livePrice}) not below entry threshold (${entryNum})`;
     }
   } else if(entryNum != null && isAbove){
-    // BUY trigger when price > entryNum
     if(livePrice > entryNum){
       verdict = "BUY";
       const dist = Math.min(1, Math.max(0, (livePrice - entryNum) / Math.max(1, entryNum*0.01)));
@@ -380,7 +440,6 @@ function computeLiveUpdate(row, livePrice){
       reason = `No trigger: price (${livePrice}) not above entry threshold (${entryNum})`;
     }
   } else {
-    // fallback: keep csv verdict, tiny tweak by proximity to invalid
     verdict = (row.verdict||"HOLD").toUpperCase();
     if(invalidAbove != null){
       const headroom = Math.max(0, invalidAbove - livePrice);
@@ -471,7 +530,6 @@ function render(){
     tbody.appendChild(tr);
   }
 
-  // reset calc message
   document.getElementById("calcMsg").textContent = "";
 }
 
@@ -480,7 +538,12 @@ async function loadData(){
   const ls = localStorage.getItem(LS_CSV_KEY);
   if(ls && ls.trim().length>10){
     const ts = localStorage.getItem(LS_CSV_TS);
-    STATE.source = ts ? `localStorage (admin) • saved ${new Date(Number(ts)).toLocaleString()}` : "localStorage (admin)";
+    let suffix = "";
+    if(ts){
+      const d = new Date(Number(ts));
+      suffix = isNaN(d.getTime()) ? "" : ` • saved ${d.toLocaleString()}`;
+    }
+    STATE.source = `localStorage (admin)${suffix}`;
     STATE.records = parseCSV(ls.trim());
     return;
   }
@@ -498,8 +561,6 @@ async function loadData(){
 
 /** ====== BACKEND POST (optional) ====== **/
 async function postLiveToBackend(payload){
-  // If you deploy a backend, implement POST /api/live that accepts JSON.
-  // This frontend will try; if it fails, it silently continues (local-only).
   try{
     const res = await fetch("/api/live", {
       method:"POST",
@@ -534,7 +595,6 @@ async function onCalculate(){
 
   const live = computeLiveUpdate(latest, v);
 
-  // Build JSON payload (what backend should persist)
   const json = {
     type: "live_verdict_update",
     ts: Date.now(),
@@ -556,24 +616,19 @@ async function onCalculate(){
     invalidated: !!live.invalidated
   };
 
-  // Store locally (always)
   localStorage.setItem(LS_LIVE_JSON, JSON.stringify(json, null, 2));
-
-  // Try backend (optional)
   const backendResp = await postLiveToBackend(json);
 
-  // Reflect immediately in UI (front-end view)
   latest.ltp = String(v);
   latest.verdict = live.verdict;
   latest.confidence_score_percent = String(Math.round(live.conf*10)/10);
-  // Keep entry/invalid unchanged; no bias_reason column in your new template.
 
   render();
 
-  const msg = backendResp
-    ? `Updated. Saved locally + backend OK. JSON stored in localStorage(LIVE_VERDICT_JSON).`
-    : `Updated. Saved locally. (Backend /api/live not available.) JSON stored in localStorage(LIVE_VERDICT_JSON).`;
-  document.getElementById("calcMsg").textContent = msg;
+  document.getElementById("calcMsg").textContent =
+    backendResp
+      ? "Updated. Saved locally + backend OK."
+      : "Updated. Saved locally. (Backend /api/live not available.)";
 }
 
 /** ====== PDF EXPORT (latest of current filter) ====== **/
@@ -633,7 +688,6 @@ document.getElementById("btnReload").addEventListener("click", async ()=>{
   await boot();
 });
 document.getElementById("btnPdf").addEventListener("click", exportPDF);
-document.getElementById("btnAdmin").addEventListener("click", ()=>{ window.location.href="./admin.html"; });
 
 document.querySelectorAll(".filter").forEach(el=>{
   el.addEventListener("click", ()=>{
