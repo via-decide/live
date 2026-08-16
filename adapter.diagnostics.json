@@ -1,8 +1,70 @@
 {
-  "adapter": "bounded-v1",
-  "content_type": null,
-  "errors": ["ValueError: no COMMODITY_SOURCE_URL or COMMODITY_SOURCE_PATH configured"],
-  "http_status": null,
-  "source": null,
-  "source_type": null
+  "adapter": "mcx-official-bhavcopy-v1",
+  "attempts": [
+    {
+      "date": "2026-08-16",
+      "error": "ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+    },
+    {
+      "date": "2026-08-15",
+      "error": "ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+    },
+    {
+      "date": "2026-08-14",
+      "error": "ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+    },
+    {
+      "date": "2026-08-13",
+      "error": "ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+    },
+    {
+      "date": "2026-08-12",
+      "error": "ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+    },
+    {
+      "date": "2026-08-11",
+      "error": "ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+    },
+    {
+      "date": "2026-08-10",
+      "error": "ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+    },
+    {
+      "date": "2026-08-09",
+      "error": "ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+    }
+  ],
+  "errors": [
+    "2026-08-16: ValueError: MCX unexpected content type 'text/html; charset=utf-8'",
+    "2026-08-15: ValueError: MCX unexpected content type 'text/html; charset=utf-8'",
+    "2026-08-14: ValueError: MCX unexpected content type 'text/html; charset=utf-8'",
+    "2026-08-13: ValueError: MCX unexpected content type 'text/html; charset=utf-8'",
+    "2026-08-12: ValueError: MCX unexpected content type 'text/html; charset=utf-8'",
+    "2026-08-11: ValueError: MCX unexpected content type 'text/html; charset=utf-8'",
+    "2026-08-10: ValueError: MCX unexpected content type 'text/html; charset=utf-8'",
+    "2026-08-09: ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+  ],
+  "fetched_at": "2026-08-16T22:26:59.990875+00:00",
+  "field_definitions": {
+    "atr": "Not asserted from one-day Bhav Copy; null",
+    "breakdown_level": "Classic pivot S1 = 2*P - High",
+    "breakout_level": "Classic pivot R1 = 2*P - Low",
+    "buy_invalidation_below": "Classic pivot P = (High+Low+Close)/3",
+    "commodity": "Exact MCX Symbol mapped to GOLD/SILVER/CRUDE/ZINC/COPPER; no cross-symbol fallback",
+    "instrument": "Selected FUTCOM contract, nearest unexpired contract with positive volume and valid OHLC",
+    "ltp": "MCX Bhav Copy Close for the selected contract (EOD reference price)",
+    "sell_invalidation_above": "Classic pivot P = (High+Low+Close)/3",
+    "source_timestamp": "Trade date anchored at 00:00 IST; exact MCX publication time is not asserted",
+    "trend_bias": "BUY if Close>PCP, SELL if Close<PCP, otherwise NEUTRAL",
+    "verification_status": "true only after HTTP/content/schema/exact-symbol/OHLC/geometry validation"
+  },
+  "lookback_days": 8,
+  "public_page": "https://www.mcxindia.com/market-data/bhavcopy",
+  "request_instrument": "FUTCOM",
+  "request_method": "POST",
+  "response_fields": [],
+  "selected_contracts": {},
+  "selected_trade_date": null,
+  "source": "https://www.mcxindia.com/backpage.aspx/GetDateWiseBhavCopy",
+  "source_type": "official_mcx_json"
 }
