@@ -1,14 +1,21 @@
 """Production source adapter entrypoint.
 
-Default source is the official MCX Bhav Copy endpoint. A repository file/URL override
-remains available only for controlled testing or a future licensed feed.
+Acquisition order:
+1. Official MCX Bhav Copy.
+2. Independent public MCX mirrors (5paisa + ICICI Direct).
+3. Cross-source reconciliation per exact commodity/expiry.
+
+A commodity is returned to the verdict engine only when it is verified. Missing or
+conflicting commodities are omitted so the engine emits that commodity's fail-closed
+NOT_RECOMMEND row without suppressing verified peers.
 """
 from __future__ import annotations
-import csv, io, json, os, urllib.request
+import csv, io, json, os, re, urllib.request
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from .mcx_bhavcopy import acquire_latest
+from .mirror_sources import acquire_mirrors
 
 ALIASES = {
     "commodity": ("commodity","symbol","name"), "instrument": ("instrument","contract","instrument_name"),
@@ -18,6 +25,8 @@ ALIASES = {
     "trend_bias": ("trend_bias","trend","bias"), "source_timestamp": ("source_timestamp","timestamp","updated_at","as_of"),
     "verified": ("verified","verification_status","is_verified"),
 }
+TARGETS=("GOLD","SILVER","CRUDE","ZINC","COPPER")
+
 @dataclass
 class AdapterResult:
     ok: bool
@@ -59,8 +68,39 @@ def _override(repo_root: Path, url: str, path: str) -> AdapterResult:
         d["record_count"]=len(records); return AdapterResult(True,records,d)
     except Exception as e: d["errors"].append(f"{type(e).__name__}: {e}"); return AdapterResult(False,[],d)
 
+def _expiry(instrument):
+    m=re.search(r"\((\d{2}[A-Z]{3}\d{4})\)",str(instrument or "").upper())
+    return m.group(1) if m else None
+
+def _near(a,b):
+    try:
+        a=float(a); b=float(b); return abs(a-b)<=max(1e-9,max(abs(a),abs(b))*0.0015)
+    except (TypeError,ValueError): return False
+
+def _reconcile(mcx_records, mirror_records, mcx_diag, mirror_diag):
+    mcx={r.get("commodity"):r for r in mcx_records}; mirrors={r.get("commodity"):r for r in mirror_records}; out=[]; per={}
+    for commodity in TARGETS:
+        a=mcx.get(commodity); b=mirrors.get(commodity)
+        if not b:
+            per[commodity]={"status":"NOT_RECOMMEND","reason":"independent mirror verification unavailable"}; continue
+        if a:
+            same_expiry=_expiry(a.get("instrument"))==_expiry(b.get("instrument")); same_date=a.get("source_trade_date")==b.get("source_trade_date"); price_ok=_near(a.get("ltp"),b.get("ltp"))
+            if not (same_expiry and same_date and price_ok):
+                per[commodity]={"status":"NOT_RECOMMEND","reason":"MCX and mirrors disagree","same_expiry":same_expiry,"same_date":same_date,"price_ok":price_ok}; continue
+            chosen=dict(a); chosen["verification_tier"]="MCX_PLUS_MIRRORS"; chosen["verified"]=True; out.append(chosen)
+            per[commodity]={"status":"MCX_PLUS_MIRRORS","source":"MCX","expiry":_expiry(chosen.get("instrument")),"trade_date":chosen.get("source_trade_date")}
+        else:
+            chosen=dict(b); chosen["verification_tier"]="CROSS_SOURCE_VERIFIED"; chosen["verified"]=True; out.append(chosen)
+            per[commodity]={"status":"CROSS_SOURCE_VERIFIED","source":"5paisa+ICICI","expiry":_expiry(chosen.get("instrument")),"trade_date":chosen.get("source_trade_date")}
+    return out,{"adapter":"mcx-multi-source-v1","source_type":"mcx_then_independent_mirrors","source":"MCX -> 5paisa + ICICI Direct","fetched_at":datetime.now(timezone.utc).isoformat(),"mcx":mcx_diag,"mirrors":mirror_diag,"commodities":per,"verified_count":len(out),"record_count":len(out),"errors":[]}
+
 def acquire(repo_root: Path) -> AdapterResult:
     url=os.getenv("COMMODITY_SOURCE_URL","").strip(); path=os.getenv("COMMODITY_SOURCE_PATH","").strip()
     if url or path: return _override(repo_root,url,path)
-    records, diagnostics = acquire_latest(lookback_days=int(os.getenv("MCX_LOOKBACK_DAYS","8")))
-    return AdapterResult(bool(records), records, diagnostics)
+    lookback=int(os.getenv("MCX_LOOKBACK_DAYS","8"))
+    try: mcx_records,mcx_diag=acquire_latest(lookback_days=lookback)
+    except Exception as exc: mcx_records=[]; mcx_diag={"adapter":"mcx-official-bhavcopy-v1","errors":[f"{type(exc).__name__}: {exc}"]}
+    try: mirror_records,mirror_diag=acquire_mirrors()
+    except Exception as exc: mirror_records=[]; mirror_diag={"adapter":"mcx-multi-source-v1","errors":[f"{type(exc).__name__}: {exc}"],"verified_count":0}
+    records,diagnostics=_reconcile(mcx_records,mirror_records,mcx_diag,mirror_diag)
+    return AdapterResult(bool(records),records,diagnostics)
