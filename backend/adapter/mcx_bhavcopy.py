@@ -11,13 +11,13 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Any
 from zoneinfo import ZoneInfo
 
-MCX_ENDPOINT = "https://www.mcxindia.com/backpage.aspx/GetDateWiseBhavCopy"
-MCX_BHAVCOPY_PAGE = "https://www.mcxindia.com/market-data/bhavcopy"
+MCX_BASES = ("https://www.mcxindia.com", "https://classic.mcxindia.com")
+MCX_ENDPOINT = MCX_BASES[0] + "/backpage.aspx/GetDateWiseBhavCopy"
+MCX_BHAVCOPY_PAGE = MCX_BASES[0] + "/market-data/bhavcopy"
 TARGETS = ("GOLD", "SILVER", "CRUDEOIL", "ZINC", "COPPER")
 DISPLAY = {"CRUDEOIL": "CRUDE", "GOLD": "GOLD", "SILVER": "SILVER", "ZINC": "ZINC", "COPPER": "COPPER"}
 IST = ZoneInfo("Asia/Kolkata")
 BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36"
-
 ALIASES = {
     "instrument": ("InstrumentName", "Instrument", "InstrumentType", "Instrument_Type"),
     "symbol": ("Symbol", "Commodity", "CommodityName", "Product"),
@@ -38,6 +38,7 @@ class FetchResult:
     http_status: int
     content_type: str
     response_fields: list[str]
+    resolved_source: str = ""
 
 def _first(row, names):
     lower={str(k).strip().lower():v for k,v in row.items()}
@@ -63,37 +64,39 @@ def _expiry(v):
         except (ValueError,IndexError): return None
     return None
 
-def _browser_headers(accept="application/json, text/javascript, */*; q=0.01"):
-    return {"Accept":accept,"Accept-Language":"en-US,en;q=0.9","User-Agent":BROWSER_UA,"Sec-Fetch-Site":"same-origin","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","X-Requested-With":"XMLHttpRequest"}
-
-def _open_session(timeout):
+def _open_session(base, timeout):
     jar=http.cookiejar.CookieJar(); opener=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
-    req=urllib.request.Request(MCX_BHAVCOPY_PAGE,headers={"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8","Accept-Language":"en-US,en;q=0.9","User-Agent":BROWSER_UA})
+    page=base+"/market-data/bhavcopy"
+    req=urllib.request.Request(page,headers={"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8","Accept-Language":"en-US,en;q=0.9","User-Agent":BROWSER_UA})
     with opener.open(req,timeout=timeout) as resp: resp.read(4096)
-    return opener
+    return opener,page
 
-def fetch_date(trade_date: date, timeout: int = 25) -> FetchResult:
-    opener=_open_session(timeout)
+def _fetch_from_base(base, trade_date, timeout):
+    opener,page=_open_session(base,timeout)
+    endpoint=base+"/backpage.aspx/GetDateWiseBhavCopy"
     payload=json.dumps({"Date":trade_date.strftime("%Y%m%d"),"InstrumentName":"FUTCOM"},separators=(",",":")).encode("utf-8")
-    headers=_browser_headers(); headers.update({"Content-Type":"application/json; charset=UTF-8","Origin":"https://www.mcxindia.com","Referer":MCX_BHAVCOPY_PAGE})
-    req=urllib.request.Request(MCX_ENDPOINT,data=payload,headers=headers,method="POST")
-    try:
-        with opener.open(req,timeout=timeout) as resp:
-            status=int(getattr(resp,"status",200)); ctype=str(resp.headers.get("Content-Type","")); raw=resp.read(10_000_001)
-    except urllib.error.HTTPError as exc: raise ValueError(f"MCX HTTP {exc.code}") from exc
-    except urllib.error.URLError as exc: raise ValueError(f"MCX network error: {exc.reason}") from exc
+    headers={"Accept":"application/json, text/javascript, */*; q=0.01","Accept-Language":"en-US,en;q=0.9","Content-Type":"application/json; charset=UTF-8","Origin":base,"Referer":page,"User-Agent":BROWSER_UA,"X-Requested-With":"XMLHttpRequest","Sec-Fetch-Site":"same-origin","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty"}
+    req=urllib.request.Request(endpoint,data=payload,headers=headers,method="POST")
+    with opener.open(req,timeout=timeout) as resp:
+        status=int(getattr(resp,"status",200)); ctype=str(resp.headers.get("Content-Type","")); raw=resp.read(10_000_001)
     if status!=200: raise ValueError(f"MCX HTTP {status}")
     if len(raw)>10_000_000: raise ValueError("MCX payload exceeds 10 MB bound")
     if "json" not in ctype.lower():
-        excerpt=" ".join(raw[:300].decode("utf-8","replace").split())
-        raise ValueError(f"MCX unexpected content type {ctype!r}: {excerpt}")
+        excerpt=" ".join(raw[:300].decode("utf-8","replace").split()); raise ValueError(f"MCX unexpected content type {ctype!r}: {excerpt}")
     obj=json.loads(raw.decode("utf-8")); d=obj.get("d") if isinstance(obj,dict) else None
     if isinstance(d,str): d=json.loads(d)
     rows=d.get("Data") if isinstance(d,dict) else None
     if rows is None: raise ValueError("MCX response missing d.Data")
     if not isinstance(rows,list): raise ValueError("MCX d.Data is not a list")
     records=[r for r in rows if isinstance(r,dict)]; fields=sorted({str(k) for r in records for k in r.keys()})
-    return FetchResult(trade_date,records,status,ctype,fields)
+    return FetchResult(trade_date,records,status,ctype,fields,endpoint)
+
+def fetch_date(trade_date: date, timeout: int = 25) -> FetchResult:
+    errors=[]
+    for base in MCX_BASES:
+        try: return _fetch_from_base(base,trade_date,timeout)
+        except (urllib.error.HTTPError,urllib.error.URLError,ValueError,json.JSONDecodeError) as exc: errors.append(f"{base}: {type(exc).__name__}: {exc}")
+    raise ValueError("; ".join(errors))
 
 def _select_contract(rows,symbol,trade_date):
     candidates=[]
@@ -123,13 +126,13 @@ def acquire_latest(now=None,lookback_days=8,fetcher=fetch_date):
     for offset in range(1,lookback_days+1):
         d=today-timedelta(days=offset)
         try:
-            res=fetcher(d); attempts.append({"date":d.isoformat(),"http_status":res.http_status,"rows":len(res.records)})
+            res=fetcher(d); attempts.append({"date":d.isoformat(),"http_status":res.http_status,"rows":len(res.records),"resolved_source":getattr(res,"resolved_source","")})
             if res.records: chosen=res; break
         except Exception as exc:
             attempts.append({"date":d.isoformat(),"error":f"{type(exc).__name__}: {exc}"}); errors.append(f"{d.isoformat()}: {type(exc).__name__}: {exc}")
-    diagnostics={"adapter":"mcx-official-bhavcopy-v1","source_type":"official_mcx_json","source":MCX_ENDPOINT,"public_page":MCX_BHAVCOPY_PAGE,"request_method":"POST","request_instrument":"FUTCOM","lookback_days":lookback_days,"attempts":attempts,"errors":errors,"fetched_at":now.isoformat(),"selected_trade_date":None,"response_fields":[],"selected_contracts":{},"field_definitions":{"commodity":"Exact MCX Symbol mapped to GOLD/SILVER/CRUDE/ZINC/COPPER; no cross-symbol fallback","instrument":"Selected FUTCOM contract, nearest unexpired contract with positive volume and valid OHLC","ltp":"MCX Bhav Copy Close for the selected contract (EOD reference price)","breakout_level":"Classic pivot R1 = 2*P - Low","breakdown_level":"Classic pivot S1 = 2*P - High","buy_invalidation_below":"Classic pivot P = (High+Low+Close)/3","sell_invalidation_above":"Classic pivot P = (High+Low+Close)/3","atr":"Not asserted from one-day Bhav Copy; null","trend_bias":"BUY if Close>PCP, SELL if Close<PCP, otherwise NEUTRAL","source_timestamp":"Trade date anchored at 00:00 IST; exact MCX publication time is not asserted","verification_status":"true only after HTTP/content/schema/exact-symbol/OHLC/geometry validation"}}
+    diagnostics={"adapter":"mcx-official-bhavcopy-v1","source_type":"official_mcx_json","source":MCX_ENDPOINT,"official_hosts":list(MCX_BASES),"public_page":MCX_BHAVCOPY_PAGE,"request_method":"POST","request_instrument":"FUTCOM","lookback_days":lookback_days,"attempts":attempts,"errors":errors,"fetched_at":now.isoformat(),"selected_trade_date":None,"resolved_source":None,"response_fields":[],"selected_contracts":{},"field_definitions":{"commodity":"Exact MCX Symbol mapped to GOLD/SILVER/CRUDE/ZINC/COPPER; no cross-symbol fallback","instrument":"Selected FUTCOM contract, nearest unexpired contract with positive volume and valid OHLC","ltp":"MCX Bhav Copy Close for the selected contract (EOD reference price)","breakout_level":"Classic pivot R1 = 2*P - Low","breakdown_level":"Classic pivot S1 = 2*P - High","buy_invalidation_below":"Classic pivot P = (High+Low+Close)/3","sell_invalidation_above":"Classic pivot P = (High+Low+Close)/3","atr":"Not asserted from one-day Bhav Copy; null","trend_bias":"BUY if Close>PCP, SELL if Close<PCP, otherwise NEUTRAL","source_timestamp":"Trade date anchored at 00:00 IST; exact MCX publication time is not asserted","verification_status":"true only after HTTP/content/schema/exact-symbol/OHLC/geometry validation"}}
     if chosen is None: return [],diagnostics
-    diagnostics["selected_trade_date"]=chosen.trade_date.isoformat(); diagnostics["http_status"]=chosen.http_status; diagnostics["content_type"]=chosen.content_type; diagnostics["response_fields"]=chosen.response_fields; out=[]
+    diagnostics["selected_trade_date"]=chosen.trade_date.isoformat(); diagnostics["resolved_source"]=chosen.resolved_source; diagnostics["http_status"]=chosen.http_status; diagnostics["content_type"]=chosen.content_type; diagnostics["response_fields"]=chosen.response_fields; out=[]
     for symbol in TARGETS:
         raw=_select_contract(chosen.records,symbol,chosen.trade_date)
         if raw is None: diagnostics["selected_contracts"][symbol]={"status":"missing"}; continue
