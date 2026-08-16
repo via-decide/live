@@ -1,5 +1,13 @@
 name: Generate Commodity Verdict
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'tests/**'
+      - 'assets/**'
+      - 'index.html'
+      - '.github/workflows/generate-verdict.yml'
   schedule:
     - cron: "15 3 * * 1-5" # 08:45 Asia/Kolkata (UTC+05:30)
   workflow_dispatch:
@@ -13,10 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      COMMODITY_SOURCE_URL: ${{ secrets.COMMODITY_SOURCE_URL }}
-      COMMODITY_SOURCE_AUTH: ${{ secrets.COMMODITY_SOURCE_AUTH }}
-      COMMODITY_SOURCE_PATH: ${{ vars.COMMODITY_SOURCE_PATH }}
-      MAX_SOURCE_AGE_MINUTES: ${{ vars.MAX_SOURCE_AGE_MINUTES || '1440' }}
+      MCX_LOOKBACK_DAYS: '8'
+      MAX_SOURCE_AGE_MINUTES: '10080'
     steps:
       - uses: actions/checkout@v4
         with: {fetch-depth: 0}
@@ -28,18 +34,20 @@ jobs:
         run: python3 -m unittest discover -s tests/python -p 'test_*.py'
       - name: JavaScript and CSV-contract tests
         run: node --test tests/js/*.test.js
-      - name: Generate atomically
+      - name: Generate from official MCX Bhav Copy
         run: python3 backend/generate_verdict.py
       - name: Verify generated contract
         run: |
           python3 - <<'PY'
-          import csv
+          import csv, json
           from pathlib import Path
           expected="record_id,date,ltp,capital_inr,market,instrument,mode,verdict,confidence_score_percent,entry_zone,invalid_if_above,risk_per_trade_inr,daily_loss_cap_inr".split(",")
           rows=list(csv.DictReader(Path("verdict.csv").open()))
-          assert list(rows[0].keys()) == expected
+          assert rows and list(rows[0].keys()) == expected
           assert len(rows)==5
           assert {r["instrument"].split()[0].upper() for r in rows} == {"GOLD","SILVER","CRUDE","ZINC","COPPER"}
+          audit=json.loads(Path("verdict.audit.json").read_text())
+          assert audit["adapter"]["source"] == "https://www.mcxindia.com/backpage.aspx/GetDateWiseBhavCopy"
           PY
       - name: Scan production files for credential patterns
         run: |
