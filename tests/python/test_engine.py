@@ -10,7 +10,7 @@ class EngineTests(unittest.TestCase):
     def test_missing_source_fails_closed_all_five(self):
         rows,_=run([],self.now);self.assertEqual(len(rows),5);self.assertTrue(all(r["verdict"]=="NOT_RECOMMEND" for r in rows))
     def test_stale_fails_closed(self):
-        rows,_=run([rec(c,self.now,source_timestamp=(self.now-timedelta(days=2)).isoformat()) for c in COMMODITIES],self.now);self.assertTrue(all(r["verdict"]=="NOT_RECOMMEND" for r in rows))
+        rows,_=run([rec(c,self.now,source_timestamp=(self.now-timedelta(days=2)).isoformat()) for c in COMMODITIES],self.now,max_age_min=1440);self.assertTrue(all(r["verdict"]=="NOT_RECOMMEND" for r in rows))
     def test_unverified_fails_closed(self):
         rows,_=run([rec(c,self.now,verified=False) for c in COMMODITIES],self.now);self.assertTrue(all(r["verdict"]=="NOT_RECOMMEND" for r in rows))
     def test_bad_geometry_fails_closed(self):
