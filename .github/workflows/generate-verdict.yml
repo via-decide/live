@@ -1,7 +1,7 @@
 name: Generate Commodity Verdict
 on:
   push:
-    branches: [main]
+    branches: [main, feat/multi-source-verification]
     paths:
       - 'backend/**'
       - 'tests/**'
@@ -14,7 +14,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: commodity-verdict-production
+  group: commodity-verdict-${{ github.ref_name }}
   cancel-in-progress: false
 jobs:
   generate:
@@ -34,7 +34,7 @@ jobs:
         run: python3 -m unittest discover -s tests/python -p 'test_*.py'
       - name: JavaScript and CSV-contract tests
         run: node --test tests/js/*.test.js
-      - name: Generate from official MCX Bhav Copy
+      - name: Generate from MCX then independent mirrors
         run: python3 backend/generate_verdict.py
       - name: Verify generated contract
         run: |
@@ -47,7 +47,23 @@ jobs:
           assert len(rows)==5
           assert {r["instrument"].split()[0].upper() for r in rows} == {"GOLD","SILVER","CRUDE","ZINC","COPPER"}
           audit=json.loads(Path("verdict.audit.json").read_text())
-          assert audit["adapter"]["source"] == "https://www.mcxindia.com/backpage.aspx/GetDateWiseBhavCopy"
+          assert audit["adapter"]["adapter"] == "mcx-multi-source-v1"
+          assert 0 <= int(audit["adapter"]["verified_count"]) <= 5
+          PY
+      - name: Require all five verified before feature promotion
+        if: github.ref_name != 'main'
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path("adapter.diagnostics.json").read_text())
+          count=int(d.get("verified_count",0))
+          if count != 5:
+              raise SystemExit(f"promotion blocked: {count}/5 exact contracts cross-source verified")
+          bad=[k for k,v in d.get("commodities",{}).items() if v.get("status") not in {"CROSS_SOURCE_VERIFIED","MCX_PLUS_MIRRORS"}]
+          if bad:
+              raise SystemExit(f"promotion blocked: unverified commodities {bad}")
+          print("promotion gate: 5/5 verified")
           PY
       - name: Scan production files for credential patterns
         run: |
@@ -61,11 +77,11 @@ jobs:
           curl --fail --silent http://127.0.0.1:8000/index.html >/dev/null
           curl --fail --silent http://127.0.0.1:8000/assets/verdict-engine.js >/dev/null
           curl --fail --silent http://127.0.0.1:8000/verdict.csv >/dev/null
-      - name: Publish changed generated outputs
+      - name: Publish changed generated outputs to current branch
         run: |
           git add verdict.csv verdict.audit.json adapter.diagnostics.json
           if git diff --cached --quiet; then echo "No generated output changes."; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "chore: update commodity verdict"
-          git push origin HEAD:main
+          git push origin HEAD:"$GITHUB_REF_NAME"
