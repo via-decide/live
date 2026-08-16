@@ -39,11 +39,12 @@ class FetchResult:
     content_type: str
     response_fields: list[str]
     resolved_source: str = ""
+    transport: str = ""
 
 def _first(row, names):
-    lower={str(k).strip().lower():v for k,v in row.items()}
+    low={str(k).strip().lower():v for k,v in row.items()}
     for name in names:
-        if name.lower() in lower and lower[name.lower()] not in (None,""): return lower[name.lower()]
+        if name.lower() in low and low[name.lower()] not in (None,""): return low[name.lower()]
     return None
 
 def _num(v):
@@ -64,39 +65,48 @@ def _expiry(v):
         except (ValueError,IndexError): return None
     return None
 
-def _open_session(base, timeout):
-    jar=http.cookiejar.CookieJar(); opener=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
-    page=base+"/market-data/bhavcopy"
-    req=urllib.request.Request(page,headers={"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8","Accept-Language":"en-US,en;q=0.9","User-Agent":BROWSER_UA})
-    with opener.open(req,timeout=timeout) as resp: resp.read(4096)
-    return opener,page
+def _headers(base,page):
+    return {"Accept":"application/json, text/javascript, */*; q=0.01","Accept-Language":"en-US,en;q=0.9","Content-Type":"application/json; charset=UTF-8","Origin":base,"Referer":page,"User-Agent":BROWSER_UA,"X-Requested-With":"XMLHttpRequest","Sec-Fetch-Site":"same-origin","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty"}
 
-def _fetch_from_base(base, trade_date, timeout):
-    opener,page=_open_session(base,timeout)
-    endpoint=base+"/backpage.aspx/GetDateWiseBhavCopy"
-    payload=json.dumps({"Date":trade_date.strftime("%Y%m%d"),"InstrumentName":"FUTCOM"},separators=(",",":")).encode("utf-8")
-    headers={"Accept":"application/json, text/javascript, */*; q=0.01","Accept-Language":"en-US,en;q=0.9","Content-Type":"application/json; charset=UTF-8","Origin":base,"Referer":page,"User-Agent":BROWSER_UA,"X-Requested-With":"XMLHttpRequest","Sec-Fetch-Site":"same-origin","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty"}
-    req=urllib.request.Request(endpoint,data=payload,headers=headers,method="POST")
-    with opener.open(req,timeout=timeout) as resp:
-        status=int(getattr(resp,"status",200)); ctype=str(resp.headers.get("Content-Type","")); raw=resp.read(10_000_001)
-    if status!=200: raise ValueError(f"MCX HTTP {status}")
-    if len(raw)>10_000_000: raise ValueError("MCX payload exceeds 10 MB bound")
+def _decode_response(raw,status,ctype,trade_date,endpoint,transport):
+    if status!=200: raise ValueError(f"HTTP {status}")
+    if len(raw)>10_000_000: raise ValueError("payload exceeds 10 MB bound")
     if "json" not in ctype.lower():
-        excerpt=" ".join(raw[:300].decode("utf-8","replace").split()); raise ValueError(f"MCX unexpected content type {ctype!r}: {excerpt}")
+        excerpt=" ".join(raw[:300].decode("utf-8","replace").split()); raise ValueError(f"unexpected content type {ctype!r}: {excerpt}")
     obj=json.loads(raw.decode("utf-8")); d=obj.get("d") if isinstance(obj,dict) else None
     if isinstance(d,str): d=json.loads(d)
     rows=d.get("Data") if isinstance(d,dict) else None
-    if rows is None: raise ValueError("MCX response missing d.Data")
-    if not isinstance(rows,list): raise ValueError("MCX d.Data is not a list")
+    if rows is None: raise ValueError("response missing d.Data")
+    if not isinstance(rows,list): raise ValueError("d.Data is not a list")
     records=[r for r in rows if isinstance(r,dict)]; fields=sorted({str(k) for r in records for k in r.keys()})
-    return FetchResult(trade_date,records,status,ctype,fields,endpoint)
+    return FetchResult(trade_date,records,status,ctype,fields,endpoint,transport)
+
+def _post(opener,endpoint,headers,payload,trade_date,transport,timeout):
+    req=urllib.request.Request(endpoint,data=payload,headers=headers,method="POST")
+    with opener.open(req,timeout=timeout) as resp:
+        status=int(getattr(resp,"status",200)); ctype=str(resp.headers.get("Content-Type","")); raw=resp.read(10_000_001)
+    return _decode_response(raw,status,ctype,trade_date,endpoint,transport)
+
+def _direct_attempt(base,trade_date,legacy,timeout):
+    endpoint=base+"/backpage.aspx/GetDateWiseBhavCopy"; page=base+"/market-data/bhavcopy"; opener=urllib.request.build_opener()
+    params={"Date":trade_date.strftime("%Y%m%d"),"InstrumentName":"FUTCOM"}
+    payload=(str(params) if legacy else json.dumps(params,separators=(",",":"))).encode("utf-8")
+    return _post(opener,endpoint,_headers(base,page),payload,trade_date,"direct-legacy" if legacy else "direct-json",timeout)
+
+def _session_attempt(base,trade_date,timeout):
+    jar=http.cookiejar.CookieJar(); opener=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar)); page=base+"/market-data/bhavcopy"
+    req=urllib.request.Request(page,headers={"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8","Accept-Language":"en-US,en;q=0.9","User-Agent":BROWSER_UA})
+    with opener.open(req,timeout=timeout) as resp: resp.read(4096)
+    endpoint=base+"/backpage.aspx/GetDateWiseBhavCopy"; params={"Date":trade_date.strftime("%Y%m%d"),"InstrumentName":"FUTCOM"}; payload=json.dumps(params,separators=(",",":")).encode("utf-8")
+    return _post(opener,endpoint,_headers(base,page),payload,trade_date,"session-json",timeout)
 
 def fetch_date(trade_date: date, timeout: int = 25) -> FetchResult:
     errors=[]
     for base in MCX_BASES:
-        try: return _fetch_from_base(base,trade_date,timeout)
-        except (urllib.error.HTTPError,urllib.error.URLError,ValueError,json.JSONDecodeError) as exc: errors.append(f"{base}: {type(exc).__name__}: {exc}")
-    raise ValueError("; ".join(errors))
+        for name,fn in (("direct-legacy",lambda b=base:_direct_attempt(b,trade_date,True,timeout)),("direct-json",lambda b=base:_direct_attempt(b,trade_date,False,timeout)),("session-json",lambda b=base:_session_attempt(b,trade_date,timeout))):
+            try: return fn()
+            except (urllib.error.HTTPError,urllib.error.URLError,ValueError,json.JSONDecodeError) as exc: errors.append(f"{base} {name}: {type(exc).__name__}: {exc}")
+    raise ValueError(" | ".join(errors))
 
 def _select_contract(rows,symbol,trade_date):
     candidates=[]
@@ -126,13 +136,13 @@ def acquire_latest(now=None,lookback_days=8,fetcher=fetch_date):
     for offset in range(1,lookback_days+1):
         d=today-timedelta(days=offset)
         try:
-            res=fetcher(d); attempts.append({"date":d.isoformat(),"http_status":res.http_status,"rows":len(res.records),"resolved_source":getattr(res,"resolved_source","")})
+            res=fetcher(d); attempts.append({"date":d.isoformat(),"http_status":res.http_status,"rows":len(res.records),"resolved_source":getattr(res,"resolved_source",""),"transport":getattr(res,"transport","")})
             if res.records: chosen=res; break
         except Exception as exc:
             attempts.append({"date":d.isoformat(),"error":f"{type(exc).__name__}: {exc}"}); errors.append(f"{d.isoformat()}: {type(exc).__name__}: {exc}")
-    diagnostics={"adapter":"mcx-official-bhavcopy-v1","source_type":"official_mcx_json","source":MCX_ENDPOINT,"official_hosts":list(MCX_BASES),"public_page":MCX_BHAVCOPY_PAGE,"request_method":"POST","request_instrument":"FUTCOM","lookback_days":lookback_days,"attempts":attempts,"errors":errors,"fetched_at":now.isoformat(),"selected_trade_date":None,"resolved_source":None,"response_fields":[],"selected_contracts":{},"field_definitions":{"commodity":"Exact MCX Symbol mapped to GOLD/SILVER/CRUDE/ZINC/COPPER; no cross-symbol fallback","instrument":"Selected FUTCOM contract, nearest unexpired contract with positive volume and valid OHLC","ltp":"MCX Bhav Copy Close for the selected contract (EOD reference price)","breakout_level":"Classic pivot R1 = 2*P - Low","breakdown_level":"Classic pivot S1 = 2*P - High","buy_invalidation_below":"Classic pivot P = (High+Low+Close)/3","sell_invalidation_above":"Classic pivot P = (High+Low+Close)/3","atr":"Not asserted from one-day Bhav Copy; null","trend_bias":"BUY if Close>PCP, SELL if Close<PCP, otherwise NEUTRAL","source_timestamp":"Trade date anchored at 00:00 IST; exact MCX publication time is not asserted","verification_status":"true only after HTTP/content/schema/exact-symbol/OHLC/geometry validation"}}
+    diagnostics={"adapter":"mcx-official-bhavcopy-v1","source_type":"official_mcx_json","source":MCX_ENDPOINT,"official_hosts":list(MCX_BASES),"public_page":MCX_BHAVCOPY_PAGE,"request_method":"POST","request_instrument":"FUTCOM","lookback_days":lookback_days,"attempts":attempts,"errors":errors,"fetched_at":now.isoformat(),"selected_trade_date":None,"resolved_source":None,"transport":None,"response_fields":[],"selected_contracts":{},"field_definitions":{"commodity":"Exact MCX Symbol mapped to GOLD/SILVER/CRUDE/ZINC/COPPER; no cross-symbol fallback","instrument":"Selected FUTCOM contract, nearest unexpired contract with positive volume and valid OHLC","ltp":"MCX Bhav Copy Close for the selected contract (EOD reference price)","breakout_level":"Classic pivot R1 = 2*P - Low","breakdown_level":"Classic pivot S1 = 2*P - High","buy_invalidation_below":"Classic pivot P = (High+Low+Close)/3","sell_invalidation_above":"Classic pivot P = (High+Low+Close)/3","atr":"Not asserted from one-day Bhav Copy; null","trend_bias":"BUY if Close>PCP, SELL if Close<PCP, otherwise NEUTRAL","source_timestamp":"Trade date anchored at 00:00 IST; exact MCX publication time is not asserted","verification_status":"true only after HTTP/content/schema/exact-symbol/OHLC/geometry validation"}}
     if chosen is None: return [],diagnostics
-    diagnostics["selected_trade_date"]=chosen.trade_date.isoformat(); diagnostics["resolved_source"]=chosen.resolved_source; diagnostics["http_status"]=chosen.http_status; diagnostics["content_type"]=chosen.content_type; diagnostics["response_fields"]=chosen.response_fields; out=[]
+    diagnostics["selected_trade_date"]=chosen.trade_date.isoformat(); diagnostics["resolved_source"]=chosen.resolved_source; diagnostics["transport"]=chosen.transport; diagnostics["http_status"]=chosen.http_status; diagnostics["content_type"]=chosen.content_type; diagnostics["response_fields"]=chosen.response_fields; out=[]
     for symbol in TARGETS:
         raw=_select_contract(chosen.records,symbol,chosen.trade_date)
         if raw is None: diagnostics["selected_contracts"][symbol]={"status":"missing"}; continue
