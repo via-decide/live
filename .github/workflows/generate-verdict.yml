@@ -1,0 +1,63 @@
+name: Generate Commodity Verdict
+on:
+  schedule:
+    - cron: "15 3 * * 1-5" # 08:45 Asia/Kolkata (UTC+05:30)
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: commodity-verdict-production
+  cancel-in-progress: false
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      COMMODITY_SOURCE_URL: ${{ secrets.COMMODITY_SOURCE_URL }}
+      COMMODITY_SOURCE_AUTH: ${{ secrets.COMMODITY_SOURCE_AUTH }}
+      COMMODITY_SOURCE_PATH: ${{ vars.COMMODITY_SOURCE_PATH }}
+      MAX_SOURCE_AGE_MINUTES: ${{ vars.MAX_SOURCE_AGE_MINUTES || '1440' }}
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Python tests
+        run: python3 -m unittest discover -s tests/python -p 'test_*.py'
+      - name: JavaScript and CSV-contract tests
+        run: node --test tests/js/*.test.js
+      - name: Generate atomically
+        run: python3 backend/generate_verdict.py
+      - name: Verify generated contract
+        run: |
+          python3 - <<'PY'
+          import csv
+          from pathlib import Path
+          expected="record_id,date,ltp,capital_inr,market,instrument,mode,verdict,confidence_score_percent,entry_zone,invalid_if_above,risk_per_trade_inr,daily_loss_cap_inr".split(",")
+          rows=list(csv.DictReader(Path("verdict.csv").open()))
+          assert list(rows[0].keys()) == expected
+          assert len(rows)==5
+          assert {r["instrument"].split()[0].upper() for r in rows} == {"GOLD","SILVER","CRUDE","ZINC","COPPER"}
+          PY
+      - name: Scan production files for credential patterns
+        run: |
+          ! grep -RInE '(BEGIN (RSA|OPENSSH) PRIVATE KEY|gh[pousr]_[A-Za-z0-9]{20,}|Authorization:[[:space:]]*(Bearer|Basic)[[:space:]]+[A-Za-z0-9+/=_-]{12,})' backend assets index.html .github verdict.csv verdict.audit.json adapter.diagnostics.json
+      - name: Serve site and verify required assets
+        run: |
+          python3 -m http.server 8000 >/tmp/commodity-http.log 2>&1 &
+          pid=$!
+          trap 'kill $pid' EXIT
+          sleep 1
+          curl --fail --silent http://127.0.0.1:8000/index.html >/dev/null
+          curl --fail --silent http://127.0.0.1:8000/assets/verdict-engine.js >/dev/null
+          curl --fail --silent http://127.0.0.1:8000/verdict.csv >/dev/null
+      - name: Publish changed generated outputs
+        run: |
+          git add verdict.csv verdict.audit.json adapter.diagnostics.json
+          if git diff --cached --quiet; then echo "No generated output changes."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: update commodity verdict"
+          git push origin HEAD:main

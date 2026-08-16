@@ -1,15 +1,9 @@
 {
-  "name": "mcx-gold-eod-engine",
+  "name": "commodity-verdict",
+  "private": true,
   "version": "1.0.0",
-  "main": "server.js",
-  "type": "commonjs",
   "scripts": {
-    "start": "node server.js",
-    "update:mcx": "node tools/update_mcx.js"
-  },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "node-fetch": "^2.7.0"
+    "test": "node --test tests/js/*.test.js",
+    "test:python": "python3 -m unittest discover -s tests/python -p 'test_*.py'"
   }
 }

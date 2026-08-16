@@ -1,0 +1,8 @@
+{
+  "adapter": "bounded-v1",
+  "content_type": null,
+  "errors": ["ValueError: no COMMODITY_SOURCE_URL or COMMODITY_SOURCE_PATH configured"],
+  "http_status": null,
+  "source": null,
+  "source_type": null
+}

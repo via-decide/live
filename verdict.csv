@@ -1,0 +1,6 @@
+record_id,date,ltp,capital_inr,market,instrument,mode,verdict,confidence_score_percent,entry_zone,invalid_if_above,risk_per_trade_inr,daily_loss_cap_inr
+MCXGOLD-20260817-V1,2026-08-17,,35000,MCX,Gold Futures,Intraday,NOT_RECOMMEND,0,,,350,700
+MCXSILVER-20260817-V1,2026-08-17,,35000,MCX,Silver Futures,Intraday,NOT_RECOMMEND,0,,,350,700
+MCXCRUDE-20260817-V1,2026-08-17,,35000,MCX,Crude Futures,Intraday,NOT_RECOMMEND,0,,,350,700
+MCXZINC-20260817-V1,2026-08-17,,35000,MCX,Zinc Futures,Intraday,NOT_RECOMMEND,0,,,350,700
+MCXCOPPER-20260817-V1,2026-08-17,,35000,MCX,Copper Futures,Intraday,NOT_RECOMMEND,0,,,350,700

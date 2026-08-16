@@ -1,0 +1,25 @@
+{
+  "actionable_row_count": 0,
+  "adapter": {
+    "adapter": "bounded-v1",
+    "content_type": null,
+    "errors": ["ValueError: no COMMODITY_SOURCE_URL or COMMODITY_SOURCE_PATH configured"],
+    "http_status": null,
+    "source": null,
+    "source_type": null
+  },
+  "commit_sha": "bc39828e44101a0aa7cf80cd325da88076eb36d5",
+  "commodities": [
+    {"commodity":"GOLD","reason":"missing commodity","verdict":"NOT_RECOMMEND"},
+    {"commodity":"SILVER","reason":"missing commodity","verdict":"NOT_RECOMMEND"},
+    {"commodity":"CRUDE","reason":"missing commodity","verdict":"NOT_RECOMMEND"},
+    {"commodity":"ZINC","reason":"missing commodity","verdict":"NOT_RECOMMEND"},
+    {"commodity":"COPPER","reason":"missing commodity","verdict":"NOT_RECOMMEND"}
+  ],
+  "generated_at": "2026-08-16T22:03:00+00:00",
+  "schema_version": "commodity-verdict-audit-v1",
+  "source_age_minutes": null,
+  "source_timestamps": [],
+  "verdict_count": {"BUY":0,"HOLD":0,"NOT_RECOMMEND":5,"SELL":0},
+  "workflow_status": "fail_closed"
+}
