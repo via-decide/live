@@ -3,48 +3,48 @@
   "attempts": [
     {
       "date": "2026-08-16",
-      "error": "ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+      "error": "HTTPError: HTTP Error 403: Forbidden"
     },
     {
       "date": "2026-08-15",
-      "error": "ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+      "error": "HTTPError: HTTP Error 403: Forbidden"
     },
     {
       "date": "2026-08-14",
-      "error": "ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+      "error": "HTTPError: HTTP Error 403: Forbidden"
     },
     {
       "date": "2026-08-13",
-      "error": "ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+      "error": "HTTPError: HTTP Error 403: Forbidden"
     },
     {
       "date": "2026-08-12",
-      "error": "ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+      "error": "HTTPError: HTTP Error 403: Forbidden"
     },
     {
       "date": "2026-08-11",
-      "error": "ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+      "error": "HTTPError: HTTP Error 403: Forbidden"
     },
     {
       "date": "2026-08-10",
-      "error": "ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+      "error": "HTTPError: HTTP Error 403: Forbidden"
     },
     {
       "date": "2026-08-09",
-      "error": "ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+      "error": "HTTPError: HTTP Error 403: Forbidden"
     }
   ],
   "errors": [
-    "2026-08-16: ValueError: MCX unexpected content type 'text/html; charset=utf-8'",
-    "2026-08-15: ValueError: MCX unexpected content type 'text/html; charset=utf-8'",
-    "2026-08-14: ValueError: MCX unexpected content type 'text/html; charset=utf-8'",
-    "2026-08-13: ValueError: MCX unexpected content type 'text/html; charset=utf-8'",
-    "2026-08-12: ValueError: MCX unexpected content type 'text/html; charset=utf-8'",
-    "2026-08-11: ValueError: MCX unexpected content type 'text/html; charset=utf-8'",
-    "2026-08-10: ValueError: MCX unexpected content type 'text/html; charset=utf-8'",
-    "2026-08-09: ValueError: MCX unexpected content type 'text/html; charset=utf-8'"
+    "2026-08-16: HTTPError: HTTP Error 403: Forbidden",
+    "2026-08-15: HTTPError: HTTP Error 403: Forbidden",
+    "2026-08-14: HTTPError: HTTP Error 403: Forbidden",
+    "2026-08-13: HTTPError: HTTP Error 403: Forbidden",
+    "2026-08-12: HTTPError: HTTP Error 403: Forbidden",
+    "2026-08-11: HTTPError: HTTP Error 403: Forbidden",
+    "2026-08-10: HTTPError: HTTP Error 403: Forbidden",
+    "2026-08-09: HTTPError: HTTP Error 403: Forbidden"
   ],
-  "fetched_at": "2026-08-16T22:26:59.990875+00:00",
+  "fetched_at": "2026-08-16T22:28:36.632034+00:00",
   "field_definitions": {
     "atr": "Not asserted from one-day Bhav Copy; null",
     "breakdown_level": "Classic pivot S1 = 2*P - High",
