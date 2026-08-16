@@ -34,4 +34,17 @@ class MirrorTests(unittest.TestCase):
         b={"commodity":"GOLD","instrument":"Gold Futures (04DEC2026)","ltp":144767,"source_trade_date":"2026-08-14","verified":True}
         rows,diag=_reconcile([a],[b],{},{}); self.assertEqual(rows,[]); self.assertEqual(diag["commodities"]["GOLD"]["reason"],"MCX and mirrors disagree")
 
+    def test_monday_premarket_anchors_to_friday_session(self):
+        local=datetime(2026,8,17,4,24,tzinfo=ms.IST)
+        self.assertEqual(ms._last_completed_session(local),date(2026,8,14))
+
+    def test_full_day_holiday_is_not_a_completed_session(self):
+        local=datetime(2026,1,27,8,45,tzinfo=ms.IST)
+        self.assertEqual(ms._last_completed_session(local),date(2026,1,23))
+
+    def test_normalized_record_uses_session_date_not_page_date(self):
+        q=ms.MirrorQuote("5paisa","GOLD",date(2026,10,5),datetime(2026,8,17,4,20,tzinfo=ms.IST),154522,153400,156000,152900,152000,"x")
+        r=ms._normalized("GOLD",q,date(2026,8,14))
+        self.assertEqual(r["source_trade_date"],"2026-08-14"); self.assertTrue(r["source_timestamp"].startswith("2026-08-14T23:30")); self.assertTrue(r["source_observed_at"].startswith("2026-08-17"))
+
 if __name__=="__main__": unittest.main()
