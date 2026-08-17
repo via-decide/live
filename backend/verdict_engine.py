@@ -32,6 +32,26 @@ def _row(c,today,ltp,instrument,verdict,conf,entry,invalid,reason):
 
 def fail_row(c,today,reason,ltp="",instrument=""): return _row(c,today,ltp,instrument,"NOT_RECOMMEND",0,"","",reason)
 
+def _hold_confidence(ltp,buy_trigger,sell_trigger,bias,atr):
+    distances=[]
+    if buy_trigger is not None: distances.append(("BUY",max(0.0,buy_trigger-ltp)))
+    if sell_trigger is not None: distances.append(("SELL",max(0.0,ltp-sell_trigger)))
+    if not distances: return 20
+    nearest_dir,nearest_dist=min(distances,key=lambda x:x[1])
+    if atr is not None and atr>0:
+        proximity=max(0.0,1.0-min(1.0,nearest_dist/(2.0*atr)))
+    elif buy_trigger is not None and sell_trigger is not None and buy_trigger>sell_trigger:
+        width=buy_trigger-sell_trigger
+        proximity=max(0.0,1.0-min(1.0,nearest_dist/max(width/2.0,1e-9)))
+    else:
+        level=buy_trigger if buy_trigger is not None else sell_trigger
+        proximity=max(0.0,1.0-min(1.0,nearest_dist/max(abs(level)*0.01,1e-9)))
+    conf=25.0+25.0*proximity
+    if bias==nearest_dir: conf+=4.0
+    elif bias in {"BUY","SELL"} and bias!=nearest_dir: conf-=4.0
+    elif bias in {"NEUTRAL","HOLD",""}: conf-=1.0
+    return max(20.0,min(54.0,conf))
+
 def evaluate(c, rec, now, max_age_min=1440):
     today=now.astimezone(ZoneInfo("Asia/Kolkata")).date().isoformat()
     if rec is None: return fail_row(c,today,"missing commodity")
@@ -63,7 +83,8 @@ def evaluate(c, rec, now, max_age_min=1440):
         conf=min(90,max(55,60+(8 if bias=="SELL" else 0)+min(20,(sell_trigger-ltp)/max(buffer,1)*5)))
         return _row(c,today,ltp,inst,"SELL",conf,f"Below {_fmt(bd)} breakdown",si,"SELL trigger")
     entry=f"Above {_fmt(bo)} breakout / Below {_fmt(bd)} breakdown" if bo is not None and bd is not None else (f"Above {_fmt(bo)} breakout" if bo is not None else f"Below {_fmt(bd)} breakdown")
-    return _row(c,today,ltp,inst,"HOLD",40,entry,"","waiting for valid trigger")
+    hold_conf=_hold_confidence(ltp,buy_trigger,sell_trigger,bias,atr)
+    return _row(c,today,ltp,inst,"HOLD",hold_conf,entry,"","waiting for valid trigger")
 
 def run(records, now=None, max_age_min=None):
     now=now or datetime.now(timezone.utc); max_age_min=max_age_min or int(os.getenv("MAX_SOURCE_AGE_MINUTES","1440")); by={}; duplicates=set()
