@@ -79,9 +79,34 @@ jobs:
           curl --fail --silent http://127.0.0.1:8000/verdict.csv >/dev/null
       - name: Publish changed generated outputs to current branch
         run: |
-          git add verdict.csv verdict.audit.json adapter.diagnostics.json
-          if git diff --cached --quiet; then echo "No generated output changes."; exit 0; fi
+          set -euo pipefail
+          generated_dir="$(mktemp -d)"
+          trap 'rm -rf "$generated_dir"' EXIT
+          cp verdict.csv verdict.audit.json adapter.diagnostics.json "$generated_dir"/
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore: update commodity verdict"
-          git push origin HEAD:"$GITHUB_REF_NAME"
+
+          for attempt in 1 2 3; do
+            echo "Publish attempt ${attempt}/3: reconcile with origin/${GITHUB_REF_NAME}"
+            git fetch origin "$GITHUB_REF_NAME"
+            git reset --hard "origin/$GITHUB_REF_NAME"
+            cp "$generated_dir/verdict.csv" "$generated_dir/verdict.audit.json" "$generated_dir/adapter.diagnostics.json" .
+            git add verdict.csv verdict.audit.json adapter.diagnostics.json
+
+            if git diff --cached --quiet; then
+              echo "No generated output changes after reconciliation."
+              exit 0
+            fi
+
+            git commit -m "chore: update commodity verdict"
+            if git push origin HEAD:"$GITHUB_REF_NAME"; then
+              echo "Generated outputs published successfully."
+              exit 0
+            fi
+
+            echo "Branch advanced during publish; retrying from latest tip."
+          done
+
+          echo "Failed to publish generated outputs after 3 reconciliation attempts." >&2
+          exit 1
