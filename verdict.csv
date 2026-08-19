@@ -1,6 +1,6 @@
 record_id,date,ltp,capital_inr,market,instrument,mode,verdict,confidence_score_percent,entry_zone,invalid_if_above,risk_per_trade_inr,daily_loss_cap_inr
-MCXGOLD-20260818-V1,2026-08-18,,35000,MCX,Gold Futures,Intraday,NOT_RECOMMEND,0,,,350,700
-MCXSILVER-20260818-V1,2026-08-18,,35000,MCX,Silver Futures,Intraday,NOT_RECOMMEND,0,,,350,700
-MCXCRUDE-20260818-V1,2026-08-18,,35000,MCX,Crude Futures,Intraday,NOT_RECOMMEND,0,,,350,700
-MCXZINC-20260818-V1,2026-08-18,,35000,MCX,Zinc Futures,Intraday,NOT_RECOMMEND,0,,,350,700
-MCXCOPPER-20260818-V1,2026-08-18,,35000,MCX,Copper Futures,Intraday,NOT_RECOMMEND,0,,,350,700
+MCXGOLD-20260819-V1,2026-08-19,154269,35000,MCX,Gold Futures (05OCT2026),Intraday,HOLD,35,Above 155289.333333 breakout / Below 153684.333333 breakdown,,350,700
+MCXSILVER-20260819-V1,2026-08-19,232297,35000,MCX,Silver Futures (04SEP2026),Intraday,HOLD,34,Above 235294 breakout / Below 230320 breakdown,,350,700
+MCXCRUDE-20260819-V1,2026-08-19,8130,35000,MCX,Crude Futures (19AUG2026),Intraday,HOLD,32,Above 8208.666667 breakout / Below 8068.666667 breakdown,,350,700
+MCXZINC-20260819-V1,2026-08-19,397,35000,MCX,Zinc Futures (31AUG2026),Intraday,HOLD,33,Above 399.733333 breakout / Below 395.133333 breakdown,,350,700
+MCXCOPPER-20260819-V1,2026-08-19,,35000,MCX,Copper Futures,Intraday,NOT_RECOMMEND,0,,,350,700
