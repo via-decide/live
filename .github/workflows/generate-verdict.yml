@@ -50,6 +50,20 @@ jobs:
           assert audit["adapter"]["adapter"] == "mcx-multi-source-v1"
           assert 0 <= int(audit["adapter"]["verified_count"]) <= 5
           PY
+      - name: Require current IST verdict date before publication
+        if: github.ref_name == 'main'
+        run: |
+          EXPECTED_DATE="$(TZ=Asia/Kolkata date +%F)"
+          EXPECTED_DATE="$EXPECTED_DATE" python3 - <<'PY'
+          import csv, os
+          from pathlib import Path
+          expected=os.environ["EXPECTED_DATE"]
+          rows=list(csv.DictReader(Path("verdict.csv").open()))
+          dates={r["date"] for r in rows}
+          if dates != {expected}:
+              raise SystemExit(f"publication blocked: verdict.csv dates {sorted(dates)} != current IST date {expected}")
+          print(f"publication date gate: 5/5 rows dated {expected}")
+          PY
       - name: Require all five verified before feature promotion
         if: github.ref_name != 'main'
         run: |
