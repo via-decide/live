@@ -83,15 +83,24 @@ def fetch_upstox_eod(symbol, session_date):
     raise ValueError(f"Upstox EOD row {session_date} not found")
 
 
+def _et_identity_ok(txt, symbol, expiry):
+    upper = txt.upper()
+    symbol_ok = bool(re.search(rf"\b{re.escape(symbol)}\b\s+CONTRACT\s+DETAILS", upper))
+    exchange_ok = bool(re.search(r"\bEXCHANGE\s*:\s*MCX\b", upper))
+    iso = re.escape(expiry.isoformat())
+    expiry_ok = bool(
+        re.search(rf"\({iso}\)", txt, re.I)
+        or re.search(rf"\bEXPIRY\s+DATE\s+{iso}\b", txt, re.I)
+        or re.search(rf"\bEXPIRY\s*:\s*{expiry.strftime('%d-%b-%Y')}\b", txt, re.I)
+    )
+    return symbol_ok and exchange_ok and expiry_ok
+
+
 def fetch_et_eod(symbol, expiry, session_date):
     url = ET.format(symbol=symbol, expiry=expiry.isoformat())
     raw, status, ctype = _fetch(url)
     txt = _text(raw)
-    identity = re.search(
-        rf"{re.escape(symbol)}\s+Contract Details.*?\({re.escape(expiry.isoformat())}\)\s+Exchange:\s*MCX",
-        txt, re.I,
-    )
-    if not identity:
+    if not _et_identity_ok(txt, symbol, expiry):
         raise ValueError("ET exact contract identity not found")
     parser = TableParser(); parser.feed(raw)
     for row in parser.rows:
