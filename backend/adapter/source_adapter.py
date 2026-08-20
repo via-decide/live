@@ -2,8 +2,10 @@
 
 Acquisition order:
 1. Official MCX Bhav Copy.
-2. Independent public MCX mirrors (5paisa + ICICI Direct).
-3. Cross-source reconciliation per exact commodity/expiry.
+2. Established independent mirrors (5paisa + ICICI Direct).
+3. If those cannot prove the completed EOD session, governed historical mirrors
+   (Upstox + Economic Times) with exact date/expiry/OHLC reconciliation.
+4. Cross-source reconciliation per exact commodity/expiry.
 
 A commodity is returned to the verdict engine only when it is verified. Missing or
 conflicting commodities are omitted so the engine emits that commodity's fail-closed
@@ -16,6 +18,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from .mcx_bhavcopy import acquire_latest
 from .mirror_sources import acquire_mirrors
+from .historical_mirrors import acquire_historical
 
 ALIASES = {
     "commodity": ("commodity","symbol","name"), "instrument": ("instrument","contract","instrument_name"),
@@ -79,6 +82,7 @@ def _near(a,b):
 
 def _reconcile(mcx_records, mirror_records, mcx_diag, mirror_diag):
     mcx={r.get("commodity"):r for r in mcx_records}; mirrors={r.get("commodity"):r for r in mirror_records}; out=[]; per={}
+    mirror_name="Upstox+EconomicTimes" if mirror_diag.get("adapter")=="mcx-historical-mirror-v1" else "5paisa+ICICI"
     for commodity in TARGETS:
         a=mcx.get(commodity); b=mirrors.get(commodity)
         if not b:
@@ -91,8 +95,8 @@ def _reconcile(mcx_records, mirror_records, mcx_diag, mirror_diag):
             per[commodity]={"status":"MCX_PLUS_MIRRORS","source":"MCX","expiry":_expiry(chosen.get("instrument")),"trade_date":chosen.get("source_trade_date")}
         else:
             chosen=dict(b); chosen["verification_tier"]="CROSS_SOURCE_VERIFIED"; chosen["verified"]=True; out.append(chosen)
-            per[commodity]={"status":"CROSS_SOURCE_VERIFIED","source":"5paisa+ICICI","expiry":_expiry(chosen.get("instrument")),"trade_date":chosen.get("source_trade_date")}
-    return out,{"adapter":"mcx-multi-source-v1","source_type":"mcx_then_independent_mirrors","source":"MCX -> 5paisa + ICICI Direct","fetched_at":datetime.now(timezone.utc).isoformat(),"mcx":mcx_diag,"mirrors":mirror_diag,"commodities":per,"verified_count":len(out),"record_count":len(out),"errors":[]}
+            per[commodity]={"status":"CROSS_SOURCE_VERIFIED","source":mirror_name,"expiry":_expiry(chosen.get("instrument")),"trade_date":chosen.get("source_trade_date")}
+    return out,{"adapter":"mcx-multi-source-v1","source_type":"mcx_then_independent_mirrors","source":f"MCX -> {mirror_name}","fetched_at":datetime.now(timezone.utc).isoformat(),"mcx":mcx_diag,"mirrors":mirror_diag,"commodities":per,"verified_count":len(out),"record_count":len(out),"errors":[]}
 
 def acquire(repo_root: Path) -> AdapterResult:
     url=os.getenv("COMMODITY_SOURCE_URL","").strip(); path=os.getenv("COMMODITY_SOURCE_PATH","").strip()
@@ -102,5 +106,12 @@ def acquire(repo_root: Path) -> AdapterResult:
     except Exception as exc: mcx_records=[]; mcx_diag={"adapter":"mcx-official-bhavcopy-v1","errors":[f"{type(exc).__name__}: {exc}"]}
     try: mirror_records,mirror_diag=acquire_mirrors()
     except Exception as exc: mirror_records=[]; mirror_diag={"adapter":"mcx-multi-source-v1","errors":[f"{type(exc).__name__}: {exc}"],"verified_count":0}
+    if not mirror_records:
+        primary_diag=mirror_diag
+        try:
+            mirror_records,mirror_diag=acquire_historical()
+            mirror_diag["primary_mirror_attempt"] = primary_diag
+        except Exception as exc:
+            mirror_records=[]; mirror_diag={"adapter":"mcx-historical-mirror-v1","errors":[f"{type(exc).__name__}: {exc}"],"verified_count":0,"primary_mirror_attempt":primary_diag}
     records,diagnostics=_reconcile(mcx_records,mirror_records,mcx_diag,mirror_diag)
     return AdapterResult(bool(records),records,diagnostics)
