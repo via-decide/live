@@ -2,28 +2,38 @@
   "adapter": "mcx-multi-source-v1",
   "commodities": {
     "COPPER": {
-      "reason": "independent mirror verification unavailable",
-      "status": "NOT_RECOMMEND"
+      "expiry": "31AUG2026",
+      "source": "Upstox+EconomicTimes",
+      "status": "CROSS_SOURCE_VERIFIED",
+      "trade_date": "2026-08-19"
     },
     "CRUDE": {
-      "reason": "independent mirror verification unavailable",
-      "status": "NOT_RECOMMEND"
+      "expiry": "21SEP2026",
+      "source": "Upstox+EconomicTimes",
+      "status": "CROSS_SOURCE_VERIFIED",
+      "trade_date": "2026-08-19"
     },
     "GOLD": {
-      "reason": "independent mirror verification unavailable",
-      "status": "NOT_RECOMMEND"
+      "expiry": "05OCT2026",
+      "source": "Upstox+EconomicTimes",
+      "status": "CROSS_SOURCE_VERIFIED",
+      "trade_date": "2026-08-19"
     },
     "SILVER": {
-      "reason": "independent mirror verification unavailable",
-      "status": "NOT_RECOMMEND"
+      "expiry": "04SEP2026",
+      "source": "Upstox+EconomicTimes",
+      "status": "CROSS_SOURCE_VERIFIED",
+      "trade_date": "2026-08-19"
     },
     "ZINC": {
-      "reason": "independent mirror verification unavailable",
-      "status": "NOT_RECOMMEND"
+      "expiry": "31AUG2026",
+      "source": "Upstox+EconomicTimes",
+      "status": "CROSS_SOURCE_VERIFIED",
+      "trade_date": "2026-08-19"
     }
   },
   "errors": [],
-  "fetched_at": "2026-08-20T09:51:42.265085+00:00",
+  "fetched_at": "2026-08-20T09:52:56.147508+00:00",
   "mcx": {
     "adapter": "mcx-official-bhavcopy-v1",
     "attempts": [
@@ -70,7 +80,7 @@
       "2026-08-13: ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>",
       "2026-08-12: ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>"
     ],
-    "fetched_at": "2026-08-20T09:51:29.532190+00:00",
+    "fetched_at": "2026-08-20T09:52:43.993804+00:00",
     "field_definitions": {
       "atr": "Not asserted from one-day Bhav Copy; null",
       "breakdown_level": "Classic pivot S1 = 2*P - High",
@@ -104,49 +114,243 @@
     "adapter": "mcx-historical-mirror-v1",
     "commodities": {
       "COPPER": {
-        "checks": {},
-        "error": "ValueError: ET exact contract identity not found",
-        "sources": {},
-        "status": "NOT_RECOMMEND",
+        "checks": {
+          "high": {
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "ok": true,
+            "tolerance": 2.06025
+          },
+          "low": {
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "ok": true,
+            "tolerance": 2.03835
+          },
+          "ltp": {
+            "delta": 0.45,
+            "delta_percent": 0.032796,
+            "ok": true,
+            "tolerance": 2.058825
+          },
+          "open": {
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "ok": true,
+            "tolerance": 2.05125
+          }
+        },
+        "expiry": "2026-08-31",
+        "sources": {
+          "economic_times": {
+            "content_type": "text/html;charset=UTF-8",
+            "expiry": "2026-08-31",
+            "http_status": 200,
+            "parse_mode": "text",
+            "url": "https://economictimes.indiatimes.com/commoditysummary/symbol-COPPER.cms?expiry=2026-08-31"
+          },
+          "upstox": {
+            "content_type": "text/html; charset=utf-8",
+            "expiry": "2026-08-31",
+            "http_status": 200,
+            "parse_mode": "table",
+            "url": "https://upstox.com/commodity-market-trading/mcx-copper-price/"
+          }
+        },
+        "status": "CROSS_SOURCE_VERIFIED",
         "trade_date": "2026-08-19"
       },
       "CRUDEOIL": {
-        "checks": {},
-        "error": "ValueError: ET exact contract identity not found",
-        "sources": {},
-        "status": "NOT_RECOMMEND",
+        "checks": {
+          "high": {
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "ok": true,
+            "tolerance": 12.324
+          },
+          "low": {
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "ok": true,
+            "tolerance": 12.0015
+          },
+          "ltp": {
+            "delta": 2.0,
+            "delta_percent": 0.024537,
+            "ok": true,
+            "tolerance": 12.2295
+          },
+          "open": {
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "ok": true,
+            "tolerance": 12.213
+          }
+        },
+        "expiry": "2026-09-21",
+        "sources": {
+          "economic_times": {
+            "content_type": "text/html;charset=UTF-8",
+            "expiry": "2026-09-21",
+            "http_status": 200,
+            "parse_mode": "text",
+            "url": "https://economictimes.indiatimes.com/commoditysummary/symbol-CRUDEOIL.cms?expiry=2026-09-21"
+          },
+          "upstox": {
+            "content_type": "text/html; charset=utf-8",
+            "expiry": "2026-09-21",
+            "http_status": 200,
+            "parse_mode": "table",
+            "url": "https://upstox.com/commodity-market-trading/mcx-crudeoil-price/"
+          }
+        },
+        "status": "CROSS_SOURCE_VERIFIED",
         "trade_date": "2026-08-19"
       },
       "GOLD": {
-        "checks": {},
-        "error": "ValueError: ET exact contract identity not found",
-        "sources": {},
-        "status": "NOT_RECOMMEND",
+        "checks": {
+          "high": {
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "ok": true,
+            "tolerance": 237.351
+          },
+          "low": {
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "ok": true,
+            "tolerance": 230.106
+          },
+          "ltp": {
+            "delta": 30.0,
+            "delta_percent": 0.018988,
+            "ok": true,
+            "tolerance": 236.994
+          },
+          "open": {
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "ok": true,
+            "tolerance": 230.85
+          }
+        },
+        "expiry": "2026-10-05",
+        "sources": {
+          "economic_times": {
+            "content_type": "text/html;charset=UTF-8",
+            "expiry": "2026-10-05",
+            "http_status": 200,
+            "parse_mode": "text",
+            "url": "https://economictimes.indiatimes.com/commoditysummary/symbol-GOLD.cms?expiry=2026-10-05"
+          },
+          "upstox": {
+            "content_type": "text/html; charset=utf-8",
+            "expiry": "2026-10-05",
+            "http_status": 200,
+            "parse_mode": "table",
+            "url": "https://upstox.com/commodity-market-trading/mcx-gold-price/"
+          }
+        },
+        "status": "CROSS_SOURCE_VERIFIED",
         "trade_date": "2026-08-19"
       },
       "SILVER": {
-        "checks": {},
-        "error": "ValueError: ET exact contract identity not found",
-        "sources": {},
-        "status": "NOT_RECOMMEND",
+        "checks": {
+          "high": {
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "ok": true,
+            "tolerance": 355.947
+          },
+          "low": {
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "ok": true,
+            "tolerance": 341.8965
+          },
+          "ltp": {
+            "delta": 77.0,
+            "delta_percent": 0.032519,
+            "ok": true,
+            "tolerance": 355.1805
+          },
+          "open": {
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "ok": true,
+            "tolerance": 345.0015
+          }
+        },
+        "expiry": "2026-09-04",
+        "sources": {
+          "economic_times": {
+            "content_type": "text/html;charset=UTF-8",
+            "expiry": "2026-09-04",
+            "http_status": 200,
+            "parse_mode": "text",
+            "url": "https://economictimes.indiatimes.com/commoditysummary/symbol-SILVER.cms?expiry=2026-09-04"
+          },
+          "upstox": {
+            "content_type": "text/html; charset=utf-8",
+            "expiry": "2026-09-04",
+            "http_status": 200,
+            "parse_mode": "table",
+            "url": "https://upstox.com/commodity-market-trading/mcx-silver-price/"
+          }
+        },
+        "status": "CROSS_SOURCE_VERIFIED",
         "trade_date": "2026-08-19"
       },
       "ZINC": {
-        "checks": {},
-        "error": "ValueError: ET exact contract identity not found",
-        "sources": {},
-        "status": "NOT_RECOMMEND",
+        "checks": {
+          "high": {
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "ok": true,
+            "tolerance": 0.5997
+          },
+          "low": {
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "ok": true,
+            "tolerance": 0.590175
+          },
+          "ltp": {
+            "delta": 0.05,
+            "delta_percent": 0.012525,
+            "ok": true,
+            "tolerance": 0.598875
+          },
+          "open": {
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "ok": true,
+            "tolerance": 0.595725
+          }
+        },
+        "expiry": "2026-08-31",
+        "sources": {
+          "economic_times": {
+            "content_type": "text/html;charset=UTF-8",
+            "expiry": "2026-08-31",
+            "http_status": 200,
+            "parse_mode": "text",
+            "url": "https://economictimes.indiatimes.com/commoditysummary/symbol-ZINC.cms?expiry=2026-08-31"
+          },
+          "upstox": {
+            "content_type": "text/html; charset=utf-8",
+            "expiry": "2026-08-31",
+            "http_status": 200,
+            "parse_mode": "table",
+            "url": "https://upstox.com/commodity-market-trading/mcx-zinc-price/"
+          }
+        },
+        "status": "CROSS_SOURCE_VERIFIED",
         "trade_date": "2026-08-19"
       }
     },
-    "errors": [
-      "GOLD: ValueError: ET exact contract identity not found",
-      "SILVER: ValueError: ET exact contract identity not found",
-      "CRUDEOIL: ValueError: ET exact contract identity not found",
-      "ZINC: ValueError: ET exact contract identity not found",
-      "COPPER: ValueError: ET exact contract identity not found"
-    ],
-    "fetched_at": "2026-08-20T09:51:37.618363+00:00",
+    "errors": [],
+    "fetched_at": "2026-08-20T09:52:52.499682+00:00",
     "latest_completed_session": "2026-08-19",
     "mode": "exact_date_historical_reconciliation",
     "primary_mirror_attempt": {
@@ -155,7 +359,7 @@
       "errors": [
         "mirror EOD verification is only permitted before 09:00 IST"
       ],
-      "fetched_at": "2026-08-20T09:51:37.618334+00:00",
+      "fetched_at": "2026-08-20T09:52:52.499654+00:00",
       "latest_completed_session": "2026-08-19",
       "mode": "mirror_reconciliation",
       "providers": [
@@ -169,11 +373,11 @@
       "Upstox",
       "Economic Times"
     ],
-    "record_count": 0,
-    "verified_count": 0
+    "record_count": 5,
+    "verified_count": 5
   },
-  "record_count": 0,
+  "record_count": 5,
   "source": "MCX -> Upstox+EconomicTimes",
   "source_type": "mcx_then_independent_mirrors",
-  "verified_count": 0
+  "verified_count": 5
 }
