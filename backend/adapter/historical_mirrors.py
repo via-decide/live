@@ -1,8 +1,8 @@
 """Governed date-specific fallback for completed MCX EOD sessions.
 
 This module is used only when the established 5paisa + ICICI Direct mirror path
-cannot produce verified records. It does not use current-session quotes as prior
-session data. Upstox and The Economic Times must independently expose the same
+cannot produce verified records. It never treats a current-session quote as prior
+session EOD data. Upstox and The Economic Times must independently expose the same
 completed-session row, full-size symbol, exact expiry, and matching OHLC/close.
 """
 from __future__ import annotations
@@ -23,6 +23,8 @@ UPSTOX = {
     "COPPER": "https://upstox.com/commodity-market-trading/mcx-copper-price/",
 }
 ET = "https://economictimes.indiatimes.com/commoditysummary/symbol-{symbol}.cms?expiry={expiry}"
+DISPLAY_NAME = {"GOLD":"Gold","SILVER":"Silver","CRUDEOIL":"Crude Oil","ZINC":"Zinc","COPPER":"Copper"}
+NUM = r"[+-]?[₹]?\s*[0-9][0-9,]*(?:\.\d+)?"
 
 
 def _num(v):
@@ -30,26 +32,54 @@ def _num(v):
     return parse_num(v)
 
 
+def _date(v):
+    parsed = _date_any(v)
+    if parsed:
+        return parsed
+    s = " ".join(str(v).replace(",", " ").split())
+    for fmt in ("%d %b %y", "%d %B %y", "%Y-%m-%d", "%d-%b-%Y"):
+        try:
+            return datetime.strptime(s.title(), fmt).date()
+        except ValueError:
+            pass
+    return None
+
+
+def _quote(symbol, expiry, session_date, close, op, high, low, previous_close, provider, url):
+    vals = (close, op, high, low)
+    if any(v is None for v in vals):
+        raise ValueError(f"incomplete {provider} EOD row")
+    if not (low <= op <= high and low <= close <= high):
+        raise ValueError(f"invalid {provider} EOD geometry")
+    return MirrorQuote(provider, symbol, expiry, _session_timestamp(session_date), close, op, high, low, previous_close, url)
+
+
 def fetch_upstox_eod(symbol, session_date):
     url = UPSTOX[symbol]
     raw, status, ctype = _fetch(url)
     txt = _text(raw)
-    parser = TableParser(); parser.feed(raw)
-    if f"{symbol} Historical Price" not in txt.upper():
+    if f"{symbol} HISTORICAL PRICE" not in txt.upper():
         raise ValueError("Upstox historical section not found")
+    parser = TableParser(); parser.feed(raw)
     for row in parser.rows:
         if len(row) < 6:
             continue
-        row_date = _date_any(row[0]); expiry = _date_any(row[1])
+        row_date, expiry = _date(row[0]), _date(row[1])
         if row_date != session_date or expiry is None:
             continue
         op, high, low, close = (_num(x) for x in row[2:6])
-        if None in (op, high, low, close):
-            continue
-        if not (low <= op <= high and low <= close <= high):
-            raise ValueError("invalid Upstox EOD geometry")
-        q = MirrorQuote("Upstox", symbol, expiry, _session_timestamp(session_date), close, op, high, low, None, url)
-        return q, {"http_status": status, "content_type": ctype, "url": url}
+        q = _quote(symbol, expiry, session_date, close, op, high, low, None, "Upstox", url)
+        return q, {"http_status": status, "content_type": ctype, "url": url, "parse_mode":"table"}
+
+    day = rf"{session_date.day}\s+{session_date.strftime('%b')}\s*,?\s*{session_date.strftime('%y')}"
+    pattern = rf"\b{day}\b\s+(\d{{1,2}}\s+[A-Za-z]{{3}}\s*,?\s*\d{{2}})\s+({NUM})\s+({NUM})\s+({NUM})\s+({NUM})"
+    m = re.search(pattern, txt, re.I)
+    if m:
+        expiry = _date(m.group(1)); op, high, low, close = (_num(m.group(i)) for i in range(2,6))
+        if expiry is None:
+            raise ValueError("Upstox expiry malformed")
+        q = _quote(symbol, expiry, session_date, close, op, high, low, None, "Upstox", url)
+        return q, {"http_status": status, "content_type": ctype, "url": url, "parse_mode":"text"}
     raise ValueError(f"Upstox EOD row {session_date} not found")
 
 
@@ -57,27 +87,36 @@ def fetch_et_eod(symbol, expiry, session_date):
     url = ET.format(symbol=symbol, expiry=expiry.isoformat())
     raw, status, ctype = _fetch(url)
     txt = _text(raw)
-    parser = TableParser(); parser.feed(raw)
     identity = re.search(
         rf"{re.escape(symbol)}\s+Contract Details.*?\({re.escape(expiry.isoformat())}\)\s+Exchange:\s*MCX",
         txt, re.I,
     )
     if not identity:
         raise ValueError("ET exact contract identity not found")
+    parser = TableParser(); parser.feed(raw)
     for row in parser.rows:
         if len(row) < 8:
             continue
-        row_date = _date_any(row[0]); row_expiry = _date_any(row[2])
+        row_date, row_expiry = _date(row[0]), _date(row[2])
         if row_date != session_date or row_expiry != expiry:
             continue
         op, high, low, previous_close, abs_change = (_num(x) for x in row[3:8])
         if None in (op, high, low, previous_close, abs_change):
             continue
         close = previous_close + abs_change
-        if not (low <= op <= high and low <= close <= high):
-            raise ValueError("invalid ET EOD geometry")
-        q = MirrorQuote("Economic Times", symbol, expiry, _session_timestamp(session_date), close, op, high, low, previous_close, url)
-        return q, {"http_status": status, "content_type": ctype, "url": url}
+        q = _quote(symbol, expiry, session_date, close, op, high, low, previous_close, "Economic Times", url)
+        return q, {"http_status": status, "content_type": ctype, "url": url, "parse_mode":"table"}
+
+    day = re.escape(session_date.isoformat())
+    exp = rf"{expiry.day:02d}-{expiry.strftime('%b')}-{expiry.year}"
+    commodity = re.escape(DISPLAY_NAME[symbol])
+    pattern = rf"\b{day}\b\s+{commodity}\s+{exp}\s+({NUM})\s+({NUM})\s+({NUM})\s+({NUM})\s+({NUM})"
+    m = re.search(pattern, txt, re.I)
+    if m:
+        op, high, low, previous_close, abs_change = (_num(m.group(i)) for i in range(1,6))
+        close = previous_close + abs_change
+        q = _quote(symbol, expiry, session_date, close, op, high, low, previous_close, "Economic Times", url)
+        return q, {"http_status": status, "content_type": ctype, "url": url, "parse_mode":"text"}
     raise ValueError(f"ET EOD row {session_date} / {expiry.isoformat()} not found")
 
 
