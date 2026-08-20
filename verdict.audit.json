@@ -25,7 +25,7 @@
       }
     },
     "errors": [],
-    "fetched_at": "2026-08-20T09:51:16.926874+00:00",
+    "fetched_at": "2026-08-20T09:51:42.265085+00:00",
     "mcx": {
       "adapter": "mcx-official-bhavcopy-v1",
       "attempts": [
@@ -72,7 +72,7 @@
         "2026-08-13: ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>",
         "2026-08-12: ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>"
       ],
-      "fetched_at": "2026-08-20T09:50:58.956320+00:00",
+      "fetched_at": "2026-08-20T09:51:29.532190+00:00",
       "field_definitions": {
         "atr": "Not asserted from one-day Bhav Copy; null",
         "breakdown_level": "Classic pivot S1 = 2*P - High",
@@ -148,7 +148,7 @@
         "ZINC: ValueError: ET exact contract identity not found",
         "COPPER: ValueError: ET exact contract identity not found"
       ],
-      "fetched_at": "2026-08-20T09:51:09.802991+00:00",
+      "fetched_at": "2026-08-20T09:51:37.618363+00:00",
       "latest_completed_session": "2026-08-19",
       "mode": "exact_date_historical_reconciliation",
       "primary_mirror_attempt": {
@@ -157,7 +157,7 @@
         "errors": [
           "mirror EOD verification is only permitted before 09:00 IST"
         ],
-        "fetched_at": "2026-08-20T09:51:09.802965+00:00",
+        "fetched_at": "2026-08-20T09:51:37.618334+00:00",
         "latest_completed_session": "2026-08-19",
         "mode": "mirror_reconciliation",
         "providers": [
@@ -179,7 +179,7 @@
     "source_type": "mcx_then_independent_mirrors",
     "verified_count": 0
   },
-  "commit_sha": "29da2c6a4bcf6718fe1d5d8ef3c5b838b83cc0d3",
+  "commit_sha": "c413f07f588c6f6c1d84e93c363d27596d761490",
   "commodities": [
     {
       "commodity": "GOLD",
@@ -207,7 +207,7 @@
       "verdict": "NOT_RECOMMEND"
     }
   ],
-  "generated_at": "2026-08-20T09:50:58.956302+00:00",
+  "generated_at": "2026-08-20T09:51:29.532171+00:00",
   "schema_version": "commodity-verdict-audit-v1",
   "source_age_minutes": null,
   "source_timestamps": [],
