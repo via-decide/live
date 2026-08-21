@@ -23,6 +23,7 @@ jobs:
     env:
       MCX_LOOKBACK_DAYS: '8'
       MAX_SOURCE_AGE_MINUTES: '10080'
+      MAX_CURRENT_PRICE_AGE_MINUTES: '30'
     steps:
       - uses: actions/checkout@v4
         with: {fetch-depth: 0}
@@ -36,7 +37,7 @@ jobs:
         run: node --test tests/js/*.test.js
       - name: Generate from MCX then independent mirrors
         run: python3 backend/generate_verdict.py
-      - name: Verify generated contract
+      - name: Verify generated contract and two-state invariants
         run: |
           python3 - <<'PY'
           import csv, json
@@ -49,6 +50,15 @@ jobs:
           audit=json.loads(Path("verdict.audit.json").read_text())
           assert audit["adapter"]["adapter"] == "mcx-multi-source-v1"
           assert 0 <= int(audit["adapter"]["verified_count"]) <= 5
+          assert audit.get("schema_version") == "commodity-verdict-audit-v2"
+          assert audit.get("engine_state_model") == "EOD_LEVEL_FREEZE_THEN_CURRENT_SESSION_EVALUATION"
+          current_count=int(audit.get("current_observation_count",0))
+          actionable=sum(r["verdict"] in {"BUY","SELL"} for r in rows)
+          if current_count == 0 and actionable != 0:
+              raise SystemExit("publication blocked: actionable verdict without current-session observation")
+          if current_count > 0 and not audit.get("current_price_source"):
+              raise SystemExit("publication blocked: current-session observations lack explicit source path")
+          print(f"two-state gate: current_observations={current_count}, actionable={actionable}")
           PY
       - name: Require current IST verdict date before publication
         if: github.ref_name == 'main'
