@@ -43,7 +43,8 @@ jobs:
           DOW="$(TZ=Asia/Kolkata date +%u)"
           HM_NUM=$((10#$HM))
           if [ "$DOW" -le 5 ] && [ "$HM_NUM" -ge 900 ] && [ "$HM_NUM" -le 2330 ]; then
-            python3 backend/acquire_current_prices.py /tmp/current-prices.json
+            python3 backend/acquire_current_prices.py /tmp/current-prices.json /tmp/eod-verified.json
+            echo "EOD_VERIFIED_SOURCE_PATH=/tmp/eod-verified.json" >> "$GITHUB_ENV"
             echo "CURRENT_PRICE_SOURCE_PATH=/tmp/current-prices.json" >> "$GITHUB_ENV"
             echo "REQUIRE_CURRENT_SESSION_OBSERVATION=1" >> "$GITHUB_ENV"
             echo "current-session mode enabled at ${HM} IST"
@@ -75,6 +76,8 @@ jobs:
           if current_count > 0 and not audit.get("current_price_source"):
               raise SystemExit("publication blocked: current-session observations lack explicit source path")
           if require_current:
+              if not audit.get("eod_snapshot_source"):
+                  raise SystemExit("publication blocked: post-open engine did not reuse governed EOD snapshot")
               diag=audit.get("current_price_diagnostics") or {}
               if diag.get("adapter") != "mcx-current-session-mirrors-v1":
                   raise SystemExit("publication blocked: post-open run lacks governed current-price diagnostics")
