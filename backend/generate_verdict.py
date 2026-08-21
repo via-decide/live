@@ -6,6 +6,7 @@ from pathlib import Path
 from adapter.source_adapter import acquire
 from verdict_engine import CSV_COLUMNS, run
 ROOT=Path(__file__).resolve().parents[1]
+
 def atomic(path:Path,text:str):
     path.parent.mkdir(parents=True,exist_ok=True); fd,tmp=tempfile.mkstemp(prefix=path.name+".",dir=path.parent)
     try:
@@ -13,8 +14,32 @@ def atomic(path:Path,text:str):
         os.replace(tmp,path)
     finally:
         if os.path.exists(tmp): os.unlink(tmp)
+
+def load_current_observations():
+    """Load separately acquired current-session prices when explicitly injected.
+
+    Absence means pre-market/frozen-level mode. Presence is strict: malformed data
+    raises and stops publication rather than being interpreted as a usable price.
+    """
+    configured=os.getenv("CURRENT_PRICE_SOURCE_PATH","").strip()
+    if not configured: return [],None
+    p=Path(configured); p=p if p.is_absolute() else (ROOT/p)
+    obj=json.loads(p.read_text("utf-8"))
+    rows=obj.get("records") if isinstance(obj,dict) else obj
+    if not isinstance(rows,list): raise ValueError("current price input must be a list or {records:[...]}")
+    required={"commodity","verified"}
+    normalized=[]
+    for i,row in enumerate(rows):
+        if not isinstance(row,dict): raise ValueError(f"current price row {i+1} must be an object")
+        if not required.issubset(row): raise ValueError(f"current price row {i+1} missing commodity/verified")
+        if "price" not in row and "ltp" not in row: raise ValueError(f"current price row {i+1} missing price")
+        if "timestamp" not in row and "source_timestamp" not in row: raise ValueError(f"current price row {i+1} missing timestamp")
+        normalized.append(dict(row))
+    return normalized,str(p)
+
 def main():
-    now=datetime.now(timezone.utc); result=acquire(ROOT); rows,audits=run(result.records if result.ok else [],now)
+    now=datetime.now(timezone.utc); result=acquire(ROOT); current,current_source=load_current_observations()
+    rows,audits=run(result.records if result.ok else [],now,current_observations=current)
     sio=io.StringIO(newline=""); w=csv.DictWriter(sio,fieldnames=CSV_COLUMNS,lineterminator="\n"); w.writeheader(); w.writerows(rows); atomic(ROOT/"verdict.csv",sio.getvalue())
     actionable=sum(r["verdict"] in {"BUY","SELL"} for r in rows); timestamps=[]; source_ages=[]
     for r in result.records:
@@ -24,9 +49,11 @@ def main():
             try:
                 parsed=datetime.fromisoformat(str(v).replace("Z","+00:00")); parsed=parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc); source_ages.append(round((now-parsed.astimezone(timezone.utc)).total_seconds()/60,2))
             except ValueError: pass
-    audit={"schema_version":"commodity-verdict-audit-v1","generated_at":now.isoformat(),"workflow_status":"ok" if result.ok else "fail_closed","adapter":result.diagnostics,"commodities":audits,
+    current_timestamps=[str(r.get("timestamp",r.get("source_timestamp"))) for r in current]
+    audit={"schema_version":"commodity-verdict-audit-v2","engine_state_model":"EOD_LEVEL_FREEZE_THEN_CURRENT_SESSION_EVALUATION","generated_at":now.isoformat(),"workflow_status":"ok" if result.ok else "fail_closed","adapter":result.diagnostics,"commodities":audits,
       "verdict_count":{v:sum(r["verdict"]==v for r in rows) for v in ("BUY","SELL","HOLD","NOT_RECOMMEND")},"actionable_row_count":actionable,"source_timestamps":timestamps,
-      "source_age_minutes":max(source_ages) if source_ages else None,"commit_sha":os.getenv("GITHUB_SHA","local")}
+      "source_age_minutes":max(source_ages) if source_ages else None,"current_price_source":current_source,"current_observation_count":len(current),"current_observation_timestamps":current_timestamps,
+      "commit_sha":os.getenv("GITHUB_SHA","local")}
     atomic(ROOT/"verdict.audit.json",json.dumps(audit,indent=2,sort_keys=True)+"\n"); atomic(ROOT/"adapter.diagnostics.json",json.dumps(result.diagnostics,indent=2,sort_keys=True)+"\n")
-    print(json.dumps({"workflow_status":audit["workflow_status"],"actionable_row_count":actionable,"verdict_count":audit["verdict_count"]},sort_keys=True))
+    print(json.dumps({"workflow_status":audit["workflow_status"],"engine_state_model":audit["engine_state_model"],"current_observation_count":len(current),"actionable_row_count":actionable,"verdict_count":audit["verdict_count"]},sort_keys=True))
 if __name__=="__main__": main()
