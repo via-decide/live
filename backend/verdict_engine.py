@@ -2,7 +2,7 @@
 
 State 1 freezes next-session levels from a verified completed EOD record.
 State 2 may evaluate those frozen levels only against a separately verified,
-separately timestamped current-session price observation.
+separately timestamped current-session price observation for the same contract.
 """
 from __future__ import annotations
 import os
@@ -70,6 +70,7 @@ def freeze_levels(c,rec,now,max_age_min=1440):
     if age < -10 or age > max_age_min: return None,fail_row(c,today,f"stale source ({age:.1f} min)",ref,inst)
     if not rec.get("verified"): return None,fail_row(c,today,"unverified row",ref,inst)
     if ref is None or ref<=0: return None,fail_row(c,today,"invalid EOD reference","",inst)
+    if not inst: return None,fail_row(c,today,"missing frozen contract identity",ref,inst)
     if bo is None and bd is None: return None,fail_row(c,today,"missing entry level",ref,inst)
     if bo is not None and bi is None: return None,fail_row(c,today,"missing BUY invalidation",ref,inst)
     if bd is not None and si is None: return None,fail_row(c,today,"missing SELL invalidation",ref,inst)
@@ -85,10 +86,13 @@ def freeze_levels(c,rec,now,max_age_min=1440):
       "buffer":buffer,"source_timestamp":ts,"source_trade_date":str(rec.get("source_trade_date") or "")}
     return frozen,None
 
-def _observation(c,obs,now,max_age_min=30):
+def _observation(c,obs,now,expected_instrument,max_age_min=30):
     if obs is None: return None,"no current-session observation"
     if str(obs.get("commodity","")).upper()!=c: return None,"current observation commodity mismatch"
     if not obs.get("verified"): return None,"unverified current-session observation"
+    observed_instrument=str(obs.get("instrument") or "")
+    if not observed_instrument: return None,"current observation missing exact contract identity"
+    if observed_instrument.strip().upper()!=str(expected_instrument).strip().upper(): return None,"current observation contract mismatch"
     price=num(obs.get("price",obs.get("ltp")))
     if price is None or price<=0: return None,"invalid current-session price"
     ts=parse_ts(obs.get("timestamp",obs.get("source_timestamp")))
@@ -98,14 +102,15 @@ def _observation(c,obs,now,max_age_min=30):
     if ts.astimezone(IST).date()!=now.astimezone(IST).date(): return None,"current observation is not from current IST session date"
     return {"price":price,"timestamp":ts},None
 
-def evaluate_frozen(c,frozen,obs,now,current_max_age_min=30):
+def evaluate_frozen(c,frozen,obs,now,current_max_age_min=30,require_current=False):
     """Evaluate one frozen EOD map against a distinct current-session observation."""
     today=now.astimezone(IST).date().isoformat(); ref=frozen["reference_price"]; inst=frozen["instrument"]
     bo=frozen["breakout_level"]; bd=frozen["breakdown_level"]; bi=frozen["buy_invalidation"]; si=frozen["sell_invalidation"]
     buy_trigger=frozen["buy_trigger"]; sell_trigger=frozen["sell_trigger"]; bias=frozen["bias"]; atr=frozen["atr"]
     entry=f"Above {_fmt(bo)} breakout / Below {_fmt(bd)} breakdown" if bo is not None and bd is not None else (f"Above {_fmt(bo)} breakout" if bo is not None else f"Below {_fmt(bd)} breakdown")
-    current,err=_observation(c,obs,now,current_max_age_min)
+    current,err=_observation(c,obs,now,inst,current_max_age_min)
     if err=="no current-session observation":
+        if require_current: return fail_row(c,today,"required current-session observation unavailable",ref,inst)
         conf=_hold_confidence(ref,buy_trigger,sell_trigger,bias,atr)
         return _row(c,today,ref,inst,"HOLD",conf,entry,"","levels frozen; awaiting current-session price")
     if err: return fail_row(c,today,err,ref,inst)
@@ -123,12 +128,12 @@ def evaluate_frozen(c,frozen,obs,now,current_max_age_min=30):
     conf=_hold_confidence(price,buy_trigger,sell_trigger,bias,atr)
     return _row(c,today,price,inst,"HOLD",conf,entry,"","current-session price inside frozen trigger range")
 
-def evaluate(c,rec,now,max_age_min=1440,current_observation=None,current_max_age_min=30):
+def evaluate(c,rec,now,max_age_min=1440,current_observation=None,current_max_age_min=30,require_current=False):
     frozen,failure=freeze_levels(c,rec,now,max_age_min)
     if failure is not None: return failure
-    return evaluate_frozen(c,frozen,current_observation,now,current_max_age_min)
+    return evaluate_frozen(c,frozen,current_observation,now,current_max_age_min,require_current)
 
-def run(records,now=None,max_age_min=None,current_observations=None,current_max_age_min=None):
+def run(records,now=None,max_age_min=None,current_observations=None,current_max_age_min=None,require_current=False):
     now=now or datetime.now(timezone.utc); max_age_min=max_age_min or int(os.getenv("MAX_SOURCE_AGE_MINUTES","1440")); current_max_age_min=current_max_age_min or int(os.getenv("MAX_CURRENT_PRICE_AGE_MINUTES","30"))
     by={}; duplicates=set(); current_by={}; current_dups=set()
     for r in records:
@@ -143,6 +148,6 @@ def run(records,now=None,max_age_min=None,current_observations=None,current_max_
     for c in COMMODITIES:
         if c in duplicates: row=fail_row(c,today,"duplicate commodity records")
         elif c in current_dups: row=fail_row(c,today,"duplicate current-session observations")
-        else: row=evaluate(c,by.get(c),now,max_age_min,current_by.get(c),current_max_age_min)
+        else: row=evaluate(c,by.get(c),now,max_age_min,current_by.get(c),current_max_age_min,require_current)
         audits.append({"commodity":c,"verdict":row["verdict"],"reason":row["_reason"]}); rows.append({k:row[k] for k in CSV_COLUMNS})
     return rows,audits
