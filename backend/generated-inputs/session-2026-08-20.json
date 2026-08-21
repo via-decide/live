@@ -1,0 +1,13 @@
+{
+  "schema": "mcx-eod-source-evidence-v1",
+  "source_session": "2026-08-20",
+  "purpose": "workflow refresh evidence only; repository adapters remain authoritative and must independently cross-source verify before engine input",
+  "source": "Upstox public MCX FUTCOM historical tables",
+  "records": [
+    {"symbol":"GOLD","expiry":"2026-10-05","open":158008.0,"high":160000.0,"low":157020.0,"close":159425.0,"url":"https://upstox.com/commodity-market-trading/mcx-gold-price/"},
+    {"symbol":"SILVER","expiry":"2026-09-04","open":238500.0,"high":245000.0,"low":235665.0,"close":243243.0,"url":"https://upstox.com/commodity-market-trading/mcx-silver-price/"},
+    {"symbol":"CRUDEOIL","expiry":"2026-09-21","open":8081.0,"high":8404.0,"low":8076.0,"close":8304.0,"url":"https://upstox.com/commodity-market-trading/mcx-crudeoil-price/"},
+    {"symbol":"ZINC","expiry":"2026-08-31","open":400.10,"high":402.85,"low":398.00,"close":402.15,"url":"https://upstox.com/commodity-market-trading/mcx-zinc-price/"},
+    {"symbol":"COPPER","expiry":"2026-08-31","open":1373.50,"high":1377.00,"low":1364.10,"close":1371.70,"url":"https://upstox.com/commodity-market-trading/mcx-copper-price/"}
+  ]
+}
