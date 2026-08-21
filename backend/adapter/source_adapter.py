@@ -2,14 +2,15 @@
 
 Acquisition order:
 1. Official MCX Bhav Copy.
-2. Established independent mirrors (5paisa + ICICI Direct).
-3. If those cannot prove the completed EOD session, governed historical mirrors
-   (Upstox + Economic Times) with exact date/expiry/OHLC reconciliation.
+2. Established independent mirrors (5paisa + ICICI Direct) for diagnostic evidence.
+3. Governed historical mirrors (Upstox + Economic Times) for the completed EOD
+   session and front-contract identity when official MCX is unavailable.
 4. Cross-source reconciliation per exact commodity/expiry.
 
-A commodity is returned to the verdict engine only when it is verified. Missing or
-conflicting commodities are omitted so the engine emits that commodity's fail-closed
-NOT_RECOMMEND row without suppressing verified peers.
+The completed-session historical pair is authoritative for mirror-only production
+because it binds the exact trade date and the active full-size contract. A primary
+5paisa/ICICI snapshot may not override it with a farther expiry. Missing or
+conflicting commodities remain fail-closed.
 """
 from __future__ import annotations
 import csv, io, json, os, re, urllib.request
@@ -98,20 +99,41 @@ def _reconcile(mcx_records, mirror_records, mcx_diag, mirror_diag):
             per[commodity]={"status":"CROSS_SOURCE_VERIFIED","source":mirror_name,"expiry":_expiry(chosen.get("instrument")),"trade_date":chosen.get("source_trade_date")}
     return out,{"adapter":"mcx-multi-source-v1","source_type":"mcx_then_independent_mirrors","source":f"MCX -> {mirror_name}","fetched_at":datetime.now(timezone.utc).isoformat(),"mcx":mcx_diag,"mirrors":mirror_diag,"commodities":per,"verified_count":len(out),"record_count":len(out),"errors":[]}
 
+def _expiry_map(records):
+    return {r.get("commodity"): _expiry(r.get("instrument")) for r in records}
+
 def acquire(repo_root: Path) -> AdapterResult:
     url=os.getenv("COMMODITY_SOURCE_URL","").strip(); path=os.getenv("COMMODITY_SOURCE_PATH","").strip()
     if url or path: return _override(repo_root,url,path)
     lookback=int(os.getenv("MCX_LOOKBACK_DAYS","8"))
     try: mcx_records,mcx_diag=acquire_latest(lookback_days=lookback)
     except Exception as exc: mcx_records=[]; mcx_diag={"adapter":"mcx-official-bhavcopy-v1","errors":[f"{type(exc).__name__}: {exc}"]}
-    try: mirror_records,mirror_diag=acquire_mirrors()
-    except Exception as exc: mirror_records=[]; mirror_diag={"adapter":"mcx-multi-source-v1","errors":[f"{type(exc).__name__}: {exc}"],"verified_count":0}
-    if not mirror_records:
-        primary_diag=mirror_diag
+
+    try: primary_records,primary_diag=acquire_mirrors()
+    except Exception as exc: primary_records=[]; primary_diag={"adapter":"mcx-multi-source-v1","errors":[f"{type(exc).__name__}: {exc}"],"verified_count":0}
+
+    # When official MCX is unavailable, completed-session historical mirrors are
+    # mandatory. This prevents a current snapshot provider from nominating a farther
+    # contract even when the governance contract is the nearest liquid unexpired one.
+    if not mcx_records:
         try:
             mirror_records,mirror_diag=acquire_historical()
             mirror_diag["primary_mirror_attempt"] = primary_diag
+            mirror_diag["primary_expiries"] = _expiry_map(primary_records)
+            mirror_diag["historical_front_expiries"] = _expiry_map(mirror_records)
+            if len(mirror_records) != len(TARGETS):
+                mirror_records=[]
+                mirror_diag.setdefault("errors",[]).append("front-contract historical gate requires 5/5 verified records")
         except Exception as exc:
             mirror_records=[]; mirror_diag={"adapter":"mcx-historical-mirror-v1","errors":[f"{type(exc).__name__}: {exc}"],"verified_count":0,"primary_mirror_attempt":primary_diag}
+    else:
+        # Official MCX remains authority; mirrors are only an independent check.
+        mirror_records,mirror_diag=primary_records,primary_diag
+        if not mirror_records:
+            try:
+                mirror_records,mirror_diag=acquire_historical(); mirror_diag["primary_mirror_attempt"]=primary_diag
+            except Exception as exc:
+                mirror_records=[]; mirror_diag={"adapter":"mcx-historical-mirror-v1","errors":[f"{type(exc).__name__}: {exc}"],"verified_count":0,"primary_mirror_attempt":primary_diag}
+
     records,diagnostics=_reconcile(mcx_records,mirror_records,mcx_diag,mirror_diag)
     return AdapterResult(bool(records),records,diagnostics)
