@@ -1,9 +1,8 @@
 """Governed current-session MCX price acquisition.
 
 This adapter does not calculate verdicts. It verifies a current-session price for the
-exact contract already frozen by the EOD adapter. Upstox and Economic Times must
-independently identify the same MCX FUTCOM expiry, expose a current-IST-session
-observation timestamp, and agree on price within the existing mirror tolerances.
+exact contract already frozen by the EOD adapter. Upstox is the nominated raw price
+source; Economic Times independently verifies the same MCX FUTCOM expiry and value.
 """
 from __future__ import annotations
 
@@ -85,7 +84,7 @@ def fetch_et_current(symbol, expected_expiry, now, max_age_min=30):
 
 def acquire_current(eod_records, now=None, max_age_min=30):
     now=now or datetime.now(timezone.utc); local=now.astimezone(IST)
-    diagnostics={"adapter":"mcx-current-session-mirrors-v1","mode":"exact_frozen_contract_current_price_reconciliation","providers":["Upstox","Economic Times"],"fetched_at":now.isoformat(),"session_date":local.date().isoformat(),"verified_count":0,"commodities":{},"errors":[]}
+    diagnostics={"adapter":"mcx-current-session-mirrors-v1","mode":"exact_frozen_contract_current_price_reconciliation","providers":["Upstox","Economic Times"],"nominated_price_source":"Upstox","fetched_at":now.isoformat(),"session_date":local.date().isoformat(),"verified_count":0,"commodities":{},"errors":[]}
     if local.weekday()>=5 or local.hour<9 or (local.hour==23 and local.minute>30) or local.hour>23:
         diagnostics["errors"].append("outside governed MCX current-session window")
         return [],diagnostics
@@ -107,10 +106,9 @@ def acquire_current(eod_records, now=None, max_age_min=30):
             ok,meta=_agree(symbol,up,et); d["checks"]["price"]={"ok":ok,**(meta or {})}
             d["sources"]={"upstox":{"price":up,"timestamp":uts.isoformat(),**ud},"economic_times":{"price":et,"timestamp":ets.isoformat(),**ed}}
             if not ok: raise ValueError("current prices disagree beyond tolerance")
-            observed_at=max(uts,ets); price=(up+et)/2.0
             display=DISPLAY[symbol]
-            obs={"commodity":display,"instrument":str(eod.get("instrument")),"price":price,"timestamp":observed_at.isoformat(),"verified":True,"verification_tier":"CROSS_SOURCE_CURRENT_VERIFIED","source_symbol":symbol}
-            out.append(obs); d.update(status="CROSS_SOURCE_CURRENT_VERIFIED",expiry=expiry.isoformat(),price=price,timestamp=observed_at.isoformat()); diagnostics["verified_count"]+=1
+            obs={"commodity":display,"instrument":str(eod.get("instrument")),"price":up,"timestamp":uts.isoformat(),"verified":True,"verification_tier":"CROSS_SOURCE_CURRENT_VERIFIED","source_symbol":symbol,"nominated_source":"Upstox"}
+            out.append(obs); d.update(status="CROSS_SOURCE_CURRENT_VERIFIED",expiry=expiry.isoformat(),price=up,timestamp=uts.isoformat(),nominated_source="Upstox"); diagnostics["verified_count"]+=1
         except Exception as exc:
             d["error"]=f"{type(exc).__name__}: {exc}"; diagnostics["errors"].append(f"{symbol}: {d['error']}")
         diagnostics["commodities"][symbol]=d
