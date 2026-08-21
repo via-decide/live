@@ -9,7 +9,9 @@ on:
       - 'index.html'
       - '.github/workflows/generate-verdict.yml'
   schedule:
-    - cron: "15 3 * * 1-5" # 08:45 Asia/Kolkata (UTC+05:30)
+    - cron: "15 3 * * 1-5" # 08:45 IST EOD level freeze
+    - cron: "35,50 3 * * 1-5" # 09:05, 09:20 IST
+    - cron: "5,20,35,50 4-17 * * 1-5" # 09:35 through 23:20 IST
   workflow_dispatch:
 permissions:
   contents: write
@@ -35,7 +37,20 @@ jobs:
         run: python3 -m unittest discover -s tests/python -p 'test_*.py'
       - name: JavaScript and CSV-contract tests
         run: node --test tests/js/*.test.js
-      - name: Generate from MCX then independent mirrors
+      - name: Acquire governed current-session prices when market is open
+        run: |
+          HM="$(TZ=Asia/Kolkata date +%H%M)"
+          DOW="$(TZ=Asia/Kolkata date +%u)"
+          HM_NUM=$((10#$HM))
+          if [ "$DOW" -le 5 ] && [ "$HM_NUM" -ge 900 ] && [ "$HM_NUM" -le 2330 ]; then
+            python3 backend/acquire_current_prices.py /tmp/current-prices.json
+            echo "CURRENT_PRICE_SOURCE_PATH=/tmp/current-prices.json" >> "$GITHUB_ENV"
+            echo "REQUIRE_CURRENT_SESSION_OBSERVATION=1" >> "$GITHUB_ENV"
+            echo "current-session mode enabled at ${HM} IST"
+          else
+            echo "current-session mode disabled at ${HM} IST; freezing EOD levels only"
+          fi
+      - name: Generate through repository two-state engine
         run: python3 backend/generate_verdict.py
       - name: Verify generated contract and two-state invariants
         run: |
@@ -53,12 +68,19 @@ jobs:
           assert audit.get("schema_version") == "commodity-verdict-audit-v2"
           assert audit.get("engine_state_model") == "EOD_LEVEL_FREEZE_THEN_CURRENT_SESSION_EVALUATION"
           current_count=int(audit.get("current_observation_count",0))
+          require_current=bool(audit.get("require_current_session_observation",False))
           actionable=sum(r["verdict"] in {"BUY","SELL"} for r in rows)
           if current_count == 0 and actionable != 0:
               raise SystemExit("publication blocked: actionable verdict without current-session observation")
           if current_count > 0 and not audit.get("current_price_source"):
               raise SystemExit("publication blocked: current-session observations lack explicit source path")
-          print(f"two-state gate: current_observations={current_count}, actionable={actionable}")
+          if require_current:
+              diag=audit.get("current_price_diagnostics") or {}
+              if diag.get("adapter") != "mcx-current-session-mirrors-v1":
+                  raise SystemExit("publication blocked: post-open run lacks governed current-price diagnostics")
+              bad=[r["instrument"].split()[0].upper() for r in rows if not r["ltp"] and r["verdict"]!="NOT_RECOMMEND"]
+              if bad: raise SystemExit(f"publication blocked: missing post-open prices not fail-closed: {bad}")
+          print(f"two-state gate: require_current={require_current}, current_observations={current_count}, actionable={actionable}")
           PY
       - name: Require current IST verdict date before publication
         if: github.ref_name == 'main'
