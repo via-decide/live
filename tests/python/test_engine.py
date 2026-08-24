@@ -46,35 +46,30 @@ class EngineTests(unittest.TestCase):
         self.assertTrue(all(a["reason"]=="required current-session observation unavailable" for a in audit))
 
     def test_regression_hold_to_buy_requires_separate_timestamped_observation(self):
-        source=eod("GOLD",self.now,trend_bias="BUY")
-        pre,_=run([source],self.now)
-        self.assertEqual(pre[0]["verdict"],"HOLD")
+        source=eod("GOLD",self.now,trend_bias="BUY"); pre,_=run([source],self.now); self.assertEqual(pre[0]["verdict"],"HOLD")
         post,audit=run([source],self.now,current_observations=[live("GOLD",self.now,110.10)],require_current=True)
-        self.assertEqual(post[0]["verdict"],"BUY")
-        self.assertEqual(post[0]["ltp"],"110.1")
-        self.assertIn("current-session observation",audit[0]["reason"])
+        self.assertEqual(post[0]["verdict"],"BUY"); self.assertEqual(post[0]["ltp"],"110.1"); self.assertIn("current-session observation",audit[0]["reason"])
 
     def test_regression_hold_to_sell_requires_separate_timestamped_observation(self):
-        source=eod("SILVER",self.now,trend_bias="SELL")
-        pre,_=run([source],self.now)
-        self.assertEqual(pre[1]["verdict"],"HOLD")
+        source=eod("SILVER",self.now,trend_bias="SELL"); pre,_=run([source],self.now); self.assertEqual(pre[1]["verdict"],"HOLD")
         post,audit=run([source],self.now,current_observations=[live("SILVER",self.now,89.90)],require_current=True)
-        self.assertEqual(post[1]["verdict"],"SELL")
-        self.assertEqual(post[1]["ltp"],"89.9")
-        self.assertIn("current-session observation",audit[1]["reason"])
+        self.assertEqual(post[1]["verdict"],"SELL"); self.assertEqual(post[1]["ltp"],"89.9"); self.assertIn("current-session observation",audit[1]["reason"])
+
+    def test_directional_bias_can_confirm_at_pivot_without_waiting_for_r1_s1(self):
+        buy=eod("GOLD",self.now,trend_bias="BUY"); sell=eod("SILVER",self.now,trend_bias="SELL")
+        rows,audit=run([buy,sell],self.now,current_observations=[live("GOLD",self.now,105),live("SILVER",self.now,95)],require_current=True)
+        self.assertEqual(rows[0]["verdict"],"BUY"); self.assertEqual(rows[1]["verdict"],"SELL")
+        self.assertIn("pivot continuation",audit[0]["reason"]); self.assertIn("pivot continuation",audit[1]["reason"])
 
     def test_current_observation_contract_must_match_frozen_contract(self):
-        source=eod("GOLD",self.now,trend_bias="BUY")
-        wrong=live("GOLD",self.now,120,instrument="GOLD Futures (05OCT2026)")
+        source=eod("GOLD",self.now,trend_bias="BUY"); wrong=live("GOLD",self.now,120,instrument="GOLD Futures (05OCT2026)")
         rows,audit=run([source],self.now,current_observations=[wrong],require_current=True)
-        self.assertEqual(rows[0]["verdict"],"NOT_RECOMMEND")
-        self.assertEqual(audit[0]["reason"],"current observation contract mismatch")
+        self.assertEqual(rows[0]["verdict"],"NOT_RECOMMEND"); self.assertEqual(audit[0]["reason"],"current observation contract mismatch")
 
     def test_same_eod_close_cannot_be_reused_as_current_observation(self):
         source=eod("GOLD",self.now,trend_bias="BUY")
         rows,_=run([source],self.now,current_observations=[{"commodity":"GOLD","instrument":source["instrument"],"price":120,"timestamp":source["source_timestamp"],"verified":True}],require_current=True)
-        self.assertEqual(rows[0]["verdict"],"NOT_RECOMMEND")
-        self.assertEqual(rows[0]["confidence_score_percent"],"0")
+        self.assertEqual(rows[0]["verdict"],"NOT_RECOMMEND"); self.assertEqual(rows[0]["confidence_score_percent"],"0")
 
     def test_current_observation_must_be_verified_and_fresh(self):
         source=eod("GOLD",self.now,trend_bias="BUY")
@@ -82,9 +77,9 @@ class EngineTests(unittest.TestCase):
         stale=live("GOLD",self.now,120,timestamp=(self.now-timedelta(hours=2)).isoformat())
         rows,_=run([source],self.now,current_observations=[stale],current_max_age_min=30,require_current=True); self.assertEqual(rows[0]["verdict"],"NOT_RECOMMEND")
 
-    def test_current_price_inside_frozen_range_remains_hold(self):
+    def test_current_price_without_confirmation_remains_hold(self):
         source=eod("GOLD",self.now,trend_bias="BUY")
-        rows,_=run([source],self.now,current_observations=[live("GOLD",self.now,105)],require_current=True)
+        rows,_=run([source],self.now,current_observations=[live("GOLD",self.now,100)],require_current=True)
         self.assertEqual(rows[0]["verdict"],"HOLD")
 
     def test_signal_trend_conflict_fails_closed(self):
@@ -94,11 +89,9 @@ class EngineTests(unittest.TestCase):
 
     def test_python_js_parity_on_published_buy(self):
         source=eod("GOLD",self.now,trend_bias="BUY")
-        rows,_=run([source],self.now,current_observations=[live("GOLD",self.now,110.10)],require_current=True)
-        row=rows[0]
+        rows,_=run([source],self.now,current_observations=[live("GOLD",self.now,105)],require_current=True); row=rows[0]
         script="const cv=require('./assets/verdict-engine.js');const row=JSON.parse(process.argv[1]);console.log(JSON.stringify(cv.computeLiveUpdate(row,row.ltp)));"
         p=subprocess.run(["node","-e",script,json.dumps(row)],cwd=ROOT,text=True,capture_output=True,check=True)
-        self.assertEqual(json.loads(p.stdout)["verdict"],"BUY")
-        self.assertEqual(tuple(row.keys()),CSV_COLUMNS)
+        self.assertEqual(json.loads(p.stdout)["verdict"],"BUY"); self.assertEqual(tuple(row.keys()),CSV_COLUMNS)
 
 if __name__=="__main__": unittest.main()
