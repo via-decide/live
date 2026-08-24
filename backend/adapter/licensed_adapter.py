@@ -1,10 +1,23 @@
 """Production reconciliation for documented Upstox + DhanHQ MCX APIs."""
 from __future__ import annotations
+import csv, io, urllib.request
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
 from . import licensed_sources as _licensed_sources
 _licensed_sources.DHAN_MASTER="https://images.dhan.co/api-data/api-scrip-master.csv"
+
+def _fetch_dhan_master_bounded():
+    req=urllib.request.Request(_licensed_sources.DHAN_MASTER,headers={"Accept":"text/csv,*/*"})
+    with urllib.request.urlopen(req,timeout=25) as r:
+        status=int(getattr(r,"status",200)); ctype=str(r.headers.get("Content-Type","")); raw=r.read(50_000_001)
+    if status!=200: raise ValueError(f"HTTP {status}")
+    if len(raw)>50_000_000: raise ValueError("Dhan instrument master exceeds 50 MB")
+    rows=list(csv.DictReader(io.StringIO(raw.decode("utf-8-sig","replace"))))
+    if not rows: raise ValueError("Dhan instrument master empty")
+    return rows,{"url":_licensed_sources.DHAN_MASTER,"http_status":status,"content_type":ctype,"record_count":len(rows)}
+
+_licensed_sources.fetch_dhan_master=_fetch_dhan_master_bounded
 from .licensed_sources import acquire_latest, acquire_mirrors, acquire_historical
 
 TARGETS=("GOLD","SILVER","CRUDE","ZINC","COPPER")
