@@ -122,8 +122,14 @@ def acquire(repo_root: Path) -> AdapterResult:
             mirror_diag["primary_expiries"] = _expiry_map(primary_records)
             mirror_diag["historical_front_expiries"] = _expiry_map(mirror_records)
             if len(mirror_records) != len(TARGETS):
-                mirror_records=[]
-                mirror_diag.setdefault("errors",[]).append("front-contract historical gate requires 5/5 verified records")
+                # Partial historical verification is not a reason to discard verified
+                # commodities: _reconcile() already fail-closes any commodity missing
+                # from mirror_records to NOT_RECOMMEND below. Voiding the whole batch
+                # here previously turned a single missing commodity into a total
+                # publication outage.
+                mirror_diag.setdefault("errors",[]).append(
+                    f"front-contract historical gate: {len(mirror_records)}/{len(TARGETS)} verified; missing commodities fail-closed individually"
+                )
         except Exception as exc:
             mirror_records=[]; mirror_diag={"adapter":"mcx-historical-mirror-v1","errors":[f"{type(exc).__name__}: {exc}"],"verified_count":0,"primary_mirror_attempt":primary_diag}
     else:
