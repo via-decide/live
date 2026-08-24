@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
+from . import licensed_sources as _licensed_sources
+_licensed_sources.DHAN_MASTER="https://images.dhan.co/api-data/api-scrip-master.csv"
 from .licensed_sources import acquire_latest, acquire_mirrors, acquire_historical
 
 TARGETS=("GOLD","SILVER","CRUDE","ZINC","COPPER")
