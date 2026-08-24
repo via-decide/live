@@ -26,6 +26,9 @@ jobs:
       MCX_LOOKBACK_DAYS: '8'
       MAX_SOURCE_AGE_MINUTES: '10080'
       MAX_CURRENT_PRICE_AGE_MINUTES: '30'
+      UPSTOX_ACCESS_TOKEN: ${{ secrets.UPSTOX_ACCESS_TOKEN }}
+      DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+      DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
     steps:
       - uses: actions/checkout@v4
         with: {fetch-depth: 0}
