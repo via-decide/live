@@ -53,5 +53,24 @@ class HistoricalMirrorTests(unittest.TestCase):
         self.assertEqual(result.diagnostics["commodities"]["GOLD"]["source"],"Upstox+EconomicTimes")
         self.assertIn("primary_mirror_attempt",result.diagnostics["mirrors"])
 
+    def test_partial_historical_verification_does_not_void_verified_commodities(self):
+        # Regression: a historical-mirror batch missing SOME commodities must still
+        # publish the ones that DID cross-source verify; only the missing ones
+        # fail-closed to NOT_RECOMMEND. Previously any count != 5 zeroed the batch,
+        # turning a single-commodity mirror gap into a total publication outage.
+        gold={"commodity":"GOLD","instrument":"Gold Futures (05OCT2026)","ltp":160500,"source_trade_date":"2026-08-19","verified":True}
+        silver={"commodity":"SILVER","instrument":"Silver Futures (05DEC2026)","ltp":258000,"source_trade_date":"2026-08-19","verified":True}
+        with patch.object(sa,"acquire_latest",return_value=([],{"adapter":"mcx-official-bhavcopy-v1"})), \
+             patch.object(sa,"acquire_mirrors",return_value=([],{"adapter":"mcx-multi-source-v1","verified_count":0})), \
+             patch.object(sa,"acquire_historical",return_value=([gold,silver],{"adapter":"mcx-historical-mirror-v1","verified_count":2})):
+            result=sa.acquire(ROOT)
+        self.assertTrue(result.ok)
+        self.assertEqual({r["commodity"] for r in result.records}, {"GOLD","SILVER"})
+        commodities=result.diagnostics["commodities"]
+        self.assertEqual(commodities["GOLD"]["status"],"CROSS_SOURCE_VERIFIED")
+        self.assertEqual(commodities["SILVER"]["status"],"CROSS_SOURCE_VERIFIED")
+        for missing in ("CRUDE","ZINC","COPPER"):
+            self.assertEqual(commodities[missing]["status"],"NOT_RECOMMEND")
+
 
 if __name__=="__main__": unittest.main()
