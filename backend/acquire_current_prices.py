@@ -3,8 +3,8 @@ from __future__ import annotations
 import json, sys
 from datetime import datetime, timezone
 from pathlib import Path
-from adapter.source_adapter import acquire
-from adapter.current_session import acquire_current
+from adapter.licensed_adapter import acquire
+from adapter.licensed_sources import acquire_current
 
 ROOT=Path(__file__).resolve().parents[1]
 
