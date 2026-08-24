@@ -2,390 +2,111 @@
   "adapter": "mcx-multi-source-v1",
   "commodities": {
     "COPPER": {
-      "expiry": "31AUG2026",
-      "source": "Upstox+EconomicTimes",
-      "status": "CROSS_SOURCE_VERIFIED",
-      "trade_date": "2026-08-21"
+      "dhan": false,
+      "reason": "both licensed sources required",
+      "status": "NOT_RECOMMEND",
+      "upstox": false
     },
     "CRUDE": {
-      "expiry": "21SEP2026",
-      "source": "Upstox+EconomicTimes",
-      "status": "CROSS_SOURCE_VERIFIED",
-      "trade_date": "2026-08-21"
+      "dhan": false,
+      "reason": "both licensed sources required",
+      "status": "NOT_RECOMMEND",
+      "upstox": false
     },
     "GOLD": {
-      "expiry": "05OCT2026",
-      "source": "Upstox+EconomicTimes",
-      "status": "CROSS_SOURCE_VERIFIED",
-      "trade_date": "2026-08-21"
+      "dhan": false,
+      "reason": "both licensed sources required",
+      "status": "NOT_RECOMMEND",
+      "upstox": false
     },
     "SILVER": {
-      "expiry": "04SEP2026",
-      "source": "Upstox+EconomicTimes",
-      "status": "CROSS_SOURCE_VERIFIED",
-      "trade_date": "2026-08-21"
+      "dhan": false,
+      "reason": "both licensed sources required",
+      "status": "NOT_RECOMMEND",
+      "upstox": false
     },
     "ZINC": {
-      "expiry": "31AUG2026",
-      "source": "Upstox+EconomicTimes",
-      "status": "CROSS_SOURCE_VERIFIED",
-      "trade_date": "2026-08-21"
+      "dhan": false,
+      "reason": "both licensed sources required",
+      "status": "NOT_RECOMMEND",
+      "upstox": false
     }
   },
   "errors": [],
-  "fetched_at": "2026-08-24T03:47:49.238894+00:00",
+  "fetched_at": "2026-08-24T03:57:36.624254+00:00",
   "mcx": {
-    "adapter": "mcx-official-bhavcopy-v1",
-    "attempts": [
-      {
-        "date": "2026-08-23",
-        "error": "ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>"
-      },
-      {
-        "date": "2026-08-22",
-        "error": "ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>"
-      },
-      {
-        "date": "2026-08-21",
-        "error": "ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>"
-      },
-      {
-        "date": "2026-08-20",
-        "error": "ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>"
-      },
-      {
-        "date": "2026-08-19",
-        "error": "ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>"
-      },
-      {
-        "date": "2026-08-18",
-        "error": "ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>"
-      },
-      {
-        "date": "2026-08-17",
-        "error": "ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>"
-      },
-      {
-        "date": "2026-08-16",
-        "error": "ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>"
-      }
-    ],
-    "errors": [
-      "2026-08-23: ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>",
-      "2026-08-22: ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>",
-      "2026-08-21: ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>",
-      "2026-08-20: ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>",
-      "2026-08-19: ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>",
-      "2026-08-18: ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>",
-      "2026-08-17: ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>",
-      "2026-08-16: ValueError: https://www.mcxindia.com direct-legacy: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC25--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com direct-json: ValueError: unexpected content type 'text/html; charset=utf-8': <!--SID : DC24--> <!DOCTYPE html> <html lang=\"en\"> <head> <title> 404 </title> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"description\" content=\"The Multi Commodity Exchange of India Limited (MCX), India\u00e2\u20ac\u2122s first listed exchange, is a state-of-t | https://www.mcxindia.com session-json: HTTPError: HTTP Error 403: Forbidden | https://classic.mcxindia.com direct-legacy: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com direct-json: URLError: <urlopen error [Errno -2] Name or service not known> | https://classic.mcxindia.com session-json: URLError: <urlopen error [Errno -2] Name or service not known>"
-    ],
-    "fetched_at": "2026-08-24T03:47:33.056461+00:00",
-    "field_definitions": {
-      "atr": "Not asserted from one-day Bhav Copy; null",
-      "breakdown_level": "Classic pivot S1 = 2*P - High",
-      "breakout_level": "Classic pivot R1 = 2*P - Low",
-      "buy_invalidation_below": "Classic pivot P = (High+Low+Close)/3",
-      "commodity": "Exact MCX Symbol mapped to GOLD/SILVER/CRUDE/ZINC/COPPER; no cross-symbol fallback",
-      "instrument": "Selected FUTCOM contract, nearest unexpired contract with positive volume and valid OHLC",
-      "ltp": "MCX Bhav Copy Close for the selected contract (EOD reference price)",
-      "sell_invalidation_above": "Classic pivot P = (High+Low+Close)/3",
-      "source_timestamp": "Trade date anchored at 00:00 IST; exact MCX publication time is not asserted",
-      "trend_bias": "BUY if Close>PCP, SELL if Close<PCP, otherwise NEUTRAL",
-      "verification_status": "true only after HTTP/content/schema/exact-symbol/OHLC/geometry validation"
-    },
-    "lookback_days": 8,
-    "official_hosts": [
-      "https://www.mcxindia.com",
-      "https://classic.mcxindia.com"
-    ],
-    "public_page": "https://www.mcxindia.com/market-data/bhavcopy",
-    "request_instrument": "FUTCOM",
-    "request_method": "POST",
-    "resolved_source": null,
-    "response_fields": [],
-    "selected_contracts": {},
-    "selected_trade_date": null,
-    "source": "https://www.mcxindia.com/backpage.aspx/GetDateWiseBhavCopy",
-    "source_type": "official_mcx_json",
-    "transport": null
-  },
-  "mirrors": {
-    "adapter": "mcx-historical-mirror-v1",
+    "adapter": "mcx-upstox-api-v1",
     "commodities": {
       "COPPER": {
-        "checks": {
-          "high": {
-            "delta": 0.0,
-            "delta_percent": 0.0,
-            "ok": true,
-            "tolerance": 2.08425
-          },
-          "low": {
-            "delta": 0.0,
-            "delta_percent": 0.0,
-            "ok": true,
-            "tolerance": 2.06325
-          },
-          "ltp": {
-            "delta": 0.3,
-            "delta_percent": 0.021655,
-            "ok": true,
-            "tolerance": 2.078025
-          },
-          "open": {
-            "delta": 0.0,
-            "delta_percent": 0.0,
-            "ok": true,
-            "tolerance": 2.065425
-          }
-        },
-        "expiry": "2026-08-31",
-        "sources": {
-          "economic_times": {
-            "content_type": "text/html;charset=UTF-8",
-            "expiry": "2026-08-31",
-            "http_status": 200,
-            "parse_mode": "text",
-            "url": "https://economictimes.indiatimes.com/commoditysummary/symbol-COPPER.cms?expiry=2026-08-31"
-          },
-          "upstox": {
-            "content_type": "text/html; charset=utf-8",
-            "expiry": "2026-08-31",
-            "http_status": 200,
-            "parse_mode": "table",
-            "url": "https://upstox.com/commodity-market-trading/mcx-copper-price/"
-          }
-        },
-        "status": "CROSS_SOURCE_VERIFIED",
+        "checks": {},
+        "error": "ValueError: missing UPSTOX_ACCESS_TOKEN",
+        "status": "NOT_RECOMMEND",
         "trade_date": "2026-08-21"
       },
       "CRUDEOIL": {
-        "checks": {
-          "high": {
-            "delta": 0.0,
-            "delta_percent": 0.0,
-            "ok": true,
-            "tolerance": 12.579
-          },
-          "low": {
-            "delta": 0.0,
-            "delta_percent": 0.0,
-            "ok": true,
-            "tolerance": 12.3345
-          },
-          "ltp": {
-            "delta": 4.0,
-            "delta_percent": 0.047853,
-            "ok": true,
-            "tolerance": 12.5445
-          },
-          "open": {
-            "delta": 0.0,
-            "delta_percent": 0.0,
-            "ok": true,
-            "tolerance": 12.4155
-          }
-        },
-        "expiry": "2026-09-21",
-        "sources": {
-          "economic_times": {
-            "content_type": "text/html;charset=UTF-8",
-            "expiry": "2026-09-21",
-            "http_status": 200,
-            "parse_mode": "text",
-            "url": "https://economictimes.indiatimes.com/commoditysummary/symbol-CRUDEOIL.cms?expiry=2026-09-21"
-          },
-          "upstox": {
-            "content_type": "text/html; charset=utf-8",
-            "expiry": "2026-09-21",
-            "http_status": 200,
-            "parse_mode": "table",
-            "url": "https://upstox.com/commodity-market-trading/mcx-crudeoil-price/"
-          }
-        },
-        "status": "CROSS_SOURCE_VERIFIED",
+        "checks": {},
+        "error": "ValueError: missing UPSTOX_ACCESS_TOKEN",
+        "status": "NOT_RECOMMEND",
         "trade_date": "2026-08-21"
       },
       "GOLD": {
-        "checks": {
-          "high": {
-            "delta": 0.0,
-            "delta_percent": 0.0,
-            "ok": true,
-            "tolerance": 244.02
-          },
-          "low": {
-            "delta": 0.0,
-            "delta_percent": 0.0,
-            "ok": true,
-            "tolerance": 239.4015
-          },
-          "ltp": {
-            "delta": 11.0,
-            "delta_percent": 0.006772,
-            "ok": true,
-            "tolerance": 243.6735
-          },
-          "open": {
-            "delta": 0.0,
-            "delta_percent": 0.0,
-            "ok": true,
-            "tolerance": 240.945
-          }
-        },
-        "expiry": "2026-10-05",
-        "sources": {
-          "economic_times": {
-            "content_type": "text/html;charset=UTF-8",
-            "expiry": "2026-10-05",
-            "http_status": 200,
-            "parse_mode": "text",
-            "url": "https://economictimes.indiatimes.com/commoditysummary/symbol-GOLD.cms?expiry=2026-10-05"
-          },
-          "upstox": {
-            "content_type": "text/html; charset=utf-8",
-            "expiry": "2026-10-05",
-            "http_status": 200,
-            "parse_mode": "table",
-            "url": "https://upstox.com/commodity-market-trading/mcx-gold-price/"
-          }
-        },
-        "status": "CROSS_SOURCE_VERIFIED",
+        "checks": {},
+        "error": "ValueError: missing UPSTOX_ACCESS_TOKEN",
+        "status": "NOT_RECOMMEND",
         "trade_date": "2026-08-21"
       },
       "SILVER": {
-        "checks": {
-          "high": {
-            "delta": 0.0,
-            "delta_percent": 0.0,
-            "ok": true,
-            "tolerance": 372.186
-          },
-          "low": {
-            "delta": 0.0,
-            "delta_percent": 0.0,
-            "ok": true,
-            "tolerance": 366.3765
-          },
-          "ltp": {
-            "delta": 148.0,
-            "delta_percent": 0.060017,
-            "ok": true,
-            "tolerance": 369.8955
-          },
-          "open": {
-            "delta": 0.0,
-            "delta_percent": 0.0,
-            "ok": true,
-            "tolerance": 367.482
-          }
-        },
-        "expiry": "2026-09-04",
-        "sources": {
-          "economic_times": {
-            "content_type": "text/html;charset=UTF-8",
-            "expiry": "2026-09-04",
-            "http_status": 200,
-            "parse_mode": "text",
-            "url": "https://economictimes.indiatimes.com/commoditysummary/symbol-SILVER.cms?expiry=2026-09-04"
-          },
-          "upstox": {
-            "content_type": "text/html; charset=utf-8",
-            "expiry": "2026-09-04",
-            "http_status": 200,
-            "parse_mode": "table",
-            "url": "https://upstox.com/commodity-market-trading/mcx-silver-price/"
-          }
-        },
-        "status": "CROSS_SOURCE_VERIFIED",
+        "checks": {},
+        "error": "ValueError: missing UPSTOX_ACCESS_TOKEN",
+        "status": "NOT_RECOMMEND",
         "trade_date": "2026-08-21"
       },
       "ZINC": {
-        "checks": {
-          "high": {
-            "delta": 0.0,
-            "delta_percent": 0.0,
-            "ok": true,
-            "tolerance": 0.6126
-          },
-          "low": {
-            "delta": 0.0,
-            "delta_percent": 0.0,
-            "ok": true,
-            "tolerance": 0.605475
-          },
-          "ltp": {
-            "delta": 0.0,
-            "delta_percent": 0.0,
-            "ok": true,
-            "tolerance": 0.611475
-          },
-          "open": {
-            "delta": 0.0,
-            "delta_percent": 0.0,
-            "ok": true,
-            "tolerance": 0.605475
-          }
-        },
-        "expiry": "2026-08-31",
-        "sources": {
-          "economic_times": {
-            "content_type": "text/html;charset=UTF-8",
-            "expiry": "2026-08-31",
-            "http_status": 200,
-            "parse_mode": "text",
-            "url": "https://economictimes.indiatimes.com/commoditysummary/symbol-ZINC.cms?expiry=2026-08-31"
-          },
-          "upstox": {
-            "content_type": "text/html; charset=utf-8",
-            "expiry": "2026-08-31",
-            "http_status": 200,
-            "parse_mode": "table",
-            "url": "https://upstox.com/commodity-market-trading/mcx-zinc-price/"
-          }
-        },
-        "status": "CROSS_SOURCE_VERIFIED",
+        "checks": {},
+        "error": "ValueError: missing UPSTOX_ACCESS_TOKEN",
+        "status": "NOT_RECOMMEND",
         "trade_date": "2026-08-21"
       }
     },
-    "errors": [],
-    "fetched_at": "2026-08-24T03:47:43.432091+00:00",
-    "historical_front_expiries": {
-      "COPPER": "31AUG2026",
-      "CRUDE": "21SEP2026",
-      "GOLD": "05OCT2026",
-      "SILVER": "04SEP2026",
-      "ZINC": "31AUG2026"
+    "errors": [
+      "GOLD: ValueError: missing UPSTOX_ACCESS_TOKEN",
+      "SILVER: ValueError: missing UPSTOX_ACCESS_TOKEN",
+      "CRUDEOIL: ValueError: missing UPSTOX_ACCESS_TOKEN",
+      "ZINC: ValueError: missing UPSTOX_ACCESS_TOKEN",
+      "COPPER: ValueError: missing UPSTOX_ACCESS_TOKEN"
+    ],
+    "fetched_at": "2026-08-24T03:57:32.804791+00:00",
+    "instrument_master": {
+      "content_type": "application/gzip",
+      "http_status": 200,
+      "record_count": 127282,
+      "url": "https://assets.upstox.com/market-quote/instruments/exchange/complete.json.gz"
     },
     "latest_completed_session": "2026-08-21",
-    "mode": "exact_date_historical_reconciliation",
-    "primary_expiries": {},
-    "primary_mirror_attempt": {
-      "adapter": "mcx-multi-source-v1",
-      "commodities": {},
-      "errors": [
-        "mirror EOD verification is only permitted before 09:00 IST"
-      ],
-      "fetched_at": "2026-08-24T03:47:43.432060+00:00",
-      "latest_completed_session": "2026-08-21",
-      "mode": "mirror_reconciliation",
-      "providers": [
-        "5paisa",
-        "ICICI Direct"
-      ],
-      "session_calendar": "MCX 2026: weekends + full-day closures",
-      "verified_count": 0
-    },
-    "providers": [
-      "Upstox",
-      "Economic Times"
-    ],
-    "record_count": 5,
-    "verified_count": 5
+    "provider": "Upstox",
+    "record_count": 0,
+    "source_type": "documented_broker_api",
+    "verified_count": 0
   },
-  "record_count": 5,
-  "source": "MCX -> Upstox+EconomicTimes",
-  "source_type": "mcx_then_independent_mirrors",
-  "verified_count": 5
+  "mirrors": {
+    "adapter": "mcx-dhan-api-v1",
+    "commodities": {},
+    "errors": [
+      "instrument master: ValueError: payload exceeds 20 MB"
+    ],
+    "fetched_at": "2026-08-24T03:57:33.678755+00:00",
+    "latest_completed_session": "2026-08-21",
+    "provider": "Dhan",
+    "record_count": 0,
+    "source_type": "documented_broker_api",
+    "verified_count": 0
+  },
+  "providers": [
+    "Upstox",
+    "DhanHQ"
+  ],
+  "record_count": 0,
+  "source": "Upstox -> DhanHQ",
+  "source_type": "licensed_broker_api_cross_verification",
+  "verified_count": 0
 }
