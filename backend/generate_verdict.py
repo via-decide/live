@@ -4,7 +4,7 @@ import csv, io, json, os, tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
-from adapter.source_adapter import acquire
+from adapter.licensed_adapter import acquire
 from verdict_engine import CSV_COLUMNS, run
 ROOT=Path(__file__).resolve().parents[1]
 
