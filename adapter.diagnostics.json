@@ -33,7 +33,7 @@
     }
   },
   "errors": [],
-  "fetched_at": "2026-08-24T03:57:36.624254+00:00",
+  "fetched_at": "2026-08-24T03:57:58.070404+00:00",
   "mcx": {
     "adapter": "mcx-upstox-api-v1",
     "commodities": {
@@ -75,7 +75,7 @@
       "ZINC: ValueError: missing UPSTOX_ACCESS_TOKEN",
       "COPPER: ValueError: missing UPSTOX_ACCESS_TOKEN"
     ],
-    "fetched_at": "2026-08-24T03:57:32.804791+00:00",
+    "fetched_at": "2026-08-24T03:57:53.317986+00:00",
     "instrument_master": {
       "content_type": "application/gzip",
       "http_status": 200,
@@ -94,7 +94,7 @@
     "errors": [
       "instrument master: ValueError: payload exceeds 20 MB"
     ],
-    "fetched_at": "2026-08-24T03:57:33.678755+00:00",
+    "fetched_at": "2026-08-24T03:57:54.584640+00:00",
     "latest_completed_session": "2026-08-21",
     "provider": "Dhan",
     "record_count": 0,
