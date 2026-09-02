@@ -35,7 +35,7 @@
       }
     },
     "errors": [],
-    "fetched_at": "2026-09-01T17:53:08.928550+00:00",
+    "fetched_at": "2026-09-02T07:54:53.631479+00:00",
     "mcx": {
       "adapter": "mcx-upstox-api-v1",
       "commodities": {
@@ -43,31 +43,31 @@
           "checks": {},
           "error": "ValueError: missing UPSTOX_ACCESS_TOKEN",
           "status": "NOT_RECOMMEND",
-          "trade_date": "2026-08-31"
+          "trade_date": "2026-09-01"
         },
         "CRUDEOIL": {
           "checks": {},
           "error": "ValueError: missing UPSTOX_ACCESS_TOKEN",
           "status": "NOT_RECOMMEND",
-          "trade_date": "2026-08-31"
+          "trade_date": "2026-09-01"
         },
         "GOLD": {
           "checks": {},
           "error": "ValueError: missing UPSTOX_ACCESS_TOKEN",
           "status": "NOT_RECOMMEND",
-          "trade_date": "2026-08-31"
+          "trade_date": "2026-09-01"
         },
         "SILVER": {
           "checks": {},
           "error": "ValueError: missing UPSTOX_ACCESS_TOKEN",
           "status": "NOT_RECOMMEND",
-          "trade_date": "2026-08-31"
+          "trade_date": "2026-09-01"
         },
         "ZINC": {
           "checks": {},
           "error": "ValueError: missing UPSTOX_ACCESS_TOKEN",
           "status": "NOT_RECOMMEND",
-          "trade_date": "2026-08-31"
+          "trade_date": "2026-09-01"
         }
       },
       "errors": [
@@ -77,14 +77,14 @@
         "ZINC: ValueError: missing UPSTOX_ACCESS_TOKEN",
         "COPPER: ValueError: missing UPSTOX_ACCESS_TOKEN"
       ],
-      "fetched_at": "2026-09-01T17:52:55.318565+00:00",
+      "fetched_at": "2026-09-02T07:54:40.391284+00:00",
       "instrument_master": {
         "content_type": "application/gzip",
         "http_status": 200,
-        "record_count": 116329,
+        "record_count": 116779,
         "url": "https://assets.upstox.com/market-quote/instruments/exchange/complete.json.gz"
       },
-      "latest_completed_session": "2026-08-31",
+      "latest_completed_session": "2026-09-01",
       "provider": "Upstox",
       "record_count": 0,
       "source_type": "documented_broker_api",
@@ -97,31 +97,31 @@
           "checks": {},
           "error": "ValueError: Dhan exact MCX FUTCOM contract unavailable for COPPER",
           "status": "NOT_RECOMMEND",
-          "trade_date": "2026-08-31"
+          "trade_date": "2026-09-01"
         },
         "CRUDEOIL": {
           "checks": {},
           "error": "ValueError: Dhan exact MCX FUTCOM contract unavailable for CRUDEOIL",
           "status": "NOT_RECOMMEND",
-          "trade_date": "2026-08-31"
+          "trade_date": "2026-09-01"
         },
         "GOLD": {
           "checks": {},
           "error": "ValueError: Dhan exact MCX FUTCOM contract unavailable for GOLD",
           "status": "NOT_RECOMMEND",
-          "trade_date": "2026-08-31"
+          "trade_date": "2026-09-01"
         },
         "SILVER": {
           "checks": {},
           "error": "ValueError: Dhan exact MCX FUTCOM contract unavailable for SILVER",
           "status": "NOT_RECOMMEND",
-          "trade_date": "2026-08-31"
+          "trade_date": "2026-09-01"
         },
         "ZINC": {
           "checks": {},
           "error": "ValueError: Dhan exact MCX FUTCOM contract unavailable for ZINC",
           "status": "NOT_RECOMMEND",
-          "trade_date": "2026-08-31"
+          "trade_date": "2026-09-01"
         }
       },
       "errors": [
@@ -131,14 +131,14 @@
         "ZINC: ValueError: Dhan exact MCX FUTCOM contract unavailable for ZINC",
         "COPPER: ValueError: Dhan exact MCX FUTCOM contract unavailable for COPPER"
       ],
-      "fetched_at": "2026-09-01T17:52:56.283931+00:00",
+      "fetched_at": "2026-09-02T07:54:41.251887+00:00",
       "instrument_master": {
         "content_type": "application/octet-stream",
         "http_status": 200,
-        "record_count": 197288,
+        "record_count": 198224,
         "url": "https://images.dhan.co/api-data/api-scrip-master.csv"
       },
-      "latest_completed_session": "2026-08-31",
+      "latest_completed_session": "2026-09-01",
       "provider": "Dhan",
       "record_count": 0,
       "source_type": "documented_broker_api",
@@ -153,7 +153,7 @@
     "source_type": "licensed_broker_api_cross_verification",
     "verified_count": 0
   },
-  "commit_sha": "c9b7ca4f56eaf95dd6c723c3f41d3d25a2f6a3b5",
+  "commit_sha": "ed3d5c43f99d7b104a3367fb3d7d96c718786517",
   "commodities": [
     {
       "commodity": "GOLD",
@@ -220,7 +220,7 @@
     "dhan_master": {
       "content_type": "application/octet-stream",
       "http_status": 200,
-      "record_count": 197288,
+      "record_count": 198224,
       "url": "https://images.dhan.co/api-data/api-scrip-master.csv"
     },
     "errors": [
@@ -230,7 +230,7 @@
       "ZINC: ValueError: verified frozen EOD contract unavailable",
       "COPPER: ValueError: verified frozen EOD contract unavailable"
     ],
-    "fetched_at": "2026-09-01T17:52:55.318559+00:00",
+    "fetched_at": "2026-09-02T07:54:40.391278+00:00",
     "mode": "licensed_api_exact_frozen_contract_reconciliation",
     "nominated_price_source": "Upstox",
     "providers": [
@@ -238,11 +238,11 @@
       "DhanHQ"
     ],
     "record_count": 0,
-    "session_date": "2026-09-01",
+    "session_date": "2026-09-02",
     "upstox_master": {
       "content_type": "application/gzip",
       "http_status": 200,
-      "record_count": 116329,
+      "record_count": 116779,
       "url": "https://assets.upstox.com/market-quote/instruments/exchange/complete.json.gz"
     },
     "verified_count": 0
@@ -250,7 +250,7 @@
   "current_price_source": "/tmp/current-prices.json",
   "engine_state_model": "EOD_LEVEL_FREEZE_THEN_CURRENT_SESSION_EVALUATION",
   "eod_snapshot_source": "/tmp/eod-verified.json",
-  "generated_at": "2026-09-01T17:53:13.533725+00:00",
+  "generated_at": "2026-09-02T07:54:58.792848+00:00",
   "require_current_session_observation": true,
   "schema_version": "commodity-verdict-audit-v2",
   "source_age_minutes": null,
