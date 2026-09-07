@@ -35,7 +35,7 @@
       }
     },
     "errors": [],
-    "fetched_at": "2026-09-04T19:13:44.133808+00:00",
+    "fetched_at": "2026-09-07T08:18:28.530939+00:00",
     "mcx": {
       "adapter": "mcx-upstox-api-v1",
       "commodities": {
@@ -77,11 +77,11 @@
         "ZINC: ValueError: missing UPSTOX_ACCESS_TOKEN",
         "COPPER: ValueError: missing UPSTOX_ACCESS_TOKEN"
       ],
-      "fetched_at": "2026-09-04T19:13:31.414201+00:00",
+      "fetched_at": "2026-09-07T08:18:18.998393+00:00",
       "instrument_master": {
         "content_type": "application/gzip",
         "http_status": 200,
-        "record_count": 118334,
+        "record_count": 118388,
         "url": "https://assets.upstox.com/market-quote/instruments/exchange/complete.json.gz"
       },
       "latest_completed_session": "2026-09-04",
@@ -131,11 +131,11 @@
         "ZINC: ValueError: Dhan exact MCX FUTCOM contract unavailable for ZINC",
         "COPPER: ValueError: Dhan exact MCX FUTCOM contract unavailable for COPPER"
       ],
-      "fetched_at": "2026-09-04T19:13:32.407285+00:00",
+      "fetched_at": "2026-09-07T08:18:19.790861+00:00",
       "instrument_master": {
         "content_type": "application/octet-stream",
         "http_status": 200,
-        "record_count": 199540,
+        "record_count": 200493,
         "url": "https://images.dhan.co/api-data/api-scrip-master.csv"
       },
       "latest_completed_session": "2026-09-04",
@@ -153,7 +153,7 @@
     "source_type": "licensed_broker_api_cross_verification",
     "verified_count": 0
   },
-  "commit_sha": "03c9c930145201c5d940743b508ade3075726ebc",
+  "commit_sha": "d04e96283fb95d1815e6a0635a7eb654ab70ec9a",
   "commodities": [
     {
       "commodity": "GOLD",
@@ -183,12 +183,75 @@
   ],
   "current_observation_count": 0,
   "current_observation_timestamps": [],
-  "current_price_diagnostics": null,
-  "current_price_source": null,
+  "current_price_diagnostics": {
+    "adapter": "mcx-current-session-mirrors-v1",
+    "commodities": {
+      "COPPER": {
+        "checks": {},
+        "error": "ValueError: verified frozen EOD contract unavailable",
+        "sources": {},
+        "status": "NOT_RECOMMEND"
+      },
+      "CRUDEOIL": {
+        "checks": {},
+        "error": "ValueError: verified frozen EOD contract unavailable",
+        "sources": {},
+        "status": "NOT_RECOMMEND"
+      },
+      "GOLD": {
+        "checks": {},
+        "error": "ValueError: verified frozen EOD contract unavailable",
+        "sources": {},
+        "status": "NOT_RECOMMEND"
+      },
+      "SILVER": {
+        "checks": {},
+        "error": "ValueError: verified frozen EOD contract unavailable",
+        "sources": {},
+        "status": "NOT_RECOMMEND"
+      },
+      "ZINC": {
+        "checks": {},
+        "error": "ValueError: verified frozen EOD contract unavailable",
+        "sources": {},
+        "status": "NOT_RECOMMEND"
+      }
+    },
+    "dhan_master": {
+      "content_type": "application/octet-stream",
+      "http_status": 200,
+      "record_count": 200493,
+      "url": "https://images.dhan.co/api-data/api-scrip-master.csv"
+    },
+    "errors": [
+      "GOLD: ValueError: verified frozen EOD contract unavailable",
+      "SILVER: ValueError: verified frozen EOD contract unavailable",
+      "CRUDEOIL: ValueError: verified frozen EOD contract unavailable",
+      "ZINC: ValueError: verified frozen EOD contract unavailable",
+      "COPPER: ValueError: verified frozen EOD contract unavailable"
+    ],
+    "fetched_at": "2026-09-07T08:18:18.998388+00:00",
+    "mode": "licensed_api_exact_frozen_contract_reconciliation",
+    "nominated_price_source": "Upstox",
+    "providers": [
+      "Upstox",
+      "DhanHQ"
+    ],
+    "record_count": 0,
+    "session_date": "2026-09-07",
+    "upstox_master": {
+      "content_type": "application/gzip",
+      "http_status": 200,
+      "record_count": 118388,
+      "url": "https://assets.upstox.com/market-quote/instruments/exchange/complete.json.gz"
+    },
+    "verified_count": 0
+  },
+  "current_price_source": "/tmp/current-prices.json",
   "engine_state_model": "EOD_LEVEL_FREEZE_THEN_CURRENT_SESSION_EVALUATION",
-  "eod_snapshot_source": null,
-  "generated_at": "2026-09-04T19:13:31.414189+00:00",
-  "require_current_session_observation": false,
+  "eod_snapshot_source": "/tmp/eod-verified.json",
+  "generated_at": "2026-09-07T08:18:32.838157+00:00",
+  "require_current_session_observation": true,
   "schema_version": "commodity-verdict-audit-v2",
   "source_age_minutes": null,
   "source_timestamps": [],
