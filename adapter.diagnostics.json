@@ -33,7 +33,7 @@
     }
   },
   "errors": [],
-  "fetched_at": "2026-09-15T09:22:16.102781+00:00",
+  "fetched_at": "2026-09-15T14:26:11.488337+00:00",
   "mcx": {
     "adapter": "mcx-upstox-api-v1",
     "commodities": {
@@ -75,7 +75,7 @@
       "ZINC: ValueError: missing UPSTOX_ACCESS_TOKEN",
       "COPPER: ValueError: missing UPSTOX_ACCESS_TOKEN"
     ],
-    "fetched_at": "2026-09-15T09:22:01.969565+00:00",
+    "fetched_at": "2026-09-15T14:25:56.732911+00:00",
     "instrument_master": {
       "content_type": "application/gzip",
       "http_status": 200,
@@ -129,7 +129,7 @@
       "ZINC: ValueError: Dhan exact MCX FUTCOM contract unavailable for ZINC",
       "COPPER: ValueError: Dhan exact MCX FUTCOM contract unavailable for COPPER"
     ],
-    "fetched_at": "2026-09-15T09:22:02.884622+00:00",
+    "fetched_at": "2026-09-15T14:25:57.824637+00:00",
     "instrument_master": {
       "content_type": "application/octet-stream",
       "http_status": 200,
