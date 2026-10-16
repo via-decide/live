@@ -33,7 +33,7 @@
     }
   },
   "errors": [],
-  "fetched_at": "2026-10-15T18:23:34.959860+00:00",
+  "fetched_at": "2026-10-16T08:10:37.303389+00:00",
   "mcx": {
     "adapter": "mcx-upstox-api-v1",
     "commodities": {
@@ -41,31 +41,31 @@
         "checks": {},
         "error": "ValueError: missing UPSTOX_ACCESS_TOKEN",
         "status": "NOT_RECOMMEND",
-        "trade_date": "2026-10-14"
+        "trade_date": "2026-10-15"
       },
       "CRUDEOIL": {
         "checks": {},
         "error": "ValueError: missing UPSTOX_ACCESS_TOKEN",
         "status": "NOT_RECOMMEND",
-        "trade_date": "2026-10-14"
+        "trade_date": "2026-10-15"
       },
       "GOLD": {
         "checks": {},
         "error": "ValueError: missing UPSTOX_ACCESS_TOKEN",
         "status": "NOT_RECOMMEND",
-        "trade_date": "2026-10-14"
+        "trade_date": "2026-10-15"
       },
       "SILVER": {
         "checks": {},
         "error": "ValueError: missing UPSTOX_ACCESS_TOKEN",
         "status": "NOT_RECOMMEND",
-        "trade_date": "2026-10-14"
+        "trade_date": "2026-10-15"
       },
       "ZINC": {
         "checks": {},
         "error": "ValueError: missing UPSTOX_ACCESS_TOKEN",
         "status": "NOT_RECOMMEND",
-        "trade_date": "2026-10-14"
+        "trade_date": "2026-10-15"
       }
     },
     "errors": [
@@ -75,14 +75,14 @@
       "ZINC: ValueError: missing UPSTOX_ACCESS_TOKEN",
       "COPPER: ValueError: missing UPSTOX_ACCESS_TOKEN"
     ],
-    "fetched_at": "2026-10-15T18:23:21.531714+00:00",
+    "fetched_at": "2026-10-16T08:10:23.758048+00:00",
     "instrument_master": {
       "content_type": "application/gzip",
       "http_status": 200,
-      "record_count": 123214,
+      "record_count": 124086,
       "url": "https://assets.upstox.com/market-quote/instruments/exchange/complete.json.gz"
     },
-    "latest_completed_session": "2026-10-14",
+    "latest_completed_session": "2026-10-15",
     "provider": "Upstox",
     "record_count": 0,
     "source_type": "documented_broker_api",
@@ -95,31 +95,31 @@
         "checks": {},
         "error": "ValueError: Dhan exact MCX FUTCOM contract unavailable for COPPER",
         "status": "NOT_RECOMMEND",
-        "trade_date": "2026-10-14"
+        "trade_date": "2026-10-15"
       },
       "CRUDEOIL": {
         "checks": {},
         "error": "ValueError: Dhan exact MCX FUTCOM contract unavailable for CRUDEOIL",
         "status": "NOT_RECOMMEND",
-        "trade_date": "2026-10-14"
+        "trade_date": "2026-10-15"
       },
       "GOLD": {
         "checks": {},
         "error": "ValueError: Dhan exact MCX FUTCOM contract unavailable for GOLD",
         "status": "NOT_RECOMMEND",
-        "trade_date": "2026-10-14"
+        "trade_date": "2026-10-15"
       },
       "SILVER": {
         "checks": {},
         "error": "ValueError: Dhan exact MCX FUTCOM contract unavailable for SILVER",
         "status": "NOT_RECOMMEND",
-        "trade_date": "2026-10-14"
+        "trade_date": "2026-10-15"
       },
       "ZINC": {
         "checks": {},
         "error": "ValueError: Dhan exact MCX FUTCOM contract unavailable for ZINC",
         "status": "NOT_RECOMMEND",
-        "trade_date": "2026-10-14"
+        "trade_date": "2026-10-15"
       }
     },
     "errors": [
@@ -129,14 +129,14 @@
       "ZINC: ValueError: Dhan exact MCX FUTCOM contract unavailable for ZINC",
       "COPPER: ValueError: Dhan exact MCX FUTCOM contract unavailable for COPPER"
     ],
-    "fetched_at": "2026-10-15T18:23:22.447460+00:00",
+    "fetched_at": "2026-10-16T08:10:24.644456+00:00",
     "instrument_master": {
       "content_type": "application/octet-stream",
       "http_status": 200,
-      "record_count": 209648,
+      "record_count": 210226,
       "url": "https://images.dhan.co/api-data/api-scrip-master.csv"
     },
-    "latest_completed_session": "2026-10-14",
+    "latest_completed_session": "2026-10-15",
     "provider": "Dhan",
     "record_count": 0,
     "source_type": "documented_broker_api",
