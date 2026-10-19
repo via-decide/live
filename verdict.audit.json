@@ -35,7 +35,7 @@
       }
     },
     "errors": [],
-    "fetched_at": "2026-10-19T09:15:05.693701+00:00",
+    "fetched_at": "2026-10-19T09:49:01.948811+00:00",
     "mcx": {
       "adapter": "mcx-upstox-api-v1",
       "commodities": {
@@ -77,7 +77,7 @@
         "ZINC: ValueError: missing UPSTOX_ACCESS_TOKEN",
         "COPPER: ValueError: missing UPSTOX_ACCESS_TOKEN"
       ],
-      "fetched_at": "2026-10-19T09:14:56.725864+00:00",
+      "fetched_at": "2026-10-19T09:48:47.868335+00:00",
       "instrument_master": {
         "content_type": "application/gzip",
         "http_status": 200,
@@ -131,7 +131,7 @@
         "ZINC: ValueError: Dhan exact MCX FUTCOM contract unavailable for ZINC",
         "COPPER: ValueError: Dhan exact MCX FUTCOM contract unavailable for COPPER"
       ],
-      "fetched_at": "2026-10-19T09:14:57.542885+00:00",
+      "fetched_at": "2026-10-19T09:48:48.739153+00:00",
       "instrument_master": {
         "content_type": "application/octet-stream",
         "http_status": 200,
@@ -153,7 +153,7 @@
     "source_type": "licensed_broker_api_cross_verification",
     "verified_count": 0
   },
-  "commit_sha": "5d3613021a31b3c16709e7fa1b435c0785780d36",
+  "commit_sha": "c762ca39b13aeb7dc4c0acb84596b14052a3b682",
   "commodities": [
     {
       "commodity": "GOLD",
@@ -230,7 +230,7 @@
       "ZINC: ValueError: verified frozen EOD contract unavailable",
       "COPPER: ValueError: verified frozen EOD contract unavailable"
     ],
-    "fetched_at": "2026-10-19T09:14:56.725859+00:00",
+    "fetched_at": "2026-10-19T09:48:47.868329+00:00",
     "mode": "licensed_api_exact_frozen_contract_reconciliation",
     "nominated_price_source": "Upstox",
     "providers": [
@@ -250,7 +250,7 @@
   "current_price_source": "/tmp/current-prices.json",
   "engine_state_model": "EOD_LEVEL_FREEZE_THEN_CURRENT_SESSION_EVALUATION",
   "eod_snapshot_source": "/tmp/eod-verified.json",
-  "generated_at": "2026-10-19T09:15:10.063645+00:00",
+  "generated_at": "2026-10-19T09:49:07.255984+00:00",
   "require_current_session_observation": true,
   "schema_version": "commodity-verdict-audit-v2",
   "source_age_minutes": null,
